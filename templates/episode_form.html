@@ -20,7 +20,10 @@
             </div>
             <div class="mb-3">
                 <label for="release_date" class="form-label">Release Date and Time</label>
-                <input type="datetime-local" class="form-control" id="release_date" name="release_date" required>
+                <div class="input-group">
+                    <input type="datetime-local" class="form-control" id="release_date" name="release_date" required>
+                    <button type="button" class="btn btn-outline-secondary" id="release-today">Release Today</button>
+                </div>
             </div>
             <div class="mb-3 form-check">
                 <input type="checkbox" class="form-check-input" id="is_recurring" name="is_recurring">
@@ -33,4 +36,25 @@
         </form>
     </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Set default value to today's date and current time
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    const defaultDateTime = `${year}-${month}-${day}T${hours}:${minutes}`;
+    document.getElementById('release_date').value = defaultDateTime;
+
+    // Handle "Release Today" button click
+    document.getElementById('release-today').addEventListener('click', function() {
+        document.getElementById('release_date').value = defaultDateTime;
+    });
+});
+</script>
 {% endblock %}

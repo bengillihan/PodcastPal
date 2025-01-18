@@ -16,19 +16,28 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Handle delete episode buttons
-    const deleteModal = new bootstrap.Modal(document.getElementById('deleteEpisodeModal'));
-    document.querySelectorAll('.delete-episode').forEach(button => {
-        button.addEventListener('click', function() {
-            const feedId = this.dataset.feedId;
-            const episodeId = this.dataset.episodeId;
-            const episodeTitle = this.dataset.episodeTitle;
+    // Initialize Bootstrap modal
+    const deleteModal = document.getElementById('deleteEpisodeModal');
+    if (deleteModal) {
+        // Handle delete episode buttons
+        document.querySelectorAll('.delete-episode').forEach(button => {
+            button.addEventListener('click', function() {
+                const feedId = this.dataset.feedId;
+                const episodeId = this.dataset.episodeId;
+                const episodeTitle = this.dataset.episodeTitle;
 
-            document.getElementById('episodeTitle').textContent = episodeTitle;
-            const deleteForm = document.getElementById('deleteEpisodeForm');
-            deleteForm.action = `/feed/${feedId}/episode/${episodeId}/delete`;
+                // Update modal content
+                const titleSpan = deleteModal.querySelector('#episodeTitle');
+                if (titleSpan) {
+                    titleSpan.textContent = episodeTitle;
+                }
 
-            deleteModal.show();
+                // Set form action
+                const form = deleteModal.querySelector('#deleteEpisodeForm');
+                if (form) {
+                    form.action = `/feed/${feedId}/episode/${episodeId}/delete`;
+                }
+            });
         });
-    });
+    }
 });

@@ -16,6 +16,10 @@
             <div class="mb-3">
                 <label for="audio_url" class="form-label">Audio File URL</label>
                 <input type="url" class="form-control" id="audio_url" name="audio_url" value="{{ episode.audio_url if episode else '' }}" required>
+                <div id="reformattedUrlPreview" class="form-text mt-2" style="display: none;">
+                    <strong>Reformatted URL for RSS Feed:</strong><br>
+                    <code id="reformattedUrl" class="d-block bg-dark text-light p-2 mt-1 rounded"></code>
+                </div>
                 <div class="form-text">
                     <strong>Supported Links:</strong><br>
                     Google Drive:<br>
@@ -55,7 +59,7 @@
 {% block scripts %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Set default value to today's date and current time or existing episode date
+    // Handle datetime input default value
     const now = new Date();
     {% if episode %}
     const existingDate = new Date('{{ episode.release_date.strftime("%Y-%m-%d %H:%M") }}');
@@ -81,6 +85,51 @@ document.addEventListener('DOMContentLoaded', function() {
         const todayDateTime = `${year}-${month}-${day}T${hours}:${minutes}`;
         document.getElementById('release_date').value = todayDateTime;
     });
+
+    // Handle URL reformatting preview
+    const audioUrlInput = document.getElementById('audio_url');
+    const previewDiv = document.getElementById('reformattedUrlPreview');
+    const reformattedUrlCode = document.getElementById('reformattedUrl');
+
+    function reformatUrl(url) {
+        if (!url) return '';
+
+        if (url.includes('dropbox.com')) {
+            return url.replace('www.dropbox.com', 'dl.dropboxusercontent.com').split('?')[0];
+        } else if (url.includes('drive.google.com')) {
+            let fileId = '';
+            if (url.includes('/file/d/')) {
+                fileId = url.split('/file/d/')[1].split('/')[0];
+            } else if (url.includes('id=')) {
+                fileId = url.split('id=')[1].split('&')[0];
+            }
+            if (fileId) {
+                return `https://drive.google.com/uc?export=download&id=${fileId}`;
+            }
+        }
+        return url;
+    }
+
+    audioUrlInput.addEventListener('input', function() {
+        const url = this.value.trim();
+        if (url && (url.includes('dropbox.com') || url.includes('drive.google.com'))) {
+            const reformattedUrl = reformatUrl(url);
+            reformattedUrlCode.textContent = reformattedUrl;
+            previewDiv.style.display = 'block';
+        } else {
+            previewDiv.style.display = 'none';
+        }
+    });
+
+    // Show initial reformatted URL if exists
+    if (audioUrlInput.value) {
+        const initialUrl = audioUrlInput.value.trim();
+        if (initialUrl && (initialUrl.includes('dropbox.com') || initialUrl.includes('drive.google.com'))) {
+            const reformattedUrl = reformatUrl(initialUrl);
+            reformattedUrlCode.textContent = reformattedUrl;
+            previewDiv.style.display = 'block';
+        }
+    }
 });
 </script>
 {% endblock %}

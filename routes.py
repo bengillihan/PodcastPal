@@ -4,7 +4,7 @@ from app import app, db
 from models import Feed, Episode
 from feed_generator import generate_rss_feed
 from datetime import datetime
-import slugify
+from slugify import slugify
 
 @app.route('/')
 def index():
@@ -22,8 +22,8 @@ def new_feed():
     if request.method == 'POST':
         name = request.form['name']
         description = request.form['description']
-        url_slug = slugify.slugify(name)
-        
+        url_slug = slugify(name)  # Direct use of slugify function
+
         feed = Feed(
             name=name,
             description=description,
@@ -33,7 +33,7 @@ def new_feed():
         db.session.add(feed)
         db.session.commit()
         return redirect(url_for('dashboard'))
-    
+
     return render_template('feed_form.html')
 
 @app.route('/feed/<int:feed_id>/episode/new', methods=['GET', 'POST'])
@@ -42,7 +42,7 @@ def new_episode(feed_id):
     feed = Feed.query.get_or_404(feed_id)
     if feed.user_id != current_user.id:
         abort(403)
-    
+
     if request.method == 'POST':
         episode = Episode(
             feed_id=feed_id,
@@ -55,7 +55,7 @@ def new_episode(feed_id):
         db.session.add(episode)
         db.session.commit()
         return redirect(url_for('dashboard'))
-    
+
     return render_template('episode_form.html', feed=feed)
 
 @app.route('/feed/<string:url_slug>/rss')

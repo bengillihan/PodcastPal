@@ -2,9 +2,9 @@
 
 {% block content %}
 <div class="text-center py-5">
-    <h1 class="display-4">Welcome to Podcast RSS Manager</h1>
+    <h1 class="display-4">Welcome to PodcastPal</h1>
     <p class="lead">Create and manage your podcast RSS feeds with ease</p>
-    
+
     {% if not current_user.is_authenticated %}
     <div class="mt-4">
         <a href="{{ url_for('google_auth.login') }}" class="btn btn-primary btn-lg">

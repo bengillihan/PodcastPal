@@ -22,14 +22,14 @@
                             <a class="nav-link" href="{{ url_for('dashboard') }}">Dashboard</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('test_url') }}">Test URL</a>
+                            <a class="nav-link" href="{{ url_for('test_url') }}">Format Audio URL</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="{{ url_for('google_auth.logout') }}">Logout</a>
                         </li>
                     {% else %}
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('test_url') }}">Test URL</a>
+                            <a class="nav-link" href="{{ url_for('test_url') }}">Format Audio URL</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="{{ url_for('google_auth.login') }}">Login with Google</a>

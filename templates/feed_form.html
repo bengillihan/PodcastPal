@@ -15,8 +15,11 @@
             </div>
             <div class="mb-3">
                 <label for="image_url" class="form-label">Podcast Image URL</label>
-                <input type="url" class="form-control" id="image_url" name="image_url" value="{{ feed.image_url if feed else '' }}" placeholder="https://example.com/podcast-image.jpg">
-                <div class="form-text">URL to your podcast cover image (recommended size: 1400x1400 pixels)</div>
+                <input type="url" class="form-control" id="image_url" name="image_url" value="{{ feed.image_url if feed else '' }}" placeholder="https://drive.google.com/file/d/YOUR_FILE_ID/view">
+                <div class="form-text">
+                    URL to your podcast cover image (recommended size: 1400x1400 pixels)<br>
+                    For Google Drive images, use the 'Share' link format: https://drive.google.com/file/d/YOUR_FILE_ID/view
+                </div>
             </div>
             <div class="d-flex justify-content-between">
                 <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">Cancel</a>

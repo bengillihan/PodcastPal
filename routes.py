@@ -26,7 +26,12 @@ def new_feed():
         try:
             name = request.form['name']
             description = request.form['description']
-            image_url = request.form.get('image_url', '').strip()  # Get and strip the image URL
+            image_url = request.form.get('image_url', '').strip()
+
+            # Convert Google Drive URL if present
+            if image_url:
+                image_url = convert_google_drive_url(image_url)
+
             base_slug = slugify(name)
 
             # Ensure unique slug
@@ -36,7 +41,6 @@ def new_feed():
                 url_slug = f"{base_slug}-{counter}"
                 counter += 1
 
-            # Only save image_url if it's not empty
             feed = Feed(
                 name=name,
                 description=description,
@@ -106,6 +110,11 @@ def edit_feed(feed_id):
             feed.name = request.form['name']
             feed.description = request.form['description']
             image_url = request.form.get('image_url', '').strip()
+
+            # Convert Google Drive URL if present
+            if image_url:
+                image_url = convert_google_drive_url(image_url)
+
             feed.image_url = image_url if image_url else None
             db.session.commit()
             logger.info(f"Updated feed: {feed.name} with image: {feed.image_url}")
@@ -176,3 +185,13 @@ def feed_details(feed_id):
     if feed.user_id != current_user.id:
         abort(403)
     return render_template('feed_details.html', feed=feed)
+
+def convert_google_drive_url(url):
+    """Convert Google Drive view URL to direct download URL"""
+    if not url or 'drive.google.com' not in url:
+        return url
+
+    if '/file/d/' in url:
+        file_id = url.split('/file/d/')[1].split('/')[0]
+        return f"https://drive.google.com/uc?export=view&id={file_id}"
+    return url

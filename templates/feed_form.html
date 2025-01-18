@@ -3,19 +3,24 @@
 {% block content %}
 <div class="row justify-content-center">
     <div class="col-md-8">
-        <h2 class="mb-4">Create New Feed</h2>
+        <h2 class="mb-4">{% if feed %}Edit{% else %}Create New{% endif %} Feed</h2>
         <form method="POST">
             <div class="mb-3">
                 <label for="name" class="form-label">Feed Name</label>
-                <input type="text" class="form-control" id="name" name="name" required>
+                <input type="text" class="form-control" id="name" name="name" value="{{ feed.name if feed else '' }}" required>
             </div>
             <div class="mb-3">
                 <label for="description" class="form-label">Description</label>
-                <textarea class="form-control" id="description" name="description" rows="3" required></textarea>
+                <textarea class="form-control" id="description" name="description" rows="3" required>{{ feed.description if feed else '' }}</textarea>
+            </div>
+            <div class="mb-3">
+                <label for="image_url" class="form-label">Podcast Image URL</label>
+                <input type="url" class="form-control" id="image_url" name="image_url" value="{{ feed.image_url if feed else '' }}" placeholder="https://example.com/podcast-image.jpg">
+                <div class="form-text">URL to your podcast cover image (recommended size: 1400x1400 pixels)</div>
             </div>
             <div class="d-flex justify-content-between">
                 <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">Cancel</a>
-                <button type="submit" class="btn btn-primary">Create Feed</button>
+                <button type="submit" class="btn btn-primary">{% if feed %}Update{% else %}Create{% endif %} Feed</button>
             </div>
         </form>
     </div>

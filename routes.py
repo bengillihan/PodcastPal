@@ -26,6 +26,7 @@ def new_feed():
         try:
             name = request.form['name']
             description = request.form['description']
+            image_url = request.form.get('image_url')  # Optional field
             base_slug = slugify(name)
 
             # Ensure unique slug
@@ -38,6 +39,7 @@ def new_feed():
             feed = Feed(
                 name=name,
                 description=description,
+                image_url=image_url,
                 url_slug=url_slug,
                 user_id=current_user.id
             )
@@ -102,6 +104,7 @@ def edit_feed(feed_id):
         try:
             feed.name = request.form['name']
             feed.description = request.form['description']
+            feed.image_url = request.form.get('image_url')
             db.session.commit()
             flash('Feed updated successfully!', 'success')
             return redirect(url_for('dashboard'))

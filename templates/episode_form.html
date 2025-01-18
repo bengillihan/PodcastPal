@@ -3,19 +3,19 @@
 {% block content %}
 <div class="row justify-content-center">
     <div class="col-md-8">
-        <h2 class="mb-4">Add Episode to {{ feed.name }}</h2>
+        <h2 class="mb-4">{% if episode %}Edit Episode{% else %}Add Episode{% endif %} in {{ feed.name }}</h2>
         <form method="POST">
             <div class="mb-3">
                 <label for="title" class="form-label">Episode Title</label>
-                <input type="text" class="form-control" id="title" name="title" required>
+                <input type="text" class="form-control" id="title" name="title" value="{{ episode.title if episode else '' }}" required>
             </div>
             <div class="mb-3">
                 <label for="description" class="form-label">Description</label>
-                <textarea class="form-control" id="description" name="description" rows="3" required></textarea>
+                <textarea class="form-control" id="description" name="description" rows="3" required>{{ episode.description if episode else '' }}</textarea>
             </div>
             <div class="mb-3">
                 <label for="audio_url" class="form-label">Audio File URL</label>
-                <input type="url" class="form-control" id="audio_url" name="audio_url" required>
+                <input type="url" class="form-control" id="audio_url" name="audio_url" value="{{ episode.audio_url if episode else '' }}" required>
                 <div class="form-text">Link to your hosted audio file (e.g., Google Drive public URL)</div>
             </div>
             <div class="mb-3">
@@ -26,12 +26,12 @@
                 </div>
             </div>
             <div class="mb-3 form-check">
-                <input type="checkbox" class="form-check-input" id="is_recurring" name="is_recurring">
+                <input type="checkbox" class="form-check-input" id="is_recurring" name="is_recurring" {% if episode and episode.is_recurring %}checked{% endif %}>
                 <label class="form-check-label" for="is_recurring">Recurring annually</label>
             </div>
             <div class="d-flex justify-content-between">
                 <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">Cancel</a>
-                <button type="submit" class="btn btn-primary">Add Episode</button>
+                <button type="submit" class="btn btn-primary">{% if episode %}Update{% else %}Add{% endif %} Episode</button>
             </div>
         </form>
     </div>
@@ -41,19 +41,31 @@
 {% block scripts %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Set default value to today's date and current time
+    // Set default value to today's date and current time or existing episode date
     const now = new Date();
+    {% if episode %}
+    const existingDate = new Date('{{ episode.release_date.strftime("%Y-%m-%d %H:%M") }}');
+    const defaultDateTime = existingDate.toISOString().slice(0, 16);
+    {% else %}
     const year = now.getFullYear();
     const month = String(now.getMonth() + 1).padStart(2, '0');
     const day = String(now.getDate()).padStart(2, '0');
     const hours = String(now.getHours()).padStart(2, '0');
     const minutes = String(now.getMinutes()).padStart(2, '0');
     const defaultDateTime = `${year}-${month}-${day}T${hours}:${minutes}`;
+    {% endif %}
     document.getElementById('release_date').value = defaultDateTime;
 
     // Handle "Release Today" button click
     document.getElementById('release-today').addEventListener('click', function() {
-        document.getElementById('release_date').value = defaultDateTime;
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const day = String(now.getDate()).padStart(2, '0');
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        const todayDateTime = `${year}-${month}-${day}T${hours}:${minutes}`;
+        document.getElementById('release_date').value = todayDateTime;
     });
 });
 </script>

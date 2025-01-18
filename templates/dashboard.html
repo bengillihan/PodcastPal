@@ -34,6 +34,19 @@
                                     {% if episode.is_recurring %}(Recurring){% endif %}
                                 </small>
                             </div>
+                            <div class="btn-group">
+                                <a href="{{ url_for('edit_episode', feed_id=feed.id, episode_id=episode.id) }}" 
+                                   class="btn btn-sm btn-outline-primary">
+                                    Edit
+                                </a>
+                                <button type="button" 
+                                        class="btn btn-sm btn-outline-danger delete-episode" 
+                                        data-feed-id="{{ feed.id }}"
+                                        data-episode-id="{{ episode.id }}"
+                                        data-episode-title="{{ episode.title }}">
+                                    Delete
+                                </button>
+                            </div>
                         </div>
                     </li>
                     {% endfor %}
@@ -49,6 +62,27 @@
         <a href="{{ url_for('new_feed') }}" class="btn btn-primary">Create Your First Feed</a>
     </div>
 {% endif %}
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteEpisodeModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Delete Episode</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to delete "<span id="episodeTitle"></span>"?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form id="deleteEpisodeForm" method="POST" style="display: inline;">
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
 
 {% block scripts %}

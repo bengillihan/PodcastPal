@@ -114,3 +114,54 @@ def edit_feed(feed_id):
             flash('Error updating feed. Please try again.', 'error')
 
     return render_template('feed_form.html', feed=feed)
+
+@app.route('/feed/<int:feed_id>/episode/<int:episode_id>/edit', methods=['GET', 'POST'])
+@login_required
+def edit_episode(feed_id, episode_id):
+    feed = Feed.query.get_or_404(feed_id)
+    if feed.user_id != current_user.id:
+        abort(403)
+
+    episode = Episode.query.get_or_404(episode_id)
+    if episode.feed_id != feed_id:
+        abort(404)
+
+    if request.method == 'POST':
+        try:
+            episode.title = request.form['title']
+            episode.description = request.form['description']
+            episode.audio_url = request.form['audio_url']
+            episode.release_date = datetime.strptime(request.form['release_date'], '%Y-%m-%dT%H:%M')
+            episode.is_recurring = bool(request.form.get('is_recurring'))
+
+            db.session.commit()
+            flash('Episode updated successfully!', 'success')
+            return redirect(url_for('dashboard'))
+        except Exception as e:
+            logger.error(f"Error updating episode: {str(e)}")
+            db.session.rollback()
+            flash('Error updating episode. Please try again.', 'error')
+
+    return render_template('episode_form.html', feed=feed, episode=episode)
+
+@app.route('/feed/<int:feed_id>/episode/<int:episode_id>/delete', methods=['POST'])
+@login_required
+def delete_episode(feed_id, episode_id):
+    feed = Feed.query.get_or_404(feed_id)
+    if feed.user_id != current_user.id:
+        abort(403)
+
+    episode = Episode.query.get_or_404(episode_id)
+    if episode.feed_id != feed_id:
+        abort(404)
+
+    try:
+        db.session.delete(episode)
+        db.session.commit()
+        flash('Episode deleted successfully!', 'success')
+    except Exception as e:
+        logger.error(f"Error deleting episode: {str(e)}")
+        db.session.rollback()
+        flash('Error deleting episode. Please try again.', 'error')
+
+    return redirect(url_for('dashboard'))

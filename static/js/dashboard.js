@@ -15,4 +15,20 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
+
+    // Handle delete episode buttons
+    const deleteModal = new bootstrap.Modal(document.getElementById('deleteEpisodeModal'));
+    document.querySelectorAll('.delete-episode').forEach(button => {
+        button.addEventListener('click', function() {
+            const feedId = this.dataset.feedId;
+            const episodeId = this.dataset.episodeId;
+            const episodeTitle = this.dataset.episodeTitle;
+
+            document.getElementById('episodeTitle').textContent = episodeTitle;
+            const deleteForm = document.getElementById('deleteEpisodeForm');
+            deleteForm.action = `/feed/${feedId}/episode/${episodeId}/delete`;
+
+            deleteModal.show();
+        });
+    });
 });

@@ -240,7 +240,16 @@ def convert_audio_url(original_link):
 
     if "dropbox.com" in original_link:
         # Dropbox link reformatting
-        return original_link.replace("www.dropbox.com", "dl.dropboxusercontent.com").split("?")[0]
+        # Keep all query parameters except dl=0
+        base_url = original_link.replace("www.dropbox.com", "dl.dropboxusercontent.com")
+        if "?" in base_url:
+            params = base_url.split("?")[1].split("&")
+            # Filter out the dl=0 parameter but keep others (rlkey, st, etc)
+            filtered_params = [p for p in params if not p.startswith("dl=")]
+            if filtered_params:
+                return f"{base_url.split('?')[0]}?{'&'.join(filtered_params)}"
+            return base_url.split('?')[0]
+        return base_url
     elif "drive.google.com" in original_link:
         # Google Drive link reformatting
         try:

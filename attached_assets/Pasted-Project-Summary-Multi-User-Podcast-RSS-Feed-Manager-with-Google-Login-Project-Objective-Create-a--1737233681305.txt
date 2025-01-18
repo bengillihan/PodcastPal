@@ -1,0 +1,101 @@
+Project Summary: Multi-User Podcast RSS Feed Manager with Google Login
+
+Project Objective
+
+Create a web application that allows users to create and manage their own podcast RSS feeds. Each user will log in with their Google account to securely access their dashboard, where they can create multiple feeds, add episodes, set recurring release schedules, and dynamically generate valid RSS feeds for their podcasts. The website will provide a clean and user-friendly interface, with backend functionality for managing feeds, episodes, and scheduling.
+
+Key Features
+
+1. User Authentication
+	•	Google Login Integration: Use Google OAuth for secure user authentication.
+	•	Each user will have their own account and data tied to their Google ID.
+	•	Logged-in users will be redirected to a personalized dashboard.
+
+2. Feed Management
+	•	Create and Manage Feeds:
+	•	Users can create multiple RSS feeds.
+	•	Each feed will have its own name, description, and automatically generated RSS feed URL.
+	•	Access Control: Feeds are only accessible and editable by their respective owners.
+
+3. Episode Management
+	•	Add Episodes to Feeds:
+	•	Users can add episodes to their feeds with the following metadata:
+	•	Episode name
+	•	Release date and time
+	•	Recurrence option (e.g., annual re-release on the original release date)
+	•	Link to the audio file (hosted externally, e.g., Google Drive or other storage).
+	•	If recurrence is enabled, the episode will automatically reappear in the feed each year on the release date.
+	•	Edit/Delete Episodes: Users can update or delete episodes at any time.
+
+4. Dynamic RSS Feed Generation
+	•	Each feed will generate a valid RSS feed in XML format, dynamically updated based on the user’s data.
+	•	The RSS feed will include:
+	•	Feed metadata (title, description, etc.).
+	•	Episode data (name, description, release date, audio file link).
+	•	Support for recurring episodes.
+	•	RSS feeds will be accessible via unique URLs (e.g., /feed/<feed_name>).
+
+5. Admin Dashboard
+	•	A secure and intuitive dashboard will allow users to:
+	•	View and manage their feeds.
+	•	Add, edit, or delete episodes.
+	•	Copy their RSS feed URL for use on podcast platforms like Pocket Casts or Apple Podcasts.
+
+6. Scalability
+	•	Backend designed to handle multiple users, each with multiple feeds and episodes.
+	•	Database schema will support user-specific data and recurring schedules.
+
+Technical Requirements
+
+Frontend
+	•	HTML/CSS/JavaScript for user-facing pages.
+	•	User dashboard for feed and episode management.
+
+Backend
+	•	Framework: Python with Flask or FastAPI.
+	•	Authentication: Google OAuth using the Authlib library.
+	•	RSS Feed Generation: Dynamic XML generation for valid RSS feeds.
+
+Database
+	•	Database: SQLite (or PostgreSQL for production scalability).
+	•	Tables:
+	•	users: Store Google user ID, name, and email.
+	•	feeds: Store feed metadata (user ownership, name, description).
+	•	episodes: Store episode metadata (feed association, name, release date, recurrence, audio file link).
+
+Hosting
+	•	Host on Replit or another Python-friendly hosting platform.
+	•	Use HTTPS to meet Google OAuth requirements.
+
+User Flow
+	1.	Login:
+	•	Users visit the site and log in via Google OAuth.
+	•	After login, they are redirected to their dashboard.
+	2.	Dashboard:
+	•	Users see a list of their feeds and can:
+	•	Create a new feed.
+	•	Select an existing feed to manage episodes.
+	•	Copy the RSS feed URL.
+	3.	Feed Management:
+	•	Users add episodes to a selected feed with:
+	•	Episode name.
+	•	Release date and time.
+	•	Optional recurrence (e.g., annually re-release).
+	•	Link to the audio file.
+	4.	RSS Feed:
+	•	A dynamic RSS feed is generated for each user’s feed.
+	•	Users copy the feed URL to submit to podcast platforms like Pocket Casts.
+
+Stretch Goals (Optional Enhancements)
+	•	File Hosting: Allow users to upload audio files directly to the application (e.g., using AWS S3 or a similar service).
+	•	Analytics: Provide users with basic analytics (e.g., feed access stats or episode downloads).
+	•	Custom Domains: Enable users to host their feeds on custom domains (e.g., feeds.mywebsite.com/<feed_name>).
+
+Deliverables
+	1.	Fully functional website hosted on Replit.
+	2.	Google login system integrated with user-specific feeds.
+	3.	Dynamic RSS feed generation based on user-created feeds and episodes.
+	4.	Clean and user-friendly dashboard for feed and episode management.
+	5.	Documentation for site functionality and management.
+
+This project will provide users with a simple, powerful way to manage their podcasts, with built-in support for dynamic scheduling and Google login for secure account management.

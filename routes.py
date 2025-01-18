@@ -282,3 +282,13 @@ def delete_feed(feed_id):
         flash('Error deleting feed. Please try again.', 'error')
 
     return redirect(url_for('dashboard'))
+
+@app.route('/test_url', methods=['GET', 'POST'])
+def test_url():
+    if request.method == 'POST':
+        original_url = request.form.get('url', '').strip()
+        reformatted_url = convert_audio_url(original_url) if original_url else ''
+        return render_template('test_url.html', 
+                             original_url=original_url, 
+                             reformatted_url=reformatted_url)
+    return render_template('test_url.html')

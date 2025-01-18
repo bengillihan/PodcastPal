@@ -44,10 +44,10 @@ def login():
         return "Error: Could not fetch Google provider configuration", 500
 
     authorization_endpoint = google_provider_cfg["authorization_endpoint"]
-
-    # Use consistent callback URL format
     callback_url = f"https://{REPLIT_DOMAIN}/google_login/callback"
-    logger.info(f"Using callback URL: {callback_url}")
+
+    logger.info(f"Login - Using callback URL: {callback_url}")
+    logger.info(f"Login - Client ID: {GOOGLE_CLIENT_ID}")
 
     # Construct the request URI for Google login
     request_uri = client.prepare_request_uri(
@@ -56,7 +56,6 @@ def login():
         scope=["openid", "email", "profile"],
     )
 
-    logger.info(f"Redirecting to authorization endpoint with redirect_uri: {callback_url}")
     return redirect(request_uri)
 
 @google_auth.route("/google_login/callback")
@@ -72,19 +71,21 @@ def callback():
         return "Error: Could not fetch Google provider configuration", 500
 
     token_endpoint = google_provider_cfg["token_endpoint"]
-
-    # Use consistent callback URL format
     callback_url = f"https://{REPLIT_DOMAIN}/google_login/callback"
-    logger.info(f"Callback endpoint using callback URL: {callback_url}")
 
-    # Prepare and send token request
+    logger.info(f"Callback - Using callback URL: {callback_url}")
+    logger.info(f"Callback - Request URL: {request.url}")
+    logger.info(f"Callback - Code received: {bool(code)}")
+
     try:
         token_url, headers, body = client.prepare_token_request(
             token_endpoint,
             authorization_response=request.url.replace("http://", "https://"),
             redirect_url=callback_url,
-            code=code,
+            code=code
         )
+
+        logger.info(f"Token request prepared - URL: {token_url}")
 
         token_response = requests.post(
             token_url,
@@ -93,19 +94,21 @@ def callback():
             auth=(GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET),
         )
 
-        client.parse_request_body_response(json.dumps(token_response.json()))
-    except Exception as e:
-        logger.error(f"Token exchange failed: {e}")
-        return "Error during token exchange", 400
+        logger.info(f"Token response status: {token_response.status_code}")
 
-    # Fetch user information
-    try:
+        if not token_response.ok:
+            logger.error(f"Token response error: {token_response.text}")
+            return "Failed to get token from Google", 400
+
+        client.parse_request_body_response(json.dumps(token_response.json()))
+
+        # Fetch user information
         userinfo_endpoint = google_provider_cfg["userinfo_endpoint"]
         uri, headers, body = client.add_token(userinfo_endpoint)
         userinfo_response = requests.get(uri, headers=headers, data=body)
 
         if not userinfo_response.ok:
-            logger.error("Failed to get user info from Google")
+            logger.error(f"Userinfo response error: {userinfo_response.text}")
             return "Failed to get user info from Google", 400
 
         userinfo = userinfo_response.json()
@@ -117,43 +120,35 @@ def callback():
         # Get user data
         google_id = userinfo["sub"]
         email = userinfo["email"]
-        name = userinfo.get("name", userinfo.get("given_name", email.split("@")[0]))
+        name = userinfo.get("name", email.split("@")[0])
 
         # Find existing user or create new one
         user = User.query.filter_by(google_id=google_id).first()
         if not user:
-            user = User.query.filter_by(email=email).first()
-            if user:
-                # Update existing user with Google ID
-                user.google_id = google_id
-            else:
-                # Create new user
-                user = User(
-                    google_id=google_id,
-                    name=name,
-                    email=email
-                )
-                db.session.add(user)
-
+            user = User(
+                google_id=google_id,
+                name=name,
+                email=email
+            )
+            db.session.add(user)
             db.session.commit()
-            logger.info(f"User created/updated: {email}")
+            logger.info(f"New user created: {email}")
+        else:
+            logger.info(f"Existing user logged in: {email}")
 
         # Log in the user
         login_user(user)
-        logger.info(f"User logged in: {email}")
-
         return redirect(url_for("dashboard"))
 
     except Exception as e:
-        logger.error(f"Error during user info retrieval: {e}")
-        return "Error retrieving user information", 400
+        logger.error(f"Error during OAuth flow: {str(e)}")
+        return "Authentication failed", 400
 
 @google_auth.route("/logout")
 @login_required
 def logout():
     """Logs out the current user"""
     logout_user()
-    logger.info("User logged out")
     return redirect(url_for("index"))
 
 @google_auth.errorhandler(Exception)

@@ -26,7 +26,7 @@ def new_feed():
         try:
             name = request.form['name']
             description = request.form['description']
-            image_url = request.form.get('image_url')  # Optional field
+            image_url = request.form.get('image_url', '').strip()  # Get and strip the image URL
             base_slug = slugify(name)
 
             # Ensure unique slug
@@ -36,16 +36,17 @@ def new_feed():
                 url_slug = f"{base_slug}-{counter}"
                 counter += 1
 
+            # Only save image_url if it's not empty
             feed = Feed(
                 name=name,
                 description=description,
-                image_url=image_url,
+                image_url=image_url if image_url else None,
                 url_slug=url_slug,
                 user_id=current_user.id
             )
             db.session.add(feed)
             db.session.commit()
-            logger.info(f"Created new feed: {feed.name} with slug: {feed.url_slug}")
+            logger.info(f"Created new feed: {feed.name} with slug: {feed.url_slug} and image: {feed.image_url}")
             flash('Feed created successfully!', 'success')
             return redirect(url_for('dashboard'))
         except Exception as e:
@@ -104,8 +105,10 @@ def edit_feed(feed_id):
         try:
             feed.name = request.form['name']
             feed.description = request.form['description']
-            feed.image_url = request.form.get('image_url')
+            image_url = request.form.get('image_url', '').strip()
+            feed.image_url = image_url if image_url else None
             db.session.commit()
+            logger.info(f"Updated feed: {feed.name} with image: {feed.image_url}")
             flash('Feed updated successfully!', 'success')
             return redirect(url_for('dashboard'))
         except Exception as e:

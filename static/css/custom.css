@@ -1,0 +1,19 @@
+/* Additional custom styles */
+.card {
+    height: 100%;
+}
+
+.list-group-item {
+    background: transparent;
+}
+
+.copy-btn {
+    min-width: 120px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .card {
+        margin-bottom: 1rem;
+    }
+}

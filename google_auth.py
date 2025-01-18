@@ -17,20 +17,10 @@ GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_OAUTH_CLIENT_ID")
 GOOGLE_CLIENT_SECRET = os.environ.get("GOOGLE_OAUTH_CLIENT_SECRET")
 GOOGLE_DISCOVERY_URL = "https://accounts.google.com/.well-known/openid-configuration"
 
-# Make sure to use this redirect URL. It has to match the one in the whitelist
-DEV_REDIRECT_URL = f'https://{os.environ.get("REPLIT_DEV_DOMAIN")}/google_login/callback'
-
-# Display setup instructions
-setup_instructions = f"""To make Google authentication work:
-1. Go to https://console.cloud.google.com/apis/credentials
-2. Create a new OAuth 2.0 Client ID
-3. Add {DEV_REDIRECT_URL} to Authorized redirect URIs
-
-For detailed instructions, see:
-https://docs.replit.com/additional-resources/google-auth-in-flask#set-up-your-oauth-app--client
-"""
-print(setup_instructions)
-logger.info("Google OAuth setup required")
+# Get the current Replit domain for the callback URL
+REPLIT_DOMAIN = os.environ.get("REPLIT_DEV_DOMAIN")
+if not REPLIT_DOMAIN:
+    logger.error("REPLIT_DEV_DOMAIN environment variable is not set")
 
 # OAuth 2 client setup
 if not GOOGLE_CLIENT_ID:
@@ -54,21 +44,26 @@ def login():
         return "Error: Could not fetch Google provider configuration", 500
 
     authorization_endpoint = google_provider_cfg["authorization_endpoint"]
-    
+
+    callback_url = url_for('google_auth.callback', _external=True)
+    if REPLIT_DOMAIN:
+        # Ensure the callback URL uses HTTPS and the correct domain
+        callback_url = f"https://{REPLIT_DOMAIN}/google_login/callback"
+
     # Construct the request URI for Google login
     request_uri = client.prepare_request_uri(
         authorization_endpoint,
-        redirect_uri=request.base_url.replace("http://", "https://") + "/callback",
+        redirect_uri=callback_url,
         scope=["openid", "email", "profile"],
     )
-    
+
+    logger.debug(f"Using callback URL: {callback_url}")
     logger.debug(f"Redirecting to Google authorization endpoint: {request_uri}")
     return redirect(request_uri)
 
 @google_auth.route("/google_login/callback")
 def callback():
     """Handles the callback from Google OAuth"""
-    # Get authorization code Google sent back
     code = request.args.get("code")
     if not code:
         logger.error("No code received from Google")
@@ -79,16 +74,21 @@ def callback():
         return "Error: Could not fetch Google provider configuration", 500
 
     token_endpoint = google_provider_cfg["token_endpoint"]
-    
+
+    callback_url = url_for('google_auth.callback', _external=True)
+    if REPLIT_DOMAIN:
+        # Ensure the callback URL uses HTTPS and the correct domain
+        callback_url = f"https://{REPLIT_DOMAIN}/google_login/callback"
+
     # Prepare and send token request
     try:
         token_url, headers, body = client.prepare_token_request(
             token_endpoint,
             authorization_response=request.url.replace("http://", "https://"),
-            redirect_url=request.base_url.replace("http://", "https://"),
+            redirect_url=callback_url,
             code=code,
         )
-        
+
         token_response = requests.post(
             token_url,
             headers=headers,
@@ -106,13 +106,13 @@ def callback():
         userinfo_endpoint = google_provider_cfg["userinfo_endpoint"]
         uri, headers, body = client.add_token(userinfo_endpoint)
         userinfo_response = requests.get(uri, headers=headers, data=body)
-        
+
         if not userinfo_response.ok:
             logger.error("Failed to get user info from Google")
             return "Failed to get user info from Google", 400
 
         userinfo = userinfo_response.json()
-        
+
         if not userinfo.get("email_verified"):
             logger.error("User email not verified by Google")
             return "Google account email not verified", 400
@@ -137,14 +137,14 @@ def callback():
                     email=email
                 )
                 db.session.add(user)
-            
+
             db.session.commit()
             logger.info(f"User created/updated: {email}")
 
         # Log in the user
         login_user(user)
         logger.info(f"User logged in: {email}")
-        
+
         return redirect(url_for("dashboard"))
 
     except Exception as e:

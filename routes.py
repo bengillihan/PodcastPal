@@ -28,7 +28,7 @@ def new_feed():
             description = request.form['description']
             image_url = request.form.get('image_url', '').strip()
 
-            # Convert Google Drive URL if present
+            # Convert Google Drive or Dropbox URL if present
             if image_url:
                 image_url = convert_google_drive_url(image_url)
 
@@ -115,7 +115,7 @@ def edit_feed(feed_id):
             feed.description = request.form['description']
             image_url = request.form.get('image_url', '').strip()
 
-            # Convert Google Drive URL if present
+            # Convert Google Drive or Dropbox URL if present
             if image_url:
                 image_url = convert_google_drive_url(image_url)
 
@@ -196,41 +196,52 @@ def feed_details(feed_id):
     return render_template('feed_details.html', feed=feed)
 
 def convert_google_drive_url(url):
-    """Convert Google Drive URL to direct access URL"""
-    if not url or 'drive.google.com' not in url:
+    """Convert Google Drive or Dropbox URL to direct access URL"""
+    if not url:
         return url
 
-    file_id = None
+    if "dropbox.com" in url:
+        # Handle Dropbox URLs similar to audio URLs but specific to images
+        base_url = url.replace("www.dropbox.com", "dl.dropboxusercontent.com")
+        if "?" in base_url:
+            params = base_url.split("?")[1].split("&")
+            # Filter out the dl=0 parameter but keep others (rlkey, st, etc)
+            filtered_params = [p for p in params if not p.startswith("dl=")]
+            if filtered_params:
+                return f"{base_url.split('?')[0]}?{'&'.join(filtered_params)}"
+            return base_url.split('?')[0]
+        return base_url
+    elif "drive.google.com" in url:
+        file_id = None
 
-    # Handle different Google Drive URL formats
-    if '/file/d/' in url:
-        # Format: https://drive.google.com/file/d/FILE_ID/view
-        try:
-            file_id = url.split('/file/d/')[1].split('/')[0]
-        except IndexError:
-            logger.error(f"Invalid Google Drive URL format: {url}")
+        # Handle different Google Drive URL formats
+        if '/file/d/' in url:
+            # Format: https://drive.google.com/file/d/FILE_ID/view
+            try:
+                file_id = url.split('/file/d/')[1].split('/')[0]
+            except IndexError:
+                logger.error(f"Invalid Google Drive URL format: {url}")
+                return url
+        elif 'id=' in url:
+            # Format: https://drive.google.com/open?id=FILE_ID
+            try:
+                file_id = url.split('id=')[1].split('&')[0]
+            except IndexError:
+                logger.error(f"Invalid Google Drive URL format: {url}")
+                return url
+
+        if not file_id:
+            logger.error(f"Could not extract file ID from URL: {url}")
             return url
-    elif 'id=' in url:
-        # Format: https://drive.google.com/open?id=FILE_ID
-        try:
-            file_id = url.split('id=')[1].split('&')[0]
-        except IndexError:
-            logger.error(f"Invalid Google Drive URL format: {url}")
-            return url
 
-    if not file_id:
-        logger.error(f"Could not extract file ID from URL: {url}")
-        return url
+        # For images, use lh3.googleusercontent.com for better performance
+        if url.lower().endswith(('.jpg', '.jpeg', '.png', '.gif')):
+            return f"https://lh3.googleusercontent.com/d/{file_id}"
+        # For other file types, use the download export
+        else:
+            return f"https://drive.google.com/uc?export=download&id={file_id}"
 
-    # For images, use view export
-    if url.lower().endswith(('.jpg', '.jpeg', '.png', '.gif')):
-        return f"https://lh3.googleusercontent.com/d/{file_id}"
-    # For audio files, use download export
-    elif url.lower().endswith(('.mp3', '.wav', '.m4a', '.ogg')):
-        return f"https://drive.google.com/uc?export=download&id={file_id}"
-    else:
-        # Default to view for other file types
-        return f"https://drive.google.com/uc?export=view&id={file_id}"
+    return url
 
 
 def convert_audio_url(original_link):

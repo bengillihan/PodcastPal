@@ -65,6 +65,8 @@
                         </a>
                         <button type="button" 
                                 class="btn btn-sm btn-outline-danger delete-episode" 
+                                data-bs-toggle="modal"
+                                data-bs-target="#deleteEpisodeModal"
                                 data-feed-id="{{ feed.id }}"
                                 data-episode-id="{{ episode.id }}"
                                 data-episode-title="{{ episode.title }}">
@@ -99,6 +101,28 @@
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                 <form method="POST" action="{{ url_for('delete_feed', feed_id=feed.id) }}" style="display: inline;">
                     <button type="submit" class="btn btn-danger">Delete Feed</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Episode Confirmation Modal -->
+<div class="modal fade" id="deleteEpisodeModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Delete Episode</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete "<span id="episodeTitle"></span>"?</p>
+                <p class="text-danger">This action cannot be undone.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form id="deleteEpisodeForm" method="POST" action="">
+                    <button type="submit" class="btn btn-danger">Delete Episode</button>
                 </form>
             </div>
         </div>

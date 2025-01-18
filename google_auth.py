@@ -17,11 +17,6 @@ GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_OAUTH_CLIENT_ID")
 GOOGLE_CLIENT_SECRET = os.environ.get("GOOGLE_OAUTH_CLIENT_SECRET")
 GOOGLE_DISCOVERY_URL = "https://accounts.google.com/.well-known/openid-configuration"
 
-# Get the current Replit domain for the callback URL
-REPLIT_DOMAIN = os.environ.get("REPLIT_DEV_DOMAIN")
-if not REPLIT_DOMAIN:
-    logger.error("REPLIT_DEV_DOMAIN environment variable is not set")
-
 # OAuth 2 client setup
 if not GOOGLE_CLIENT_ID:
     logger.error("GOOGLE_OAUTH_CLIENT_ID environment variable is not set")
@@ -44,7 +39,9 @@ def login():
         return "Error: Could not fetch Google provider configuration", 500
 
     authorization_endpoint = google_provider_cfg["authorization_endpoint"]
-    callback_url = f"https://{REPLIT_DOMAIN}/google_login/callback"
+
+    # Use the actual request URL to build the callback URL
+    callback_url = url_for('google_auth.callback', _external=True, _scheme='https')
 
     logger.info(f"Login - Using callback URL: {callback_url}")
     logger.info(f"Login - Client ID: {GOOGLE_CLIENT_ID}")
@@ -71,7 +68,9 @@ def callback():
         return "Error: Could not fetch Google provider configuration", 500
 
     token_endpoint = google_provider_cfg["token_endpoint"]
-    callback_url = f"https://{REPLIT_DOMAIN}/google_login/callback"
+
+    # Use the actual request URL to build the callback URL
+    callback_url = url_for('google_auth.callback', _external=True, _scheme='https')
 
     logger.info(f"Callback - Using callback URL: {callback_url}")
     logger.info(f"Callback - Request URL: {request.url}")

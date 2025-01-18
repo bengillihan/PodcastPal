@@ -32,8 +32,12 @@
                     <br>
                     Supported formats: MP3, WAV, M4A, OGG
                 </div>
-                <label class="form-label">Reformatted URL for RSS Feed:</label>
-                <input type="text" class="form-control" id="reformattedUrl" readonly>
+                <div class="mb-3">
+                    <label class="form-label"><strong>URL that will be used in RSS feed:</strong></label>
+                    <input type="text" class="form-control bg-dark text-light" id="reformattedUrl" readonly 
+                           aria-label="Reformatted URL for RSS feed">
+                    <div class="form-text">This URL is automatically generated and will be used in your podcast's RSS feed.</div>
+                </div>
             </div>
             <div class="mb-3">
                 <label for="release_date" class="form-label">Release Date and Time</label>

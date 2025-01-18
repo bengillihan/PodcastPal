@@ -7,51 +7,30 @@
 </div>
 
 {% if feeds %}
-    <div class="row">
+    <div class="row row-cols-1 row-cols-md-3 g-4">
         {% for feed in feeds %}
-        <div class="col-md-6 mb-4">
-            <div class="card">
+        <div class="col">
+            <div class="card h-100">
+                {% if feed.image_url %}
+                <img src="{{ feed.image_url }}" class="card-img-top" alt="{{ feed.name }} cover">
+                {% else %}
+                <div class="card-img-top bg-secondary text-white d-flex align-items-center justify-content-center" style="height: 200px;">
+                    <i class="bi bi-mic" style="font-size: 3rem;"></i>
+                </div>
+                {% endif %}
                 <div class="card-body">
                     <h5 class="card-title">{{ feed.name }}</h5>
                     <p class="card-text">{{ feed.description }}</p>
-                    <div class="d-flex justify-content-between align-items-center">
-                        <a href="{{ url_for('new_episode', feed_id=feed.id) }}" class="btn btn-outline-primary">Add Episode</a>
+                </div>
+                <div class="card-footer bg-transparent border-top-0">
+                    <div class="d-flex gap-2">
+                        <a href="{{ url_for('feed_details', feed_id=feed.id) }}" class="btn btn-primary flex-grow-1">View Details</a>
                         <button class="btn btn-outline-secondary copy-btn" 
                                 data-feed-url="{{ url_for('rss_feed', url_slug=feed.url_slug, _external=True) }}">
-                            Copy RSS URL
+                            Copy RSS
                         </button>
                     </div>
                 </div>
-                {% if feed.episodes %}
-                <ul class="list-group list-group-flush">
-                    {% for episode in feed.episodes %}
-                    <li class="list-group-item">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <h6 class="mb-0">{{ episode.title }}</h6>
-                                <small class="text-muted">
-                                    Release: {{ episode.release_date.strftime('%Y-%m-%d %H:%M') }}
-                                    {% if episode.is_recurring %}(Recurring){% endif %}
-                                </small>
-                            </div>
-                            <div class="btn-group">
-                                <a href="{{ url_for('edit_episode', feed_id=feed.id, episode_id=episode.id) }}" 
-                                   class="btn btn-sm btn-outline-primary">
-                                    Edit
-                                </a>
-                                <button type="button" 
-                                        class="btn btn-sm btn-outline-danger delete-episode" 
-                                        data-feed-id="{{ feed.id }}"
-                                        data-episode-id="{{ episode.id }}"
-                                        data-episode-title="{{ episode.title }}">
-                                    Delete
-                                </button>
-                            </div>
-                        </div>
-                    </li>
-                    {% endfor %}
-                </ul>
-                {% endif %}
             </div>
         </div>
         {% endfor %}
@@ -62,27 +41,6 @@
         <a href="{{ url_for('new_feed') }}" class="btn btn-primary">Create Your First Feed</a>
     </div>
 {% endif %}
-
-<!-- Delete Confirmation Modal -->
-<div class="modal fade" id="deleteEpisodeModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Delete Episode</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                Are you sure you want to delete "<span id="episodeTitle"></span>"?
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <form id="deleteEpisodeForm" method="POST" style="display: inline;">
-                    <button type="submit" class="btn btn-danger">Delete</button>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
 {% endblock %}
 
 {% block scripts %}

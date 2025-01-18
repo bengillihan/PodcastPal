@@ -165,3 +165,11 @@ def delete_episode(feed_id, episode_id):
         flash('Error deleting episode. Please try again.', 'error')
 
     return redirect(url_for('dashboard'))
+
+@app.route('/feed/<int:feed_id>')
+@login_required
+def feed_details(feed_id):
+    feed = Feed.query.get_or_404(feed_id)
+    if feed.user_id != current_user.id:
+        abort(403)
+    return render_template('feed_details.html', feed=feed)

@@ -233,7 +233,7 @@ def download_episode_template():
     output = StringIO()
     writer = csv.writer(output)
     writer.writerow(['title', 'description', 'audio_url', 'release_date', 'is_recurring'])
-    writer.writerow(['Example Episode', 'Episode description here', 'https://www.dropbox.com/s/example/audio.mp3?dl=0', '2025-01-20 15:30', 'FALSE'])
+    writer.writerow(['Example Episode', 'Episode description here', 'https://www.dropbox.com/s/example/audio.mp3?dl=0', '2024-01-20 15:30', 'FALSE']) #Updated example date
 
     output.seek(0)
     return output.getvalue(), 200, {
@@ -270,7 +270,21 @@ def upload_episodes_csv(feed_id):
 
         for row in csv_reader:
             try:
-                release_date = datetime.strptime(row['release_date'].strip(), '%Y-%m-%d %H:%M')
+                # Try multiple date formats
+                date_str = row['release_date'].strip()
+                release_date = None
+                date_formats = ['%Y-%m-%d %H:%M', '%m/%d/%y %H:%M', '%m/%d/%Y %H:%M']
+
+                for date_format in date_formats:
+                    try:
+                        release_date = datetime.strptime(date_str, date_format)
+                        break
+                    except ValueError:
+                        continue
+
+                if release_date is None:
+                    raise ValueError(f"Could not parse date: {date_str}")
+
                 is_recurring = row['is_recurring'].strip().upper() == 'TRUE'
                 audio_url = convert_url_to_dropbox_direct(row['audio_url'].strip())
 

@@ -15,12 +15,9 @@
             </div>
             <div class="mb-3">
                 <label for="audio_url" class="form-label">Audio File URL</label>
-                <input type="url" class="form-control" id="audio_url" name="audio_url" value="{{ episode.audio_url if episode else '' }}" required>
-                <div id="reformattedUrlPreview" class="form-text mt-2" style="display: none;">
-                    <strong>Reformatted URL for RSS Feed:</strong><br>
-                    <code id="reformattedUrl" class="d-block bg-dark text-light p-2 mt-1 rounded"></code>
-                </div>
-                <div class="form-text">
+                <input type="url" class="form-control mb-2" id="audio_url" name="audio_url" 
+                       value="{{ episode.audio_url if episode else '' }}" required>
+                <div class="form-text mb-2">
                     <strong>Supported Links:</strong><br>
                     Google Drive:<br>
                     1. Upload your audio file to Google Drive<br>
@@ -35,6 +32,8 @@
                     <br>
                     Supported formats: MP3, WAV, M4A, OGG
                 </div>
+                <label class="form-label">Reformatted URL for RSS Feed:</label>
+                <input type="text" class="form-control" id="reformattedUrl" readonly>
             </div>
             <div class="mb-3">
                 <label for="release_date" class="form-label">Release Date and Time</label>
@@ -48,7 +47,7 @@
                 <label class="form-check-label" for="is_recurring">Recurring annually</label>
             </div>
             <div class="d-flex justify-content-between">
-                <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">Cancel</a>
+                <a href="{{ url_for('feed_details', feed_id=feed.id) }}" class="btn btn-secondary">Cancel</a>
                 <button type="submit" class="btn btn-primary">{% if episode %}Update{% else %}Add{% endif %} Episode</button>
             </div>
         </form>
@@ -86,10 +85,9 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('release_date').value = todayDateTime;
     });
 
-    // Handle URL reformatting preview
+    // Handle URL reformatting
     const audioUrlInput = document.getElementById('audio_url');
-    const previewDiv = document.getElementById('reformattedUrlPreview');
-    const reformattedUrlCode = document.getElementById('reformattedUrl');
+    const reformattedUrlInput = document.getElementById('reformattedUrl');
 
     function reformatUrl(url) {
         if (!url) return '';
@@ -112,23 +110,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
     audioUrlInput.addEventListener('input', function() {
         const url = this.value.trim();
-        if (url && (url.includes('dropbox.com') || url.includes('drive.google.com'))) {
-            const reformattedUrl = reformatUrl(url);
-            reformattedUrlCode.textContent = reformattedUrl;
-            previewDiv.style.display = 'block';
-        } else {
-            previewDiv.style.display = 'none';
-        }
+        reformattedUrlInput.value = reformatUrl(url);
     });
 
     // Show initial reformatted URL if exists
     if (audioUrlInput.value) {
-        const initialUrl = audioUrlInput.value.trim();
-        if (initialUrl && (initialUrl.includes('dropbox.com') || initialUrl.includes('drive.google.com'))) {
-            const reformattedUrl = reformatUrl(initialUrl);
-            reformattedUrlCode.textContent = reformattedUrl;
-            previewDiv.style.display = 'block';
-        }
+        reformattedUrlInput.value = reformatUrl(audioUrlInput.value.trim());
     }
 });
 </script>

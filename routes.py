@@ -191,19 +191,38 @@ def feed_details(feed_id):
     return render_template('feed_details.html', feed=feed)
 
 def convert_google_drive_url(url):
-    """Convert Google Drive view URL to direct download URL"""
+    """Convert Google Drive URL to direct access URL"""
     if not url or 'drive.google.com' not in url:
         return url
 
+    file_id = None
+
+    # Handle different Google Drive URL formats
     if '/file/d/' in url:
-        file_id = url.split('/file/d/')[1].split('/')[0]
-        # For images, use uc?export=view
-        if url.lower().endswith(('.jpg', '.jpeg', '.png', '.gif')):
-            return f"https://drive.google.com/uc?export=view&id={file_id}"
-        # For audio files, use uc?export=download
-        elif url.lower().endswith(('.mp3', '.wav', '.m4a')):
-            return f"https://drive.google.com/uc?export=download&id={file_id}"
-        else:
-            # Default to view for other file types
-            return f"https://drive.google.com/uc?export=view&id={file_id}"
-    return url
+        # Format: https://drive.google.com/file/d/FILE_ID/view
+        try:
+            file_id = url.split('/file/d/')[1].split('/')[0]
+        except IndexError:
+            logger.error(f"Invalid Google Drive URL format: {url}")
+            return url
+    elif 'id=' in url:
+        # Format: https://drive.google.com/open?id=FILE_ID
+        try:
+            file_id = url.split('id=')[1].split('&')[0]
+        except IndexError:
+            logger.error(f"Invalid Google Drive URL format: {url}")
+            return url
+
+    if not file_id:
+        logger.error(f"Could not extract file ID from URL: {url}")
+        return url
+
+    # For images, use view export
+    if url.lower().endswith(('.jpg', '.jpeg', '.png', '.gif')):
+        return f"https://lh3.googleusercontent.com/d/{file_id}"
+    # For audio files, use download export
+    elif url.lower().endswith(('.mp3', '.wav', '.m4a', '.ogg')):
+        return f"https://drive.google.com/uc?export=download&id={file_id}"
+    else:
+        # Default to view for other file types
+        return f"https://drive.google.com/uc?export=view&id={file_id}"

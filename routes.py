@@ -262,3 +262,23 @@ def convert_audio_url(original_link):
             return original_link
     else:
         return original_link
+
+@app.route('/feed/<int:feed_id>/delete', methods=['POST'])
+@login_required
+def delete_feed(feed_id):
+    feed = Feed.query.get_or_404(feed_id)
+    if feed.user_id != current_user.id:
+        abort(403)
+
+    try:
+        # Delete associated episodes first
+        Episode.query.filter_by(feed_id=feed.id).delete()
+        db.session.delete(feed)
+        db.session.commit()
+        flash('Feed deleted successfully!', 'success')
+    except Exception as e:
+        logger.error(f"Error deleting feed: {str(e)}")
+        db.session.rollback()
+        flash('Error deleting feed. Please try again.', 'error')
+
+    return redirect(url_for('dashboard'))

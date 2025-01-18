@@ -1,5 +1,6 @@
 from datetime import datetime
 from xml.etree import ElementTree as ET
+from utils import convert_url_to_dropbox_direct
 
 def generate_rss_feed(feed):
     rss = ET.Element('rss', version='2.0')
@@ -16,15 +17,17 @@ def generate_rss_feed(feed):
 
     # Add podcast image if available
     if feed.image_url:
+        # Ensure image URL is in direct format
+        direct_image_url = convert_url_to_dropbox_direct(feed.image_url)
         image = ET.SubElement(channel, 'image')
         img_url = ET.SubElement(image, 'url')
-        img_url.text = feed.image_url
+        img_url.text = direct_image_url
         img_title = ET.SubElement(image, 'title')
         img_title.text = feed.name
 
         # Add iTunes image tag
         itunes_image = ET.SubElement(channel, 'itunes:image')
-        itunes_image.set('href', feed.image_url)
+        itunes_image.set('href', direct_image_url)
 
     # Episodes
     for episode in feed.episodes:
@@ -40,8 +43,10 @@ def generate_rss_feed(feed):
             pub_date = ET.SubElement(item, 'pubDate')
             pub_date.text = episode.release_date.strftime('%a, %d %b %Y %H:%M:%S GMT')
 
+            # Ensure audio URL is in direct format
+            direct_audio_url = convert_url_to_dropbox_direct(episode.audio_url)
             enclosure = ET.SubElement(item, 'enclosure')
-            enclosure.set('url', episode.audio_url)
+            enclosure.set('url', direct_audio_url)
             enclosure.set('type', 'audio/mpeg')
 
     return ET.tostring(rss, encoding='unicode')

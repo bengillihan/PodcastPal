@@ -5,6 +5,7 @@ from models import Feed, Episode
 from feed_generator import generate_rss_feed
 from datetime import datetime
 from slugify import slugify
+from utils import convert_url_to_dropbox_direct
 import logging
 
 logger = logging.getLogger(__name__)
@@ -28,9 +29,9 @@ def new_feed():
             description = request.form['description']
             image_url = request.form.get('image_url', '').strip()
 
-            # Convert Google Drive or Dropbox URL if present
+            # Convert Dropbox URL if present
             if image_url:
-                image_url = convert_google_drive_url(image_url)
+                image_url = convert_url_to_dropbox_direct(image_url)
 
             base_slug = slugify(name)
 
@@ -72,7 +73,7 @@ def new_episode(feed_id):
         try:
             audio_url = request.form['audio_url'].strip()
             if audio_url:
-                audio_url = convert_audio_url(audio_url)
+                audio_url = convert_url_to_dropbox_direct(audio_url)
 
             episode = Episode(
                 feed_id=feed_id,
@@ -115,9 +116,8 @@ def edit_feed(feed_id):
             feed.description = request.form['description']
             image_url = request.form.get('image_url', '').strip()
 
-            # Convert Google Drive or Dropbox URL if present
             if image_url:
-                image_url = convert_google_drive_url(image_url)
+                image_url = convert_url_to_dropbox_direct(image_url)
 
             feed.image_url = image_url if image_url else None
             db.session.commit()
@@ -149,7 +149,7 @@ def edit_episode(feed_id, episode_id):
 
             audio_url = request.form['audio_url'].strip()
             if audio_url:
-                audio_url = convert_audio_url(audio_url)
+                audio_url = convert_url_to_dropbox_direct(audio_url)
             episode.audio_url = audio_url
 
             episode.release_date = datetime.strptime(request.form['release_date'], '%Y-%m-%dT%H:%M')
@@ -185,7 +185,7 @@ def delete_episode(feed_id, episode_id):
         db.session.rollback()
         flash('Error deleting episode. Please try again.', 'error')
 
-    return redirect(url_for('dashboard'))
+    return redirect(url_for('feed_details', feed_id=feed_id))
 
 @app.route('/feed/<int:feed_id>')
 @login_required
@@ -194,94 +194,6 @@ def feed_details(feed_id):
     if feed.user_id != current_user.id:
         abort(403)
     return render_template('feed_details.html', feed=feed)
-
-def convert_google_drive_url(url):
-    """Convert Google Drive or Dropbox URL to direct access URL"""
-    if not url:
-        return url
-
-    if "dropbox.com" in url:
-        # Handle Dropbox URLs similar to audio URLs but specific to images
-        base_url = url.replace("www.dropbox.com", "dl.dropboxusercontent.com")
-        if "?" in base_url:
-            params = base_url.split("?")[1].split("&")
-            # Filter out the dl=0 parameter but keep others (rlkey, st, etc)
-            filtered_params = [p for p in params if not p.startswith("dl=")]
-            if filtered_params:
-                return f"{base_url.split('?')[0]}?{'&'.join(filtered_params)}"
-            return base_url.split('?')[0]
-        return base_url
-    elif "drive.google.com" in url:
-        file_id = None
-
-        # Handle different Google Drive URL formats
-        if '/file/d/' in url:
-            # Format: https://drive.google.com/file/d/FILE_ID/view
-            try:
-                file_id = url.split('/file/d/')[1].split('/')[0]
-            except IndexError:
-                logger.error(f"Invalid Google Drive URL format: {url}")
-                return url
-        elif 'id=' in url:
-            # Format: https://drive.google.com/open?id=FILE_ID
-            try:
-                file_id = url.split('id=')[1].split('&')[0]
-            except IndexError:
-                logger.error(f"Invalid Google Drive URL format: {url}")
-                return url
-
-        if not file_id:
-            logger.error(f"Could not extract file ID from URL: {url}")
-            return url
-
-        # For images, use lh3.googleusercontent.com for better performance
-        if url.lower().endswith(('.jpg', '.jpeg', '.png', '.gif')):
-            return f"https://lh3.googleusercontent.com/d/{file_id}"
-        # For other file types, use the download export
-        else:
-            return f"https://drive.google.com/uc?export=download&id={file_id}"
-
-    return url
-
-
-def convert_audio_url(original_link):
-    """Convert audio file URLs from Dropbox or Google Drive to direct download links"""
-    if not original_link:
-        return original_link
-
-    if "dropbox.com" in original_link:
-        # Dropbox link reformatting
-        # Keep all query parameters except dl=0
-        base_url = original_link.replace("www.dropbox.com", "dl.dropboxusercontent.com")
-        if "?" in base_url:
-            params = base_url.split("?")[1].split("&")
-            # Filter out the dl=0 parameter but keep others (rlkey, st, etc)
-            filtered_params = [p for p in params if not p.startswith("dl=")]
-            if filtered_params:
-                return f"{base_url.split('?')[0]}?{'&'.join(filtered_params)}"
-            return base_url.split('?')[0]
-        return base_url
-    elif "drive.google.com" in original_link:
-        # Google Drive link reformatting
-        try:
-            file_id = None
-            if '/file/d/' in original_link:
-                # Format: https://drive.google.com/file/d/FILE_ID/view
-                file_id = original_link.split('/file/d/')[1].split('/')[0]
-            elif 'id=' in original_link:
-                # Format: https://drive.google.com/open?id=FILE_ID
-                file_id = original_link.split('id=')[1].split('&')[0]
-
-            if not file_id:
-                logger.error(f"Could not extract file ID from URL: {original_link}")
-                return original_link
-
-            return f"https://drive.google.com/uc?export=download&id={file_id}"
-        except IndexError:
-            logger.error(f"Invalid Google Drive URL format: {original_link}")
-            return original_link
-    else:
-        return original_link
 
 @app.route('/feed/<int:feed_id>/delete', methods=['POST'])
 @login_required
@@ -307,7 +219,7 @@ def delete_feed(feed_id):
 def test_url():
     if request.method == 'POST':
         original_url = request.form.get('url', '').strip()
-        reformatted_url = convert_audio_url(original_url) if original_url else ''
+        reformatted_url = convert_url_to_dropbox_direct(original_url) if original_url else ''
         return render_template('test_url.html', 
                              original_url=original_url, 
                              reformatted_url=reformatted_url)

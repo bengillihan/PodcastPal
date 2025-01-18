@@ -45,10 +45,9 @@ def login():
 
     authorization_endpoint = google_provider_cfg["authorization_endpoint"]
 
-    callback_url = url_for('google_auth.callback', _external=True)
-    if REPLIT_DOMAIN:
-        # Ensure the callback URL uses HTTPS and the correct domain
-        callback_url = f"https://{REPLIT_DOMAIN}/google_login/callback"
+    # Use consistent callback URL format
+    callback_url = f"https://{REPLIT_DOMAIN}/google_login/callback"
+    logger.info(f"Using callback URL: {callback_url}")
 
     # Construct the request URI for Google login
     request_uri = client.prepare_request_uri(
@@ -57,8 +56,7 @@ def login():
         scope=["openid", "email", "profile"],
     )
 
-    logger.debug(f"Using callback URL: {callback_url}")
-    logger.debug(f"Redirecting to Google authorization endpoint: {request_uri}")
+    logger.info(f"Redirecting to authorization endpoint with redirect_uri: {callback_url}")
     return redirect(request_uri)
 
 @google_auth.route("/google_login/callback")
@@ -75,10 +73,9 @@ def callback():
 
     token_endpoint = google_provider_cfg["token_endpoint"]
 
-    callback_url = url_for('google_auth.callback', _external=True)
-    if REPLIT_DOMAIN:
-        # Ensure the callback URL uses HTTPS and the correct domain
-        callback_url = f"https://{REPLIT_DOMAIN}/google_login/callback"
+    # Use consistent callback URL format
+    callback_url = f"https://{REPLIT_DOMAIN}/google_login/callback"
+    logger.info(f"Callback endpoint using callback URL: {callback_url}")
 
     # Prepare and send token request
     try:

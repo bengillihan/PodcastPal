@@ -70,18 +70,22 @@ def new_episode(feed_id):
 
     if request.method == 'POST':
         try:
+            audio_url = request.form['audio_url'].strip()
+            if audio_url:
+                audio_url = convert_google_drive_url(audio_url)
+
             episode = Episode(
                 feed_id=feed_id,
                 title=request.form['title'],
                 description=request.form['description'],
-                audio_url=request.form['audio_url'],
+                audio_url=audio_url,
                 release_date=datetime.strptime(request.form['release_date'], '%Y-%m-%dT%H:%M'),
                 is_recurring=bool(request.form.get('is_recurring'))
             )
             db.session.add(episode)
             db.session.commit()
             flash('Episode added successfully!', 'success')
-            return redirect(url_for('dashboard'))
+            return redirect(url_for('feed_details', feed_id=feed_id))
         except Exception as e:
             logger.error(f"Error creating episode: {str(e)}")
             db.session.rollback()
@@ -193,5 +197,13 @@ def convert_google_drive_url(url):
 
     if '/file/d/' in url:
         file_id = url.split('/file/d/')[1].split('/')[0]
-        return f"https://drive.google.com/uc?export=view&id={file_id}"
+        # For images, use uc?export=view
+        if url.lower().endswith(('.jpg', '.jpeg', '.png', '.gif')):
+            return f"https://drive.google.com/uc?export=view&id={file_id}"
+        # For audio files, use uc?export=download
+        elif url.lower().endswith(('.mp3', '.wav', '.m4a')):
+            return f"https://drive.google.com/uc?export=download&id={file_id}"
+        else:
+            # Default to view for other file types
+            return f"https://drive.google.com/uc?export=view&id={file_id}"
     return url

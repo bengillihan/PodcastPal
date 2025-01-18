@@ -16,7 +16,21 @@
             <div class="mb-3">
                 <label for="audio_url" class="form-label">Audio File URL</label>
                 <input type="url" class="form-control" id="audio_url" name="audio_url" value="{{ episode.audio_url if episode else '' }}" required>
-                <div class="form-text">Link to your hosted audio file (e.g., Google Drive public URL)</div>
+                <div class="form-text">
+                    <strong>Supported Links:</strong><br>
+                    Google Drive:<br>
+                    1. Upload your audio file to Google Drive<br>
+                    2. Right-click and select "Share"<br>
+                    3. Set access to "Anyone with the link"<br>
+                    4. Copy the link (format: https://drive.google.com/file/d/YOUR_FILE_ID/view)<br>
+                    <br>
+                    Dropbox:<br>
+                    1. Upload your audio file to Dropbox<br>
+                    2. Create a shared link<br>
+                    3. Copy the link (format: https://www.dropbox.com/s/YOUR_FILE_PATH/file.mp3?dl=0)<br>
+                    <br>
+                    Supported formats: MP3, WAV, M4A, OGG
+                </div>
             </div>
             <div class="mb-3">
                 <label for="release_date" class="form-label">Release Date and Time</label>

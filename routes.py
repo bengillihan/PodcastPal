@@ -72,7 +72,7 @@ def new_episode(feed_id):
         try:
             audio_url = request.form['audio_url'].strip()
             if audio_url:
-                audio_url = convert_google_drive_url(audio_url)
+                audio_url = convert_audio_url(audio_url)
 
             episode = Episode(
                 feed_id=feed_id,
@@ -146,13 +146,18 @@ def edit_episode(feed_id, episode_id):
         try:
             episode.title = request.form['title']
             episode.description = request.form['description']
-            episode.audio_url = request.form['audio_url']
+
+            audio_url = request.form['audio_url'].strip()
+            if audio_url:
+                audio_url = convert_audio_url(audio_url)
+            episode.audio_url = audio_url
+
             episode.release_date = datetime.strptime(request.form['release_date'], '%Y-%m-%dT%H:%M')
             episode.is_recurring = bool(request.form.get('is_recurring'))
 
             db.session.commit()
             flash('Episode updated successfully!', 'success')
-            return redirect(url_for('dashboard'))
+            return redirect(url_for('feed_details', feed_id=feed_id))
         except Exception as e:
             logger.error(f"Error updating episode: {str(e)}")
             db.session.rollback()
@@ -226,3 +231,34 @@ def convert_google_drive_url(url):
     else:
         # Default to view for other file types
         return f"https://drive.google.com/uc?export=view&id={file_id}"
+
+
+def convert_audio_url(original_link):
+    """Convert audio file URLs from Dropbox or Google Drive to direct download links"""
+    if not original_link:
+        return original_link
+
+    if "dropbox.com" in original_link:
+        # Dropbox link reformatting
+        return original_link.replace("www.dropbox.com", "dl.dropboxusercontent.com").split("?")[0]
+    elif "drive.google.com" in original_link:
+        # Google Drive link reformatting
+        try:
+            file_id = None
+            if '/file/d/' in original_link:
+                # Format: https://drive.google.com/file/d/FILE_ID/view
+                file_id = original_link.split('/file/d/')[1].split('/')[0]
+            elif 'id=' in original_link:
+                # Format: https://drive.google.com/open?id=FILE_ID
+                file_id = original_link.split('id=')[1].split('&')[0]
+
+            if not file_id:
+                logger.error(f"Could not extract file ID from URL: {original_link}")
+                return original_link
+
+            return f"https://drive.google.com/uc?export=download&id={file_id}"
+        except IndexError:
+            logger.error(f"Invalid Google Drive URL format: {original_link}")
+            return original_link
+    else:
+        return original_link

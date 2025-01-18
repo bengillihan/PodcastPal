@@ -4,7 +4,7 @@ import logging
 
 import requests
 from app import db
-from flask import Blueprint, redirect, request, url_for
+from flask import Blueprint, redirect, request, url_for, current_app
 from flask_login import login_required, login_user, logout_user
 from models import User
 from oauthlib.oauth2 import WebApplicationClient
@@ -40,11 +40,11 @@ def login():
 
     authorization_endpoint = google_provider_cfg["authorization_endpoint"]
 
-    # Use the actual request URL to build the callback URL
-    callback_url = url_for('google_auth.callback', _external=True, _scheme='https')
+    # Build the callback URL based on the request's host
+    callback_url = request.url_root.rstrip('/') + url_for('google_auth.callback')
+    callback_url = callback_url.replace('http://', 'https://')
 
     logger.info(f"Login - Using callback URL: {callback_url}")
-    logger.info(f"Login - Client ID: {GOOGLE_CLIENT_ID}")
 
     # Construct the request URI for Google login
     request_uri = client.prepare_request_uri(
@@ -69,12 +69,12 @@ def callback():
 
     token_endpoint = google_provider_cfg["token_endpoint"]
 
-    # Use the actual request URL to build the callback URL
-    callback_url = url_for('google_auth.callback', _external=True, _scheme='https')
+    # Build the callback URL based on the request's host
+    callback_url = request.url_root.rstrip('/') + url_for('google_auth.callback')
+    callback_url = callback_url.replace('http://', 'https://')
 
     logger.info(f"Callback - Using callback URL: {callback_url}")
     logger.info(f"Callback - Request URL: {request.url}")
-    logger.info(f"Callback - Code received: {bool(code)}")
 
     try:
         token_url, headers, body = client.prepare_token_request(

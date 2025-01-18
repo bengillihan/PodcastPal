@@ -7,6 +7,9 @@ from datetime import datetime
 from slugify import slugify
 from utils import convert_url_to_dropbox_direct
 import logging
+import csv
+from io import StringIO
+from werkzeug.utils import secure_filename
 
 logger = logging.getLogger(__name__)
 
@@ -224,3 +227,79 @@ def test_url():
                              original_url=original_url, 
                              reformatted_url=reformatted_url)
     return render_template('test_url.html')
+
+@app.route('/episode/template/download')
+def download_episode_template():
+    output = StringIO()
+    writer = csv.writer(output)
+    writer.writerow(['title', 'description', 'audio_url', 'release_date', 'is_recurring'])
+    writer.writerow(['Example Episode', 'Episode description here', 'https://www.dropbox.com/s/example/audio.mp3?dl=0', '2025-01-20 15:30', 'FALSE'])
+
+    output.seek(0)
+    return output.getvalue(), 200, {
+        'Content-Type': 'text/csv',
+        'Content-Disposition': 'attachment; filename=episode_template.csv'
+    }
+
+@app.route('/feed/<int:feed_id>/upload-csv', methods=['POST'])
+@login_required
+def upload_episodes_csv(feed_id):
+    feed = Feed.query.get_or_404(feed_id)
+    if feed.user_id != current_user.id:
+        abort(403)
+
+    if 'file' not in request.files:
+        flash('No file uploaded', 'error')
+        return redirect(url_for('feed_details', feed_id=feed_id))
+
+    file = request.files['file']
+    if file.filename == '':
+        flash('No file selected', 'error')
+        return redirect(url_for('feed_details', feed_id=feed_id))
+
+    if not file.filename.endswith('.csv'):
+        flash('Please upload a CSV file', 'error')
+        return redirect(url_for('feed_details', feed_id=feed_id))
+
+    try:
+        stream = StringIO(file.stream.read().decode("UTF8"), newline=None)
+        csv_reader = csv.DictReader(stream)
+
+        episodes_added = 0
+        episodes_failed = 0
+
+        for row in csv_reader:
+            try:
+                release_date = datetime.strptime(row['release_date'].strip(), '%Y-%m-%d %H:%M')
+                is_recurring = row['is_recurring'].strip().upper() == 'TRUE'
+                audio_url = convert_url_to_dropbox_direct(row['audio_url'].strip())
+
+                episode = Episode(
+                    feed_id=feed_id,
+                    title=row['title'].strip(),
+                    description=row['description'].strip(),
+                    audio_url=audio_url,
+                    release_date=release_date,
+                    is_recurring=is_recurring
+                )
+                db.session.add(episode)
+                episodes_added += 1
+
+            except Exception as e:
+                logger.error(f"Error adding episode from CSV: {str(e)}")
+                episodes_failed += 1
+                continue
+
+        db.session.commit()
+
+        if episodes_failed > 0:
+            flash(f'Added {episodes_added} episodes, {episodes_failed} failed', 'warning')
+        else:
+            flash(f'Successfully added {episodes_added} episodes', 'success')
+
+    except Exception as e:
+        logger.error(f"Error processing CSV file: {str(e)}")
+        db.session.rollback()
+        flash('Error processing CSV file. Please check the format and try again.', 'error')
+
+    return redirect(url_for('feed_details', feed_id=feed_id))

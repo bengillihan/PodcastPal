@@ -15,14 +15,17 @@ logger = logging.getLogger(__name__)
 # Get appropriate credentials based on environment
 def get_oauth_credentials():
     if 'replit.app' in request.host:
-        # Production environment
-        client_id = os.environ.get("GOOGLE_OAUTH_PROD_CLIENT_ID", os.environ.get("GOOGLE_OAUTH_CLIENT_ID"))
-        client_secret = os.environ.get("GOOGLE_OAUTH_PROD_CLIENT_SECRET", os.environ.get("GOOGLE_OAUTH_CLIENT_SECRET"))
+        # Production environment - strictly use production credentials
+        client_id = os.environ.get("GOOGLE_OAUTH_PROD_CLIENT_ID")
+        client_secret = os.environ.get("GOOGLE_OAUTH_PROD_CLIENT_SECRET")
+        logger.info("Using production OAuth credentials")
     else:
         # Development environment
         client_id = os.environ.get("GOOGLE_OAUTH_DEV_CLIENT_ID", os.environ.get("GOOGLE_OAUTH_CLIENT_ID"))
         client_secret = os.environ.get("GOOGLE_OAUTH_DEV_CLIENT_SECRET", os.environ.get("GOOGLE_OAUTH_CLIENT_SECRET"))
+        logger.info("Using development OAuth credentials")
 
+    logger.info(f"Current host: {request.host}")
     return client_id, client_secret
 
 GOOGLE_DISCOVERY_URL = "https://accounts.google.com/.well-known/openid-configuration"
@@ -38,15 +41,15 @@ def get_google_provider_cfg():
         return None
 
 def get_callback_url():
-    # Always use HTTPS for the callback URL
     if 'replit.app' in request.host:
-        # Production URL
-        base_url = f"https://podcast-pal-bdgillihan.replit.app"
+        # Production - use explicit production URL
+        callback_url = "https://podcast-pal-bdgillihan.replit.app/google_login/callback"
+        logger.info("Using production callback URL")
     else:
-        # Development URL - use the actual request host
-        base_url = f"https://{request.host}"
+        # Development - use dynamic host
+        callback_url = f"https://{request.host}/google_login/callback"
+        logger.info("Using development callback URL")
 
-    callback_url = f"{base_url}/google_login/callback"
     logger.info(f"Generated callback URL: {callback_url}")
     return callback_url
 
@@ -67,11 +70,9 @@ def login():
     callback_url = get_callback_url()
 
     logger.info(f"Login - Using callback URL: {callback_url}")
+    logger.info(f"Login - Client ID: {client_id}")
     logger.info(f"Login - Request host: {request.host}")
-    logger.info(f"Login - Full request URL: {request.url}")
-    logger.info(f"Login - Using client ID: {client_id}")
 
-    # Construct the request URI for Google login
     request_uri = client.prepare_request_uri(
         authorization_endpoint,
         redirect_uri=callback_url,

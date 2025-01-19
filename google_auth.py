@@ -18,24 +18,16 @@ google_auth = Blueprint("google_auth", __name__)
 
 GOOGLE_DISCOVERY_URL = "https://accounts.google.com/.well-known/openid-configuration"
 
-# Validate required environment variables
-required_vars = [
-    "GOOGLE_OAUTH_PROD_CLIENT_ID",
-    "GOOGLE_OAUTH_PROD_CLIENT_SECRET",
-    "GOOGLE_OAUTH_CLIENT_ID",
-    "GOOGLE_OAUTH_CLIENT_SECRET"
-]
-
-for var in required_vars:
-    if not os.environ.get(var):
-        logger.error(f"Missing {var} environment variable")
-        raise RuntimeError(f"Missing required environment variable: {var}")
-
 @google_auth.route("/google_login")
 def login():
     """Initiates the Google OAuth login flow"""
     try:
-        client_id = os.environ["GOOGLE_OAUTH_PROD_CLIENT_ID"] if 'replit.app' in request.host else os.environ["GOOGLE_OAUTH_CLIENT_ID"]
+        client_id = os.environ.get("GOOGLE_OAUTH_PROD_CLIENT_ID") if 'replit.app' in request.host else os.environ.get("GOOGLE_OAUTH_CLIENT_ID")
+
+        if not client_id:
+            logger.error("Missing OAuth client ID")
+            return "OAuth configuration incomplete. Please check your environment variables.", 500
+
         logger.info(f"Login - Using client ID: {client_id[:8]}... (truncated)")
         logger.info(f"Login - Current host: {request.host}")
 
@@ -87,8 +79,13 @@ def callback():
         # Log the full callback URL for debugging
         logger.info(f"Callback URL: {request.url}")
 
-        client_id = os.environ["GOOGLE_OAUTH_PROD_CLIENT_ID"] if 'replit.app' in request.host else os.environ["GOOGLE_OAUTH_CLIENT_ID"]
-        client_secret = os.environ["GOOGLE_OAUTH_PROD_CLIENT_SECRET"] if 'replit.app' in request.host else os.environ["GOOGLE_OAUTH_CLIENT_SECRET"]
+        client_id = os.environ.get("GOOGLE_OAUTH_PROD_CLIENT_ID") if 'replit.app' in request.host else os.environ.get("GOOGLE_OAUTH_CLIENT_ID")
+        client_secret = os.environ.get("GOOGLE_OAUTH_PROD_CLIENT_SECRET") if 'replit.app' in request.host else os.environ.get("GOOGLE_OAUTH_CLIENT_SECRET")
+
+        if not client_id or not client_secret:
+            logger.error("Missing OAuth credentials")
+            return "OAuth configuration incomplete. Please check your environment variables.", 500
+
 
         # Log the environment being used
         logger.info(f"Using {'production' if 'replit.app' in request.host else 'development'} credentials")

@@ -1,0 +1,115 @@
+1. Understand the Root Cause
+What is the redirect_uri?
+It’s the URL that Google redirects users to after they successfully authenticate. It must exactly match one of the URIs you registered in your Google Cloud Console.
+The issue arises because the redirect_uri used in your production environment differs from the one you set up for development.
+2. Identify the redirect_uri Used by Your App
+In your app's code, find the redirect_uri you’re sending to Google when requesting OAuth authentication. This might be hardcoded or dynamically constructed. Examples:
+
+It could look something like:
+bash
+Copy
+Edit
+http://localhost:5000/callback
+(in development) or
+arduino
+Copy
+Edit
+https://your-production-domain.com/callback
+(in production).
+Make sure you’ve defined it correctly in your app. If you're using a library like Flask-OAuthlib or Authlib in Python, it might look like this:
+
+python
+Copy
+Edit
+redirect_uri = url_for('authorize', _external=True)
+For Flask, _external=True generates the full URL (with the domain), which is environment-specific.
+
+3. Update the Authorized Redirect URIs in Google Cloud Console
+Steps:
+Log in to Google Cloud Console
+Go to Google Cloud Console.
+
+Navigate to the Credentials Section
+
+In the left-hand menu, go to APIs & Services > Credentials.
+Find the OAuth 2.0 Client ID your app is using (under the "OAuth 2.0 Client IDs" section).
+Edit the OAuth Client
+
+Click on the edit icon next to your OAuth 2.0 Client ID.
+In the Authorized redirect URIs section, make sure both your development and production redirect URIs are included.
+Examples:
+For development:
+
+bash
+Copy
+Edit
+http://localhost:5000/callback
+For production:
+
+arduino
+Copy
+Edit
+https://your-production-domain.com/callback
+Important: Each URI must be an exact match, including:
+
+Protocol (http vs. https).
+Trailing slashes (e.g., https://example.com/callback/ is different from https://example.com/callback).
+Port numbers (e.g., http://localhost:5000).
+Save Changes
+Click "Save" to update your OAuth client settings.
+4. Update Your App Configuration
+Ensure that your app uses the correct redirect_uri depending on the environment.
+
+Example for Flask (Python):
+If you’re using Flask or a similar web framework, you can dynamically determine the redirect_uri based on the environment:
+
+python
+Copy
+Edit
+from flask import url_for
+
+if app.config["ENV"] == "production":
+    redirect_uri = "https://your-production-domain.com/callback"
+else:
+    redirect_uri = "http://localhost:5000/callback"
+Alternatively, if you’re using Authlib:
+
+python
+Copy
+Edit
+from authlib.integrations.flask_client import OAuth
+
+oauth = OAuth(app)
+google = oauth.register(
+    name='google',
+    client_id='YOUR_CLIENT_ID',
+    client_secret='YOUR_CLIENT_SECRET',
+    access_token_url='https://accounts.google.com/o/oauth2/token',
+    authorize_url='https://accounts.google.com/o/oauth2/auth',
+    client_kwargs={'scope': 'openid email profile'},
+    redirect_uri=url_for('authorize', _external=True)
+)
+Make sure the redirect_uri generated matches the environment (development or production).
+
+5. Test the Configuration
+In Development:
+Start your app locally (e.g., http://localhost:5000).
+Trigger the OAuth login flow and ensure the redirect_uri works.
+In Production:
+Deploy your app.
+Visit the production domain (e.g., https://your-production-domain.com) and ensure the login flow redirects properly.
+If the issue persists, double-check the following:
+
+The redirect URI in your request matches exactly one of the URIs registered in Google Cloud Console.
+You're using HTTPS in production (if your domain supports it).
+There are no typos in your URIs (common mistakes include extra slashes, missing ports, or misspelled domain names).
+6. Debugging Tips
+Check Google’s Error Details:
+If Google provides a specific error message or invalid redirect URI, confirm that it matches exactly what is in the Cloud Console.
+
+Validate Your Configuration:
+Log the redirect_uri your app is sending to Google during the OAuth flow and compare it to the authorized URIs in Google Cloud Console.
+
+Clear Caches:
+Sometimes browser or session caches can cause issues. Clear cookies and cached data before testing again.
+

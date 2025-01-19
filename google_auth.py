@@ -12,64 +12,16 @@ from oauthlib.oauth2 import WebApplicationClient
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
-GOOGLE_DISCOVERY_URL = "https://accounts.google.com/.well-known/openid-configuration"
-PROD_REDIRECT_URI = "https://podcast-pal-bdgillihan.replit.app/google_login/callback"
-
-def get_oauth_credentials():
-    """Get appropriate OAuth credentials based on environment"""
-    logger.info("=== OAuth Credentials Check ===")
-    logger.info(f"Current host: {request.host}")
-    logger.info(f"Request URL: {request.url}")
-    logger.info("Environment variables present:")
-    logger.info(f"GOOGLE_OAUTH_PROD_CLIENT_ID exists: {bool(os.environ.get('GOOGLE_OAUTH_PROD_CLIENT_ID'))}")
-    logger.info(f"GOOGLE_OAUTH_PROD_CLIENT_SECRET exists: {bool(os.environ.get('GOOGLE_OAUTH_PROD_CLIENT_SECRET'))}")
-
-    try:
-        # Always use production credentials for .replit.app domains
-        if 'replit.app' in request.host:
-            client_id = os.environ["GOOGLE_OAUTH_PROD_CLIENT_ID"]
-            client_secret = os.environ["GOOGLE_OAUTH_PROD_CLIENT_SECRET"]
-            logger.info("Using production OAuth credentials")
-        else:
-            # Development environment
-            client_id = os.environ["GOOGLE_OAUTH_CLIENT_ID"]
-            client_secret = os.environ["GOOGLE_OAUTH_CLIENT_SECRET"]
-            logger.info("Using development OAuth credentials")
-
-        # Log partial client ID for verification (first 8 chars only)
-        logger.info(f"Using client ID: {client_id[:8]}...")
-        logger.info("=== End OAuth Credentials Check ===")
-
-        return client_id, client_secret
-
-    except KeyError as e:
-        logger.error(f"Missing required environment variable: {str(e)}")
-        raise ValueError(f"Missing OAuth credentials: {str(e)}")
-    except Exception as e:
-        logger.error(f"Unexpected error accessing OAuth credentials: {str(e)}")
-        raise ValueError("Error accessing OAuth credentials")
-
-def get_callback_url():
-    """Get the appropriate callback URL based on environment"""
-    if 'replit.app' in request.host:
-        # Production - use fixed production URL
-        callback_url = PROD_REDIRECT_URI
-        logger.info(f"Using production callback URL: {callback_url}")
-    else:
-        # Development - use current host
-        callback_url = url_for('google_auth.callback', _external=True, _scheme='https')
-        logger.info(f"Using development callback URL: {callback_url}")
-
-    return callback_url
-
-# Initialize blueprint
+# Initialize blueprint first, before any routes
 google_auth = Blueprint("google_auth", __name__)
+
+GOOGLE_DISCOVERY_URL = "https://accounts.google.com/.well-known/openid-configuration"
 
 @google_auth.route("/google_login")
 def login():
     """Initiates the Google OAuth login flow"""
     try:
-        client_id, client_secret = get_oauth_credentials()
+        client_id = os.environ["GOOGLE_OAUTH_PROD_CLIENT_ID"] if 'replit.app' in request.host else os.environ["GOOGLE_OAUTH_CLIENT_ID"]
         logger.info(f"Login - Using client ID: {client_id[:8]}... (truncated)")
         logger.info(f"Login - Current host: {request.host}")
 
@@ -81,7 +33,7 @@ def login():
         client = WebApplicationClient(client_id)
 
         # Use production redirect URI for replit.app domains
-        callback_url = PROD_REDIRECT_URI if 'replit.app' in request.host else url_for('google_auth.callback', _external=True, _scheme='https')
+        callback_url = f"https://{request.host}/google_login/callback"
         logger.info(f"Login - Using callback URL: {callback_url}")
 
         request_uri = client.prepare_request_uri(
@@ -92,7 +44,7 @@ def login():
         logger.info(f"Login - Request URI generated: {request_uri[:50]}... (truncated)")
 
         return redirect(request_uri)
-    except ValueError as e:
+    except KeyError as e:
         logger.error(f"OAuth Credentials Error: {str(e)}")
         return "Missing OAuth credentials. Please check your configuration.", 500
     except Exception as e:
@@ -103,9 +55,12 @@ def login():
 def callback():
     """Handles the callback from Google OAuth"""
     try:
-        client_id, client_secret = get_oauth_credentials()
+        client_id = os.environ["GOOGLE_OAUTH_PROD_CLIENT_ID"] if 'replit.app' in request.host else os.environ["GOOGLE_OAUTH_CLIENT_ID"]
+        client_secret = os.environ["GOOGLE_OAUTH_PROD_CLIENT_SECRET"] if 'replit.app' in request.host else os.environ["GOOGLE_OAUTH_CLIENT_SECRET"]
         client = WebApplicationClient(client_id)
-        callback_url = PROD_REDIRECT_URI if 'replit.app' in request.host else url_for('google_auth.callback', _external=True, _scheme='https')
+
+        callback_url = f"https://{request.host}/google_login/callback"
+        logger.info(f"Callback - Using callback URL: {callback_url}")
 
         code = request.args.get("code")
         if not code:

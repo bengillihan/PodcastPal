@@ -1,7 +1,6 @@
 import json
 import os
 import logging
-
 import requests
 from app import db
 from flask import Blueprint, redirect, request, url_for, current_app
@@ -70,6 +69,7 @@ def login():
     logger.info(f"Login - Using callback URL: {callback_url}")
     logger.info(f"Login - Request host: {request.host}")
     logger.info(f"Login - Full request URL: {request.url}")
+    logger.info(f"Login - Using client ID: {client_id}")
 
     # Construct the request URI for Google login
     request_uri = client.prepare_request_uri(

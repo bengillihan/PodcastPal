@@ -1,0 +1,151 @@
+Your code looks pretty solid, and the logging is helpful for debugging. The error "OAuth configuration incomplete. Please check your environment variables" means that your application cannot find one or more required OAuth environment variables, specifically:
+
+GOOGLE_OAUTH_PROD_CLIENT_ID
+GOOGLE_OAUTH_PROD_CLIENT_SECRET
+GOOGLE_OAUTH_CLIENT_ID
+GOOGLE_OAUTH_CLIENT_SECRET
+These variables are critical for OAuth to work, and if they are missing or improperly configured, your app will not be able to authenticate with Google.
+
+Let me walk you through the possible causes and steps to fix the issue.
+
+Potential Causes and Fixes
+1. Missing or Misconfigured Environment Variables
+In production, your environment variables need to be set properly, as the app uses os.environ.get to retrieve them. If any of these variables are missing or misspelled, you'll see the error.
+
+Steps to Fix:
+
+Double-check the environment variables are correctly defined in your production environment.
+In Replit, go to the Secrets section (usually available in the left sidebar):
+Add the following variables:
+makefile
+Copy
+Edit
+GOOGLE_OAUTH_PROD_CLIENT_ID=<your-production-client-id>
+GOOGLE_OAUTH_PROD_CLIENT_SECRET=<your-production-client-secret>
+GOOGLE_OAUTH_CLIENT_ID=<your-development-client-id>
+GOOGLE_OAUTH_CLIENT_SECRET=<your-development-client-secret>
+Ensure there are no leading or trailing spaces in the variable names or values.
+Restart your app after adding/updating secrets.
+2. Environment Variable Key Names Differ
+If the environment variable names in your code don’t match the actual names defined in your production environment, they will fail to load.
+
+Steps to Fix:
+
+Ensure the names in the code match the variable names in Replit or your hosting environment exactly:
+python
+Copy
+Edit
+client_id = os.environ.get("GOOGLE_OAUTH_PROD_CLIENT_ID")
+client_secret = os.environ.get("GOOGLE_OAUTH_PROD_CLIENT_SECRET")
+If your production environment uses different key names, update the code or map the environment variables accordingly.
+3. Testing for Environment Variables
+To debug whether the environment variables are loaded correctly in production:
+
+Add this debugging code temporarily to log all available environment variables (remove after debugging):
+python
+Copy
+Edit
+logger.debug(f"Environment variables: {os.environ}")
+Alternatively, test the specific keys in production:
+python
+Copy
+Edit
+logger.debug(f"GOOGLE_OAUTH_PROD_CLIENT_ID: {os.environ.get('GOOGLE_OAUTH_PROD_CLIENT_ID')}")
+logger.debug(f"GOOGLE_OAUTH_PROD_CLIENT_SECRET: {os.environ.get('GOOGLE_OAUTH_PROD_CLIENT_SECRET')}")
+If the variables are None or missing, you'll know they are not being loaded properly.
+
+4. Incorrect Google OAuth Redirect URI
+Google requires that the redirect URI matches exactly what is registered in the Google Cloud Console for your OAuth credentials.
+
+Steps to Fix:
+
+Check Redirect URIs in Google Cloud Console:
+
+Log in to Google Cloud Console.
+Go to APIs & Services > Credentials.
+Find the OAuth client ID(s) used in your app.
+Verify that the Authorized redirect URIs include:
+perl
+Copy
+Edit
+https://<your-replit-url>/google_login/callback
+Example for Replit:
+arduino
+Copy
+Edit
+https://podcast-pal-bdgillihan.replit.app/google_login/callback
+If this is missing or incorrect, update it, save, and retry.
+Verify that your app generates the same redirect URI:
+
+python
+Copy
+Edit
+callback_url = f"https://{request.host}/google_login/callback"
+logger.debug(f"Callback URL being used: {callback_url}")
+Check for trailing slashes or subtle typos in the URI. Google is very strict about an exact match.
+
+5. Debugging Credentials in Production
+If the issue persists, add some additional logging to confirm whether the correct credentials are being used.
+
+In your login() and callback() functions, add debug logs for the environment and credentials being used:
+
+python
+Copy
+Edit
+logger.debug(f"Environment: {'production' if 'replit.app' in request.host else 'development'}")
+logger.debug(f"GOOGLE_OAUTH_PROD_CLIENT_ID: {os.environ.get('GOOGLE_OAUTH_PROD_CLIENT_ID')}")
+logger.debug(f"GOOGLE_OAUTH_CLIENT_ID: {os.environ.get('GOOGLE_OAUTH_CLIENT_ID')}")
+Check the logs to see if:
+
+The correct client ID and secret are being loaded based on the environment.
+The environment variable values are None (missing) or incorrect.
+6. Verify Google OAuth Configuration
+In your Google Cloud Console:
+
+Ensure the OAuth 2.0 Client ID for production (GOOGLE_OAUTH_PROD_CLIENT_ID) is:
+Enabled for external use if the app is used publicly.
+Set to a Web application type.
+Ensure scope permissions (openid, email, profile) are allowed.
+Ensure API access is enabled for your project:
+Go to APIs & Services > Library and confirm that Google+ API or People API is enabled.
+7. Test in a Local Development Environment
+If you haven’t already tested this code in development, you can run it locally with the development OAuth credentials (GOOGLE_OAUTH_CLIENT_ID and GOOGLE_OAUTH_CLIENT_SECRET).
+
+Start the app locally:
+For example, on http://localhost:5000.
+Verify that the redirect URI in Google Cloud Console includes:
+bash
+Copy
+Edit
+http://localhost:5000/google_login/callback
+Debug any issues that occur and ensure development credentials are working correctly.
+Additional Recommendations
+Fall Back Gracefully: Add a fallback error message if the environment variables are missing:
+
+python
+Copy
+Edit
+if not client_id or not client_secret:
+    logger.error("Missing OAuth credentials. Check your environment variables.")
+    return "OAuth configuration incomplete. Please contact the developer.", 500
+Environment Variable Loader (Optional): Use a library like python-decouple or dotenv to simplify loading environment variables:
+
+bash
+Copy
+Edit
+pip install python-decouple
+python
+Copy
+Edit
+from decouple import config
+
+client_id = config("GOOGLE_OAUTH_PROD_CLIENT_ID", default=None)
+client_secret = config("GOOGLE_OAUTH_PROD_CLIENT_SECRET", default=None)
+Conclusion
+Here’s the debugging checklist to fix the "OAuth configuration incomplete" issue:
+
+Verify all required environment variables are set in Replit Secrets.
+Log the environment variables being loaded in production to confirm they’re correct.
+Ensure the redirect URI matches exactly what’s registered in the Google Cloud Console.
+Test locally with development credentials to isolate environment-specific issues.
+Add graceful fallback messages for missing credentials.

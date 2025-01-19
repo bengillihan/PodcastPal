@@ -18,18 +18,29 @@ google_auth = Blueprint("google_auth", __name__)
 
 GOOGLE_DISCOVERY_URL = "https://accounts.google.com/.well-known/openid-configuration"
 
+def get_oauth_credentials():
+    """Get OAuth credentials based on environment"""
+    is_production = 'replit.app' in request.host
+
+    client_id = os.environ.get(
+        "GOOGLE_OAUTH_PROD_CLIENT_ID" if is_production else "GOOGLE_OAUTH_CLIENT_ID"
+    )
+    client_secret = os.environ.get(
+        "GOOGLE_OAUTH_PROD_CLIENT_SECRET" if is_production else "GOOGLE_OAUTH_CLIENT_SECRET"
+    )
+
+    if not client_id or not client_secret:
+        env_type = "production" if is_production else "development"
+        logger.error(f"Missing {env_type} OAuth credentials")
+        raise ValueError(f"Missing {env_type} OAuth credentials")
+
+    return client_id, client_secret
+
 @google_auth.route("/google_login")
 def login():
     """Initiates the Google OAuth login flow"""
     try:
-        client_id = os.environ.get("GOOGLE_OAUTH_PROD_CLIENT_ID") if 'replit.app' in request.host else os.environ.get("GOOGLE_OAUTH_CLIENT_ID")
-
-        if not client_id:
-            logger.error("Missing OAuth client ID")
-            return "OAuth configuration incomplete. Please check your environment variables.", 500
-
-        logger.info(f"Login - Using client ID: {client_id[:8]}... (truncated)")
-        logger.info(f"Login - Current host: {request.host}")
+        client_id, _ = get_oauth_credentials()
 
         # Get Google provider configuration with timeout
         google_provider_cfg = requests.get(GOOGLE_DISCOVERY_URL, timeout=10).json()
@@ -56,9 +67,10 @@ def login():
         logger.info(f"Login - Request URI generated: {request_uri[:50]}... (truncated)")
 
         return redirect(request_uri)
-    except KeyError as e:
-        logger.error(f"OAuth Credentials Error: {str(e)}")
-        return "Missing OAuth credentials. Please check your configuration.", 500
+
+    except ValueError as e:
+        logger.error(f"OAuth Configuration Error: {str(e)}")
+        return "OAuth configuration is incomplete. Please check the environment variables.", 500
     except Exception as e:
         logger.error(f"Login Error: {str(e)}")
         return f"Authentication configuration error: {str(e)}", 500
@@ -76,21 +88,7 @@ def callback():
             logger.error(f"Stored state: {stored_state}, Received state: {received_state}")
             return "Invalid state parameter. Please try again.", 400
 
-        # Log the full callback URL for debugging
-        logger.info(f"Callback URL: {request.url}")
-
-        client_id = os.environ.get("GOOGLE_OAUTH_PROD_CLIENT_ID") if 'replit.app' in request.host else os.environ.get("GOOGLE_OAUTH_CLIENT_ID")
-        client_secret = os.environ.get("GOOGLE_OAUTH_PROD_CLIENT_SECRET") if 'replit.app' in request.host else os.environ.get("GOOGLE_OAUTH_CLIENT_SECRET")
-
-        if not client_id or not client_secret:
-            logger.error("Missing OAuth credentials")
-            return "OAuth configuration incomplete. Please check your environment variables.", 500
-
-
-        # Log the environment being used
-        logger.info(f"Using {'production' if 'replit.app' in request.host else 'development'} credentials")
-        logger.info(f"Client ID being used: {client_id[:8]}...")
-
+        client_id, client_secret = get_oauth_credentials()
         client = WebApplicationClient(client_id)
 
         callback_url = f"https://{request.host}/google_login/callback"
@@ -101,15 +99,11 @@ def callback():
             logger.error("No code received from Google")
             return "Error: No code received from Google", 400
 
-        # Get token endpoint with timeout
-        try:
-            google_provider_cfg = requests.get(GOOGLE_DISCOVERY_URL, timeout=10).json()
-            token_endpoint = google_provider_cfg["token_endpoint"]
-        except Exception as e:
-            logger.error(f"Error getting Google configuration: {str(e)}")
-            return "Error connecting to Google. Please try again.", 500
+        # Get token endpoint
+        google_provider_cfg = requests.get(GOOGLE_DISCOVERY_URL, timeout=10).json()
+        token_endpoint = google_provider_cfg["token_endpoint"]
 
-        # Prepare token request
+        # Prepare and execute token request
         token_url, headers, body = client.prepare_token_request(
             token_endpoint,
             authorization_response=request.url.replace("http://", "https://"),
@@ -117,64 +111,58 @@ def callback():
             code=code
         )
 
-        try:
-            token_response = requests.post(
-                token_url,
-                headers=headers,
-                data=body,
-                auth=(client_id, client_secret),
-                timeout=10
-            )
+        token_response = requests.post(
+            token_url,
+            headers=headers,
+            data=body,
+            auth=(client_id, client_secret),
+            timeout=10
+        )
 
-            if not token_response.ok:
-                logger.error(f"Token response error: {token_response.text}")
-                return "Failed to get token from Google", 400
+        if not token_response.ok:
+            logger.error(f"Token response error: {token_response.text}")
+            return "Failed to get token from Google", 400
 
-            client.parse_request_body_response(json.dumps(token_response.json()))
-        except Exception as e:
-            logger.error(f"Error in token exchange: {str(e)}")
-            return "Error during authentication. Please try again.", 500
+        client.parse_request_body_response(json.dumps(token_response.json()))
 
-        # Get user info with timeout
-        try:
-            userinfo_endpoint = google_provider_cfg["userinfo_endpoint"]
-            uri, headers, body = client.add_token(userinfo_endpoint)
-            userinfo_response = requests.get(uri, headers=headers, data=body, timeout=10)
+        # Get user info
+        userinfo_endpoint = google_provider_cfg["userinfo_endpoint"]
+        uri, headers, body = client.add_token(userinfo_endpoint)
+        userinfo_response = requests.get(uri, headers=headers, data=body, timeout=10)
 
-            if not userinfo_response.ok:
-                logger.error(f"Userinfo response error: {userinfo_response.text}")
-                return "Failed to get user info from Google", 400
+        if not userinfo_response.ok:
+            logger.error(f"Userinfo response error: {userinfo_response.text}")
+            return "Failed to get user info from Google", 400
 
-            userinfo = userinfo_response.json()
-            if not userinfo.get("email_verified"):
-                logger.error("User email not verified by Google")
-                return "Google account email not verified", 400
+        userinfo = userinfo_response.json()
+        if not userinfo.get("email_verified"):
+            logger.error("User email not verified by Google")
+            return "Google account email not verified", 400
 
-            # Get user data
-            google_id = userinfo["sub"]
-            email = userinfo["email"]
-            name = userinfo.get("name", email.split("@")[0])
+        # Get user data
+        google_id = userinfo["sub"]
+        email = userinfo["email"]
+        name = userinfo.get("name", email.split("@")[0])
 
-            # Find or create user
-            user = User.query.filter_by(google_id=google_id).first()
-            if not user:
-                user = User(google_id=google_id, name=name, email=email)
-                db.session.add(user)
-                db.session.commit()
-                logger.info(f"New user created: {email}")
-            else:
-                logger.info(f"Existing user logged in: {email}")
+        # Find or create user
+        user = User.query.filter_by(google_id=google_id).first()
+        if not user:
+            user = User(google_id=google_id, name=name, email=email)
+            db.session.add(user)
+            db.session.commit()
+            logger.info(f"New user created: {email}")
+        else:
+            logger.info(f"Existing user logged in: {email}")
 
-            login_user(user)
-            return redirect(url_for("dashboard"))
+        login_user(user)
+        return redirect(url_for("dashboard"))
 
-        except Exception as e:
-            logger.error(f"Error processing user info: {str(e)}")
-            return "Error processing user information. Please try again.", 500
-
+    except ValueError as e:
+        logger.error(f"OAuth Configuration Error: {str(e)}")
+        return "OAuth configuration is incomplete. Please check the environment variables.", 500
     except Exception as e:
         logger.error(f"Callback Error: {str(e)}")
-        return "Authentication failed", 400
+        return "Authentication failed. Please try again.", 400
 
 @google_auth.route("/logout")
 @login_required

@@ -31,6 +31,15 @@ def get_google_provider_cfg():
         logger.error(f"Failed to fetch Google provider config: {e}")
         return None
 
+def get_callback_url():
+    # Check if we're in production (replit.app domain)
+    if 'replit.app' in request.host:
+        base_url = f"https://{request.host}"
+    else:
+        # For development, use the replit dev domain
+        base_url = f"https://podcast-pal-bdgillihan.replit.app"
+    return f"{base_url}/google_login/callback"
+
 @google_auth.route("/google_login")
 def login():
     """Initiates the Google OAuth login flow"""
@@ -39,10 +48,7 @@ def login():
         return "Error: Could not fetch Google provider configuration", 500
 
     authorization_endpoint = google_provider_cfg["authorization_endpoint"]
-
-    # Build the callback URL based on the request's host
-    callback_url = request.url_root.rstrip('/') + url_for('google_auth.callback')
-    callback_url = callback_url.replace('http://', 'https://')
+    callback_url = get_callback_url()
 
     logger.info(f"Login - Using callback URL: {callback_url}")
 
@@ -68,10 +74,7 @@ def callback():
         return "Error: Could not fetch Google provider configuration", 500
 
     token_endpoint = google_provider_cfg["token_endpoint"]
-
-    # Build the callback URL based on the request's host
-    callback_url = request.url_root.rstrip('/') + url_for('google_auth.callback')
-    callback_url = callback_url.replace('http://', 'https://')
+    callback_url = get_callback_url()
 
     logger.info(f"Callback - Using callback URL: {callback_url}")
     logger.info(f"Callback - Request URL: {request.url}")

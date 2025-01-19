@@ -54,28 +54,36 @@ google_auth = Blueprint("google_auth", __name__)
 def login():
     """Initiates the Google OAuth login flow"""
     try:
-        client_id, _ = get_oauth_credentials()
+        client_id, client_secret = get_oauth_credentials()
+        logger.info(f"Login - Using client ID: {client_id[:8]}... (truncated)")
+        logger.info(f"Login - Current host: {request.host}")
+
+        # Get Google provider configuration
         google_provider_cfg = requests.get(GOOGLE_DISCOVERY_URL).json()
         authorization_endpoint = google_provider_cfg["authorization_endpoint"]
 
+        # Initialize client for this request
         client = WebApplicationClient(client_id)
-        callback_url = get_callback_url()
 
-        logger.info(f"Login - Using callback URL: {callback_url}")
-        logger.info(f"Login - Client ID: {client_id}")
-        logger.info(f"Login - Request host: {request.host}")
+        # Get callback URL based on environment
+        callback_url = PROD_REDIRECT_URI if 'replit.app' in request.host else url_for('google_auth.callback', _external=True, _scheme='https')
+        logger.info(f"Login - Callback URL: {callback_url}")
 
+        # Prepare request URI
         request_uri = client.prepare_request_uri(
             authorization_endpoint,
             redirect_uri=callback_url,
             scope=["openid", "email", "profile"],
         )
+        logger.info(f"Login - Request URI generated: {request_uri[:50]}... (truncated)")
 
-        logger.info(f"Login - Generated request URI: {request_uri}")
         return redirect(request_uri)
+    except ValueError as e:
+        logger.error(f"OAuth Credentials Error: {str(e)}")
+        return "Missing OAuth credentials. Please check your configuration.", 500
     except Exception as e:
-        logger.error(f"Error in login route: {str(e)}")
-        return "Authentication configuration error", 500
+        logger.error(f"Login Error: {str(e)}")
+        return f"Authentication configuration error: {str(e)}", 500
 
 @google_auth.route("/google_login/callback")
 def callback():
@@ -83,21 +91,18 @@ def callback():
     try:
         client_id, client_secret = get_oauth_credentials()
         client = WebApplicationClient(client_id)
-        callback_url = get_callback_url()
+        callback_url = PROD_REDIRECT_URI if 'replit.app' in request.host else url_for('google_auth.callback', _external=True, _scheme='https')
 
         code = request.args.get("code")
         if not code:
             logger.error("No code received from Google")
             return "Error: No code received from Google", 400
 
-        # Get Google's token endpoint
+        # Get token endpoint
         google_provider_cfg = requests.get(GOOGLE_DISCOVERY_URL).json()
         token_endpoint = google_provider_cfg["token_endpoint"]
 
-        logger.info(f"Callback - Using callback URL: {callback_url}")
-        logger.info(f"Callback - Request URL: {request.url}")
-
-        # Prepare and send token request
+        # Prepare token request
         token_url, headers, body = client.prepare_token_request(
             token_endpoint,
             authorization_response=request.url.replace("http://", "https://"),
@@ -118,7 +123,7 @@ def callback():
 
         client.parse_request_body_response(json.dumps(token_response.json()))
 
-        # Get user info from Google
+        # Get user info
         userinfo_endpoint = google_provider_cfg["userinfo_endpoint"]
         uri, headers, body = client.add_token(userinfo_endpoint)
         userinfo_response = requests.get(uri, headers=headers, data=body)
@@ -151,7 +156,7 @@ def callback():
         return redirect(url_for("dashboard"))
 
     except Exception as e:
-        logger.error(f"Error during callback: {str(e)}")
+        logger.error(f"Callback Error: {str(e)}")
         return "Authentication failed", 400
 
 @google_auth.route("/logout")

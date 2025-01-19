@@ -17,20 +17,35 @@ PROD_REDIRECT_URI = "https://podcast-pal-bdgillihan.replit.app/google_login/call
 
 def get_oauth_credentials():
     """Get appropriate OAuth credentials based on environment"""
+    logger.info("=== OAuth Credentials Check ===")
+    logger.info(f"Current host: {request.host}")
+    logger.info(f"Request URL: {request.url}")
+    logger.info("Environment variables present:")
+    logger.info(f"GOOGLE_OAUTH_PROD_CLIENT_ID exists: {bool(os.environ.get('GOOGLE_OAUTH_PROD_CLIENT_ID'))}")
+    logger.info(f"GOOGLE_OAUTH_PROD_CLIENT_SECRET exists: {bool(os.environ.get('GOOGLE_OAUTH_PROD_CLIENT_SECRET'))}")
+
+    # Always use production credentials for .replit.app domains
     if 'replit.app' in request.host:
-        # Production environment - strictly use production credentials
         client_id = os.environ.get("GOOGLE_OAUTH_PROD_CLIENT_ID")
         client_secret = os.environ.get("GOOGLE_OAUTH_PROD_CLIENT_SECRET")
         logger.info("Using production OAuth credentials")
+
+        if not client_id or not client_secret:
+            logger.error("Production credentials not found")
+            raise ValueError("Missing production OAuth credentials")
     else:
         # Development environment
         client_id = os.environ.get("GOOGLE_OAUTH_CLIENT_ID")
         client_secret = os.environ.get("GOOGLE_OAUTH_CLIENT_SECRET")
         logger.info("Using development OAuth credentials")
 
-    if not client_id or not client_secret:
-        logger.error("Missing OAuth credentials")
-        raise ValueError("Missing OAuth credentials")
+        if not client_id or not client_secret:
+            logger.error("Development credentials not found")
+            raise ValueError("Missing development OAuth credentials")
+
+    # Log partial client ID for verification (first 8 chars only)
+    logger.info(f"Using client ID: {client_id[:8]}...")
+    logger.info("=== End OAuth Credentials Check ===")
 
     return client_id, client_secret
 
@@ -65,11 +80,10 @@ def login():
         # Initialize client for this request
         client = WebApplicationClient(client_id)
 
-        # Get callback URL based on environment
+        # Use production redirect URI for replit.app domains
         callback_url = PROD_REDIRECT_URI if 'replit.app' in request.host else url_for('google_auth.callback', _external=True, _scheme='https')
-        logger.info(f"Login - Callback URL: {callback_url}")
+        logger.info(f"Login - Using callback URL: {callback_url}")
 
-        # Prepare request URI
         request_uri = client.prepare_request_uri(
             authorization_endpoint,
             redirect_uri=callback_url,

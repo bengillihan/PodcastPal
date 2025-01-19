@@ -1,9 +1,10 @@
 import json
 import os
 import logging
+import base64
 import requests
 from app import db
-from flask import Blueprint, redirect, request, url_for, current_app
+from flask import Blueprint, redirect, request, url_for, session, current_app
 from flask_login import login_required, login_user, logout_user
 from models import User
 from oauthlib.oauth2 import WebApplicationClient
@@ -17,6 +18,19 @@ google_auth = Blueprint("google_auth", __name__)
 
 GOOGLE_DISCOVERY_URL = "https://accounts.google.com/.well-known/openid-configuration"
 
+# Validate required environment variables
+required_vars = [
+    "GOOGLE_OAUTH_PROD_CLIENT_ID",
+    "GOOGLE_OAUTH_PROD_CLIENT_SECRET",
+    "GOOGLE_OAUTH_CLIENT_ID",
+    "GOOGLE_OAUTH_CLIENT_SECRET"
+]
+
+for var in required_vars:
+    if not os.environ.get(var):
+        logger.error(f"Missing {var} environment variable")
+        raise RuntimeError(f"Missing required environment variable: {var}")
+
 @google_auth.route("/google_login")
 def login():
     """Initiates the Google OAuth login flow"""
@@ -25,12 +39,17 @@ def login():
         logger.info(f"Login - Using client ID: {client_id[:8]}... (truncated)")
         logger.info(f"Login - Current host: {request.host}")
 
-        # Get Google provider configuration
-        google_provider_cfg = requests.get(GOOGLE_DISCOVERY_URL).json()
+        # Get Google provider configuration with timeout
+        google_provider_cfg = requests.get(GOOGLE_DISCOVERY_URL, timeout=10).json()
         authorization_endpoint = google_provider_cfg["authorization_endpoint"]
 
         # Initialize client for this request
         client = WebApplicationClient(client_id)
+
+        # Generate and store state parameter
+        state = base64.urlsafe_b64encode(os.urandom(24)).decode('utf-8')
+        session['oauth_state'] = state
+        logger.info("Generated new OAuth state parameter")
 
         # Use production redirect URI for replit.app domains
         callback_url = f"https://{request.host}/google_login/callback"
@@ -40,6 +59,7 @@ def login():
             authorization_endpoint,
             redirect_uri=callback_url,
             scope=["openid", "email", "profile"],
+            state=state
         )
         logger.info(f"Login - Request URI generated: {request_uri[:50]}... (truncated)")
 
@@ -55,6 +75,14 @@ def login():
 def callback():
     """Handles the callback from Google OAuth"""
     try:
+        # Verify state parameter
+        stored_state = session.pop('oauth_state', None)
+        received_state = request.args.get('state')
+
+        if not stored_state or stored_state != received_state:
+            logger.error("State parameter mismatch or missing")
+            return "Invalid state parameter. Please try again.", 400
+
         client_id = os.environ["GOOGLE_OAUTH_PROD_CLIENT_ID"] if 'replit.app' in request.host else os.environ["GOOGLE_OAUTH_CLIENT_ID"]
         client_secret = os.environ["GOOGLE_OAUTH_PROD_CLIENT_SECRET"] if 'replit.app' in request.host else os.environ["GOOGLE_OAUTH_CLIENT_SECRET"]
         client = WebApplicationClient(client_id)
@@ -67,8 +95,8 @@ def callback():
             logger.error("No code received from Google")
             return "Error: No code received from Google", 400
 
-        # Get token endpoint
-        google_provider_cfg = requests.get(GOOGLE_DISCOVERY_URL).json()
+        # Get token endpoint with timeout
+        google_provider_cfg = requests.get(GOOGLE_DISCOVERY_URL, timeout=10).json()
         token_endpoint = google_provider_cfg["token_endpoint"]
 
         # Prepare token request
@@ -84,6 +112,7 @@ def callback():
             headers=headers,
             data=body,
             auth=(client_id, client_secret),
+            timeout=10
         )
 
         if not token_response.ok:
@@ -92,10 +121,10 @@ def callback():
 
         client.parse_request_body_response(json.dumps(token_response.json()))
 
-        # Get user info
+        # Get user info with timeout
         userinfo_endpoint = google_provider_cfg["userinfo_endpoint"]
         uri, headers, body = client.add_token(userinfo_endpoint)
-        userinfo_response = requests.get(uri, headers=headers, data=body)
+        userinfo_response = requests.get(uri, headers=headers, data=body, timeout=10)
 
         if not userinfo_response.ok:
             logger.error(f"Userinfo response error: {userinfo_response.text}")

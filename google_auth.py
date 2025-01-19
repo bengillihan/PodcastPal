@@ -81,10 +81,19 @@ def callback():
 
         if not stored_state or stored_state != received_state:
             logger.error("State parameter mismatch or missing")
+            logger.error(f"Stored state: {stored_state}, Received state: {received_state}")
             return "Invalid state parameter. Please try again.", 400
+
+        # Log the full callback URL for debugging
+        logger.info(f"Callback URL: {request.url}")
 
         client_id = os.environ["GOOGLE_OAUTH_PROD_CLIENT_ID"] if 'replit.app' in request.host else os.environ["GOOGLE_OAUTH_CLIENT_ID"]
         client_secret = os.environ["GOOGLE_OAUTH_PROD_CLIENT_SECRET"] if 'replit.app' in request.host else os.environ["GOOGLE_OAUTH_CLIENT_SECRET"]
+
+        # Log the environment being used
+        logger.info(f"Using {'production' if 'replit.app' in request.host else 'development'} credentials")
+        logger.info(f"Client ID being used: {client_id[:8]}...")
+
         client = WebApplicationClient(client_id)
 
         callback_url = f"https://{request.host}/google_login/callback"
@@ -96,8 +105,12 @@ def callback():
             return "Error: No code received from Google", 400
 
         # Get token endpoint with timeout
-        google_provider_cfg = requests.get(GOOGLE_DISCOVERY_URL, timeout=10).json()
-        token_endpoint = google_provider_cfg["token_endpoint"]
+        try:
+            google_provider_cfg = requests.get(GOOGLE_DISCOVERY_URL, timeout=10).json()
+            token_endpoint = google_provider_cfg["token_endpoint"]
+        except Exception as e:
+            logger.error(f"Error getting Google configuration: {str(e)}")
+            return "Error connecting to Google. Please try again.", 500
 
         # Prepare token request
         token_url, headers, body = client.prepare_token_request(
@@ -107,51 +120,60 @@ def callback():
             code=code
         )
 
-        token_response = requests.post(
-            token_url,
-            headers=headers,
-            data=body,
-            auth=(client_id, client_secret),
-            timeout=10
-        )
+        try:
+            token_response = requests.post(
+                token_url,
+                headers=headers,
+                data=body,
+                auth=(client_id, client_secret),
+                timeout=10
+            )
 
-        if not token_response.ok:
-            logger.error(f"Token response error: {token_response.text}")
-            return "Failed to get token from Google", 400
+            if not token_response.ok:
+                logger.error(f"Token response error: {token_response.text}")
+                return "Failed to get token from Google", 400
 
-        client.parse_request_body_response(json.dumps(token_response.json()))
+            client.parse_request_body_response(json.dumps(token_response.json()))
+        except Exception as e:
+            logger.error(f"Error in token exchange: {str(e)}")
+            return "Error during authentication. Please try again.", 500
 
         # Get user info with timeout
-        userinfo_endpoint = google_provider_cfg["userinfo_endpoint"]
-        uri, headers, body = client.add_token(userinfo_endpoint)
-        userinfo_response = requests.get(uri, headers=headers, data=body, timeout=10)
+        try:
+            userinfo_endpoint = google_provider_cfg["userinfo_endpoint"]
+            uri, headers, body = client.add_token(userinfo_endpoint)
+            userinfo_response = requests.get(uri, headers=headers, data=body, timeout=10)
 
-        if not userinfo_response.ok:
-            logger.error(f"Userinfo response error: {userinfo_response.text}")
-            return "Failed to get user info from Google", 400
+            if not userinfo_response.ok:
+                logger.error(f"Userinfo response error: {userinfo_response.text}")
+                return "Failed to get user info from Google", 400
 
-        userinfo = userinfo_response.json()
-        if not userinfo.get("email_verified"):
-            logger.error("User email not verified by Google")
-            return "Google account email not verified", 400
+            userinfo = userinfo_response.json()
+            if not userinfo.get("email_verified"):
+                logger.error("User email not verified by Google")
+                return "Google account email not verified", 400
 
-        # Get user data
-        google_id = userinfo["sub"]
-        email = userinfo["email"]
-        name = userinfo.get("name", email.split("@")[0])
+            # Get user data
+            google_id = userinfo["sub"]
+            email = userinfo["email"]
+            name = userinfo.get("name", email.split("@")[0])
 
-        # Find or create user
-        user = User.query.filter_by(google_id=google_id).first()
-        if not user:
-            user = User(google_id=google_id, name=name, email=email)
-            db.session.add(user)
-            db.session.commit()
-            logger.info(f"New user created: {email}")
-        else:
-            logger.info(f"Existing user logged in: {email}")
+            # Find or create user
+            user = User.query.filter_by(google_id=google_id).first()
+            if not user:
+                user = User(google_id=google_id, name=name, email=email)
+                db.session.add(user)
+                db.session.commit()
+                logger.info(f"New user created: {email}")
+            else:
+                logger.info(f"Existing user logged in: {email}")
 
-        login_user(user)
-        return redirect(url_for("dashboard"))
+            login_user(user)
+            return redirect(url_for("dashboard"))
+
+        except Exception as e:
+            logger.error(f"Error processing user info: {str(e)}")
+            return "Error processing user information. Please try again.", 500
 
     except Exception as e:
         logger.error(f"Callback Error: {str(e)}")

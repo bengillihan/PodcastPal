@@ -24,30 +24,30 @@ def get_oauth_credentials():
     logger.info(f"GOOGLE_OAUTH_PROD_CLIENT_ID exists: {bool(os.environ.get('GOOGLE_OAUTH_PROD_CLIENT_ID'))}")
     logger.info(f"GOOGLE_OAUTH_PROD_CLIENT_SECRET exists: {bool(os.environ.get('GOOGLE_OAUTH_PROD_CLIENT_SECRET'))}")
 
-    # Always use production credentials for .replit.app domains
-    if 'replit.app' in request.host:
-        client_id = os.environ.get("GOOGLE_OAUTH_PROD_CLIENT_ID")
-        client_secret = os.environ.get("GOOGLE_OAUTH_PROD_CLIENT_SECRET")
-        logger.info("Using production OAuth credentials")
+    try:
+        # Always use production credentials for .replit.app domains
+        if 'replit.app' in request.host:
+            client_id = os.environ["GOOGLE_OAUTH_PROD_CLIENT_ID"]
+            client_secret = os.environ["GOOGLE_OAUTH_PROD_CLIENT_SECRET"]
+            logger.info("Using production OAuth credentials")
+        else:
+            # Development environment
+            client_id = os.environ["GOOGLE_OAUTH_CLIENT_ID"]
+            client_secret = os.environ["GOOGLE_OAUTH_CLIENT_SECRET"]
+            logger.info("Using development OAuth credentials")
 
-        if not client_id or not client_secret:
-            logger.error("Production credentials not found")
-            raise ValueError("Missing production OAuth credentials")
-    else:
-        # Development environment
-        client_id = os.environ.get("GOOGLE_OAUTH_CLIENT_ID")
-        client_secret = os.environ.get("GOOGLE_OAUTH_CLIENT_SECRET")
-        logger.info("Using development OAuth credentials")
+        # Log partial client ID for verification (first 8 chars only)
+        logger.info(f"Using client ID: {client_id[:8]}...")
+        logger.info("=== End OAuth Credentials Check ===")
 
-        if not client_id or not client_secret:
-            logger.error("Development credentials not found")
-            raise ValueError("Missing development OAuth credentials")
+        return client_id, client_secret
 
-    # Log partial client ID for verification (first 8 chars only)
-    logger.info(f"Using client ID: {client_id[:8]}...")
-    logger.info("=== End OAuth Credentials Check ===")
-
-    return client_id, client_secret
+    except KeyError as e:
+        logger.error(f"Missing required environment variable: {str(e)}")
+        raise ValueError(f"Missing OAuth credentials: {str(e)}")
+    except Exception as e:
+        logger.error(f"Unexpected error accessing OAuth credentials: {str(e)}")
+        raise ValueError("Error accessing OAuth credentials")
 
 def get_callback_url():
     """Get the appropriate callback URL based on environment"""

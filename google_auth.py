@@ -4,7 +4,7 @@ import logging
 import base64
 import requests
 from app import db
-from flask import Blueprint, redirect, request, url_for, session, current_app
+from flask import Blueprint, redirect, request, url_for, session
 from flask_login import login_required, login_user, logout_user
 from models import User
 from oauthlib.oauth2 import WebApplicationClient
@@ -13,28 +13,29 @@ from oauthlib.oauth2 import WebApplicationClient
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
-# Initialize blueprint first, before any routes
+# Initialize blueprint
 google_auth = Blueprint("google_auth", __name__)
 
 GOOGLE_DISCOVERY_URL = "https://accounts.google.com/.well-known/openid-configuration"
 
 def get_oauth_credentials():
     """Get OAuth credentials based on environment"""
-    is_production = 'replit.app' in request.host
+    try:
+        # Always use production credentials when deployed
+        client_id = os.environ.get("GOOGLE_OAUTH_PROD_CLIENT_ID")
+        client_secret = os.environ.get("GOOGLE_OAUTH_PROD_CLIENT_SECRET")
 
-    client_id = os.environ.get(
-        "GOOGLE_OAUTH_PROD_CLIENT_ID" if is_production else "GOOGLE_OAUTH_CLIENT_ID"
-    )
-    client_secret = os.environ.get(
-        "GOOGLE_OAUTH_PROD_CLIENT_SECRET" if is_production else "GOOGLE_OAUTH_CLIENT_SECRET"
-    )
+        logger.debug(f"Attempting to load OAuth credentials")
+        logger.debug(f"Client ID available: {bool(client_id)}")
+        logger.debug(f"Client secret available: {bool(client_secret)}")
 
-    if not client_id or not client_secret:
-        env_type = "production" if is_production else "development"
-        logger.error(f"Missing {env_type} OAuth credentials")
-        raise ValueError(f"Missing {env_type} OAuth credentials")
+        if not client_id or not client_secret:
+            raise ValueError("Missing OAuth credentials. Please check environment variables.")
 
-    return client_id, client_secret
+        return client_id, client_secret
+    except Exception as e:
+        logger.error(f"Error loading OAuth credentials: {str(e)}")
+        raise
 
 @google_auth.route("/google_login")
 def login():
@@ -42,19 +43,18 @@ def login():
     try:
         client_id, _ = get_oauth_credentials()
 
-        # Get Google provider configuration with timeout
+        # Get Google provider configuration
         google_provider_cfg = requests.get(GOOGLE_DISCOVERY_URL, timeout=10).json()
         authorization_endpoint = google_provider_cfg["authorization_endpoint"]
 
-        # Initialize client for this request
+        # Initialize client
         client = WebApplicationClient(client_id)
 
         # Generate and store state parameter
         state = base64.urlsafe_b64encode(os.urandom(24)).decode('utf-8')
         session['oauth_state'] = state
-        logger.info("Generated new OAuth state parameter")
 
-        # Use production redirect URI for replit.app domains
+        # Use https for callback URL
         callback_url = f"https://{request.host}/google_login/callback"
         logger.info(f"Login - Using callback URL: {callback_url}")
 
@@ -64,13 +64,12 @@ def login():
             scope=["openid", "email", "profile"],
             state=state
         )
-        logger.info(f"Login - Request URI generated: {request_uri[:50]}... (truncated)")
 
         return redirect(request_uri)
 
     except ValueError as e:
         logger.error(f"OAuth Configuration Error: {str(e)}")
-        return "OAuth configuration is incomplete. Please check the environment variables.", 500
+        return "OAuth configuration is incomplete. Please check your Google OAuth setup in the environment variables.", 500
     except Exception as e:
         logger.error(f"Login Error: {str(e)}")
         return f"Authentication configuration error: {str(e)}", 500
@@ -103,7 +102,7 @@ def callback():
         google_provider_cfg = requests.get(GOOGLE_DISCOVERY_URL, timeout=10).json()
         token_endpoint = google_provider_cfg["token_endpoint"]
 
-        # Prepare and execute token request
+        # Prepare and send token request
         token_url, headers, body = client.prepare_token_request(
             token_endpoint,
             authorization_response=request.url.replace("http://", "https://"),
@@ -159,7 +158,7 @@ def callback():
 
     except ValueError as e:
         logger.error(f"OAuth Configuration Error: {str(e)}")
-        return "OAuth configuration is incomplete. Please check the environment variables.", 500
+        return "OAuth configuration is incomplete. Please check your Google OAuth setup in the environment variables.", 500
     except Exception as e:
         logger.error(f"Callback Error: {str(e)}")
         return "Authentication failed. Please try again.", 400

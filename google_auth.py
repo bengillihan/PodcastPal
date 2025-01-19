@@ -13,15 +13,22 @@ from oauthlib.oauth2 import WebApplicationClient
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
-GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_OAUTH_CLIENT_ID")
-GOOGLE_CLIENT_SECRET = os.environ.get("GOOGLE_OAUTH_CLIENT_SECRET")
+# Get appropriate credentials based on environment
+def get_oauth_credentials():
+    if 'replit.app' in request.host:
+        # Production environment
+        client_id = os.environ.get("GOOGLE_OAUTH_PROD_CLIENT_ID", os.environ.get("GOOGLE_OAUTH_CLIENT_ID"))
+        client_secret = os.environ.get("GOOGLE_OAUTH_PROD_CLIENT_SECRET", os.environ.get("GOOGLE_OAUTH_CLIENT_SECRET"))
+    else:
+        # Development environment
+        client_id = os.environ.get("GOOGLE_OAUTH_DEV_CLIENT_ID", os.environ.get("GOOGLE_OAUTH_CLIENT_ID"))
+        client_secret = os.environ.get("GOOGLE_OAUTH_DEV_CLIENT_SECRET", os.environ.get("GOOGLE_OAUTH_CLIENT_SECRET"))
+
+    return client_id, client_secret
+
 GOOGLE_DISCOVERY_URL = "https://accounts.google.com/.well-known/openid-configuration"
 
-# OAuth 2 client setup
-if not GOOGLE_CLIENT_ID:
-    logger.error("GOOGLE_OAUTH_CLIENT_ID environment variable is not set")
-client = WebApplicationClient(GOOGLE_CLIENT_ID)
-
+# Initialize blueprint
 google_auth = Blueprint("google_auth", __name__)
 
 def get_google_provider_cfg():
@@ -32,21 +39,22 @@ def get_google_provider_cfg():
         return None
 
 def get_callback_url():
-    # Check if we're in production (replit.app domain)
-    if 'replit.app' in request.host:
-        base_url = f"https://{request.host}"
-    else:
-        # For development, use the replit dev domain
-        base_url = f"https://podcast-pal-bdgillihan.replit.app"
+    base_url = f"https://{request.host}"
     return f"{base_url}/google_login/callback"
 
 @google_auth.route("/google_login")
 def login():
     """Initiates the Google OAuth login flow"""
+    client_id, _ = get_oauth_credentials()
+    if not client_id:
+        logger.error("No Google OAuth client ID available")
+        return "OAuth configuration error", 500
+
     google_provider_cfg = get_google_provider_cfg()
     if not google_provider_cfg:
         return "Error: Could not fetch Google provider configuration", 500
 
+    client = WebApplicationClient(client_id)
     authorization_endpoint = google_provider_cfg["authorization_endpoint"]
     callback_url = get_callback_url()
 
@@ -64,11 +72,17 @@ def login():
 @google_auth.route("/google_login/callback")
 def callback():
     """Handles the callback from Google OAuth"""
+    client_id, client_secret = get_oauth_credentials()
+    if not client_id or not client_secret:
+        logger.error("No Google OAuth credentials available")
+        return "OAuth configuration error", 500
+
     code = request.args.get("code")
     if not code:
         logger.error("No code received from Google")
         return "Error: No code received from Google", 400
 
+    client = WebApplicationClient(client_id)
     google_provider_cfg = get_google_provider_cfg()
     if not google_provider_cfg:
         return "Error: Could not fetch Google provider configuration", 500
@@ -93,7 +107,7 @@ def callback():
             token_url,
             headers=headers,
             data=body,
-            auth=(GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET),
+            auth=(client_id, client_secret),
         )
 
         logger.info(f"Token response status: {token_response.status_code}")

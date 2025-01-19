@@ -39,8 +39,17 @@ def get_google_provider_cfg():
         return None
 
 def get_callback_url():
-    base_url = f"https://{request.host}"
-    return f"{base_url}/google_login/callback"
+    # Always use HTTPS for the callback URL
+    if 'replit.app' in request.host:
+        # Production URL
+        base_url = f"https://podcast-pal-bdgillihan.replit.app"
+    else:
+        # Development URL - use the actual request host
+        base_url = f"https://{request.host}"
+
+    callback_url = f"{base_url}/google_login/callback"
+    logger.info(f"Generated callback URL: {callback_url}")
+    return callback_url
 
 @google_auth.route("/google_login")
 def login():
@@ -59,6 +68,8 @@ def login():
     callback_url = get_callback_url()
 
     logger.info(f"Login - Using callback URL: {callback_url}")
+    logger.info(f"Login - Request host: {request.host}")
+    logger.info(f"Login - Full request URL: {request.url}")
 
     # Construct the request URI for Google login
     request_uri = client.prepare_request_uri(
@@ -67,6 +78,7 @@ def login():
         scope=["openid", "email", "profile"],
     )
 
+    logger.info(f"Login - Generated request URI: {request_uri}")
     return redirect(request_uri)
 
 @google_auth.route("/google_login/callback")
@@ -92,6 +104,7 @@ def callback():
 
     logger.info(f"Callback - Using callback URL: {callback_url}")
     logger.info(f"Callback - Request URL: {request.url}")
+    logger.info(f"Callback - Request host: {request.host}")
 
     try:
         token_url, headers, body = client.prepare_token_request(

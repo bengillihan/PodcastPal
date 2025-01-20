@@ -21,16 +21,25 @@ GOOGLE_DISCOVERY_URL = "https://accounts.google.com/.well-known/openid-configura
 def get_oauth_credentials():
     """Get OAuth credentials based on environment"""
     try:
-        # Always use production credentials when deployed
-        client_id = os.environ.get("GOOGLE_OAUTH_PROD_CLIENT_ID")
-        client_secret = os.environ.get("GOOGLE_OAUTH_PROD_CLIENT_SECRET")
+        # Check if we're in production or development
+        is_production = 'replit.app' in request.host
 
-        logger.debug(f"Attempting to load OAuth credentials")
+        if is_production:
+            client_id = os.environ.get("GOOGLE_OAUTH_PROD_CLIENT_ID")
+            client_secret = os.environ.get("GOOGLE_OAUTH_PROD_CLIENT_SECRET")
+            env_type = "production"
+        else:
+            client_id = os.environ.get("GOOGLE_OAUTH_CLIENT_ID")
+            client_secret = os.environ.get("GOOGLE_OAUTH_CLIENT_SECRET")
+            env_type = "development"
+
+        logger.debug(f"Environment: {env_type}")
         logger.debug(f"Client ID available: {bool(client_id)}")
         logger.debug(f"Client secret available: {bool(client_secret)}")
+        logger.debug(f"Request host: {request.host}")
 
         if not client_id or not client_secret:
-            raise ValueError("Missing OAuth credentials. Please check environment variables.")
+            raise ValueError(f"Missing {env_type} OAuth credentials. Please check environment variables.")
 
         return client_id, client_secret
     except Exception as e:

@@ -36,9 +36,9 @@ def generate_rss_feed(feed):
     description = ET.SubElement(channel, 'description')
     description.text = feed.description
 
-    # Add website link
+    # Add website link using the actual domain
     link = ET.SubElement(channel, 'link')
-    link.text = f"https://{feed.url_slug}.repl.co"
+    link.text = f"https://{feed.owner.email.split('@')[0]}-{feed.url_slug}.repl.dev"
 
     # Add language tag
     language = ET.SubElement(channel, 'language')
@@ -63,51 +63,49 @@ def generate_rss_feed(feed):
 
     # Atom feed link
     atom_link = ET.SubElement(channel, 'atom:link')
-    atom_link.set('href', f"https://{feed.url_slug}.repl.co/feed.xml")
+    atom_link.set('href', f"https://{feed.url_slug}.repl.dev/feed.xml")
     atom_link.set('rel', 'self')
     atom_link.set('type', 'application/rss+xml')
 
+    # Sort episodes by release date
+    sorted_episodes = sorted(feed.episodes, key=lambda x: x.release_date, reverse=True)
+
     # Episodes
-    for episode in feed.episodes:
+    for episode in sorted_episodes:
         logger.debug(f"Processing episode: {episode.title}")
-        if episode.release_date <= datetime.utcnow():
-            item = ET.SubElement(channel, 'item')
+        # Include all episodes, regardless of release date
+        item = ET.SubElement(channel, 'item')
 
-            episode_title = ET.SubElement(item, 'title')
-            episode_title.text = episode.title
+        episode_title = ET.SubElement(item, 'title')
+        episode_title.text = episode.title
 
-            episode_desc = ET.SubElement(item, 'description')
-            episode_desc.text = episode.description
+        episode_desc = ET.SubElement(item, 'description')
+        episode_desc.text = episode.description
 
-            # Add iTunes specific episode description
-            itunes_summary = ET.SubElement(item, 'itunes:summary')
-            itunes_summary.text = episode.description
+        # Add iTunes specific episode description
+        itunes_summary = ET.SubElement(item, 'itunes:summary')
+        itunes_summary.text = episode.description
 
-            pub_date = ET.SubElement(item, 'pubDate')
-            pub_date.text = episode.release_date.strftime('%a, %d %b %Y %H:%M:%S GMT')
+        pub_date = ET.SubElement(item, 'pubDate')
+        pub_date.text = episode.release_date.strftime('%a, %d %b %Y %H:%M:%S GMT')
 
-            # Add guid for episode
-            guid = ET.SubElement(item, 'guid')
-            guid.text = f"episode_{episode.id}"
-            guid.set('isPermaLink', 'false')
+        # Add guid for episode
+        guid = ET.SubElement(item, 'guid')
+        guid.text = f"episode_{episode.id}"
+        guid.set('isPermaLink', 'false')
 
-            # Convert audio URL to direct format
-            direct_audio_url = convert_url_to_dropbox_direct(episode.audio_url)
-            logger.debug(f"Direct audio URL: {direct_audio_url}")
+        # Convert audio URL to direct format if it's a Dropbox URL
+        direct_audio_url = convert_url_to_dropbox_direct(episode.audio_url)
+        logger.debug(f"Direct audio URL: {direct_audio_url}")
 
-            # Get file size for enclosure tag
-            file_size = get_file_size(direct_audio_url)
-            logger.debug(f"File size: {file_size}")
+        # Get file size for enclosure tag
+        file_size = get_file_size(direct_audio_url)
+        logger.debug(f"File size: {file_size}")
 
-            enclosure = ET.SubElement(item, 'enclosure')
-            enclosure.set('url', direct_audio_url)
-            enclosure.set('type', 'audio/mpeg')
-            enclosure.set('length', file_size)
-
-            # Add duration if available
-            if hasattr(episode, 'duration'):
-                itunes_duration = ET.SubElement(item, 'itunes:duration')
-                itunes_duration.text = str(episode.duration)
+        enclosure = ET.SubElement(item, 'enclosure')
+        enclosure.set('url', direct_audio_url)
+        enclosure.set('type', 'audio/mpeg')
+        enclosure.set('length', file_size)
 
     result = ET.tostring(rss, encoding='unicode', xml_declaration=True)
     logger.debug(f"Generated RSS feed length: {len(result)}")

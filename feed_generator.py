@@ -36,9 +36,10 @@ def generate_rss_feed(feed):
     description = ET.SubElement(channel, 'description')
     description.text = feed.description
 
-    # Add website link using the actual domain
-    link = ET.SubElement(channel, 'link')
-    link.text = f"https://{feed.owner.email.split('@')[0]}-{feed.url_slug}.repl.dev"
+    # Add website link only if specified
+    if feed.website_url:
+        link = ET.SubElement(channel, 'link')
+        link.text = feed.website_url
 
     # Add language tag
     language = ET.SubElement(channel, 'language')
@@ -63,7 +64,7 @@ def generate_rss_feed(feed):
 
     # Atom feed link
     atom_link = ET.SubElement(channel, 'atom:link')
-    atom_link.set('href', f"https://{feed.url_slug}.repl.dev/feed.xml")
+    atom_link.set('href', f"https://{feed.owner.email.split('@')[0]}-{feed.url_slug}.repl.dev/feed.xml")
     atom_link.set('rel', 'self')
     atom_link.set('type', 'application/rss+xml')
 

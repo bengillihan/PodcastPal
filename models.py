@@ -15,6 +15,7 @@ class Feed(db.Model):
     name = db.Column(db.String(200), nullable=False)
     description = db.Column(db.Text)
     image_url = db.Column(db.String(500))  # New field for podcast image
+    website_url = db.Column(db.String(500))  # New field for optional website URL
     url_slug = db.Column(db.String(200), unique=True, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     episodes = db.relationship('Episode', backref='feed', lazy=True)

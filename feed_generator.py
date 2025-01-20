@@ -68,13 +68,16 @@ def generate_rss_feed(feed):
     atom_link.set('rel', 'self')
     atom_link.set('type', 'application/rss+xml')
 
-    # Sort episodes by release date
-    sorted_episodes = sorted(feed.episodes, key=lambda x: x.release_date, reverse=True)
+    # Filter episodes to include only past and present episodes
+    current_time = datetime.utcnow()
+    available_episodes = [ep for ep in feed.episodes if ep.release_date <= current_time]
+    sorted_episodes = sorted(available_episodes, key=lambda x: x.release_date, reverse=True)
+
+    logger.debug(f"Found {len(available_episodes)} available episodes (excluding future dates)")
 
     # Episodes
     for episode in sorted_episodes:
         logger.debug(f"Processing episode: {episode.title}")
-        # Include all episodes, regardless of release date
         item = ET.SubElement(channel, 'item')
 
         episode_title = ET.SubElement(item, 'title')

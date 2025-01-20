@@ -1,6 +1,9 @@
 from datetime import datetime
 from app import db
 from flask_login import UserMixin
+from slugify import slugify
+import random
+import string
 
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -19,6 +22,20 @@ class Feed(db.Model):
     url_slug = db.Column(db.String(200), unique=True, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     episodes = db.relationship('Episode', backref='feed', lazy=True)
+
+    def regenerate_url_slug(self):
+        """Regenerate the URL slug for the feed"""
+        base_slug = slugify(self.name)
+
+        # Add random suffix to ensure uniqueness
+        suffix = ''.join(random.choices(string.ascii_lowercase + string.digits, k=6))
+        new_slug = f"{base_slug}-{suffix}"
+
+        # Update the slug
+        self.url_slug = new_slug
+        db.session.commit()
+
+        return new_slug
 
 class Episode(db.Model):
     id = db.Column(db.Integer, primary_key=True)

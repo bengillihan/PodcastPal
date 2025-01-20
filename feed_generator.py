@@ -17,6 +17,10 @@ def get_file_size(url):
         return "0"
 
 def generate_rss_feed(feed):
+    """Generate RSS feed XML for a podcast feed"""
+    logger.debug(f"Generating RSS feed for: {feed.name}")
+    logger.debug(f"Number of episodes: {len(feed.episodes)}")
+
     # Create RSS element with all required namespaces
     rss = ET.Element('rss', version='2.0')
     rss.set('xmlns:itunes', 'http://www.itunes.com/dtds/podcast-1.0.dtd')
@@ -32,11 +36,11 @@ def generate_rss_feed(feed):
     description = ET.SubElement(channel, 'description')
     description.text = feed.description
 
-    # Add website link (using the RSS feed URL as fallback)
+    # Add website link
     link = ET.SubElement(channel, 'link')
-    link.text = f"https://{feed.url_slug}.repl.co"  # Fallback to feed URL
+    link.text = f"https://{feed.url_slug}.repl.co"
 
-    # Add language tag (default to English)
+    # Add language tag
     language = ET.SubElement(channel, 'language')
     language.text = 'en-us'
 
@@ -46,10 +50,10 @@ def generate_rss_feed(feed):
 
     # Add iTunes specific tags
     itunes_author = ET.SubElement(channel, 'itunes:author')
-    itunes_author.text = feed.owner.name  # Using feed owner's name
+    itunes_author.text = feed.owner.name
 
     itunes_category = ET.SubElement(channel, 'itunes:category')
-    itunes_category.set('text', 'Arts')  # Default category, can be customized later
+    itunes_category.set('text', 'Arts')
 
     # Add podcast image if available
     if feed.image_url:
@@ -57,7 +61,7 @@ def generate_rss_feed(feed):
         itunes_image = ET.SubElement(channel, 'itunes:image')
         itunes_image.set('href', direct_image_url)
 
-    # Atom feed link for podcast readers
+    # Atom feed link
     atom_link = ET.SubElement(channel, 'atom:link')
     atom_link.set('href', f"https://{feed.url_slug}.repl.co/feed.xml")
     atom_link.set('rel', 'self')
@@ -65,6 +69,7 @@ def generate_rss_feed(feed):
 
     # Episodes
     for episode in feed.episodes:
+        logger.debug(f"Processing episode: {episode.title}")
         if episode.release_date <= datetime.utcnow():
             item = ET.SubElement(channel, 'item')
 
@@ -86,20 +91,24 @@ def generate_rss_feed(feed):
             guid.text = f"episode_{episode.id}"
             guid.set('isPermaLink', 'false')
 
-            # Ensure audio URL is in direct format
+            # Convert audio URL to direct format
             direct_audio_url = convert_url_to_dropbox_direct(episode.audio_url)
+            logger.debug(f"Direct audio URL: {direct_audio_url}")
 
             # Get file size for enclosure tag
             file_size = get_file_size(direct_audio_url)
+            logger.debug(f"File size: {file_size}")
 
             enclosure = ET.SubElement(item, 'enclosure')
             enclosure.set('url', direct_audio_url)
             enclosure.set('type', 'audio/mpeg')
             enclosure.set('length', file_size)
 
-            # Add duration if available (optional)
+            # Add duration if available
             if hasattr(episode, 'duration'):
                 itunes_duration = ET.SubElement(item, 'itunes:duration')
                 itunes_duration.text = str(episode.duration)
 
-    return ET.tostring(rss, encoding='unicode', xml_declaration=True)
+    result = ET.tostring(rss, encoding='unicode', xml_declaration=True)
+    logger.debug(f"Generated RSS feed length: {len(result)}")
+    return result

@@ -317,3 +317,21 @@ def upload_episodes_csv(feed_id):
         flash('Error processing CSV file. Please check the format and try again.', 'error')
 
     return redirect(url_for('feed_details', feed_id=feed_id))
+
+# Add new route for URL regeneration
+@app.route('/feed/<int:feed_id>/regenerate-url', methods=['POST'])
+@login_required
+def regenerate_feed_url(feed_id):
+    feed = Feed.query.get_or_404(feed_id)
+    if feed.user_id != current_user.id:
+        abort(403)
+
+    try:
+        new_slug = feed.regenerate_url_slug()
+        flash('Feed URL has been regenerated successfully!', 'success')
+    except Exception as e:
+        logger.error(f"Error regenerating feed URL: {str(e)}")
+        db.session.rollback()
+        flash('Error regenerating feed URL. Please try again.', 'error')
+
+    return redirect(url_for('feed_details', feed_id=feed_id))

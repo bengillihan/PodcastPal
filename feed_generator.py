@@ -159,7 +159,7 @@ def generate_rss_feed(feed):
 
                 # Add guid for episode
                 guid = ET.SubElement(item, 'guid')
-                guid.text = f"episode_{episode.id}"
+                guid.text = f"episode_{episode.id}_{episode.release_date.year}"
                 guid.set('isPermaLink', 'false')
 
                 # Convert audio URL to direct format if it's a Dropbox URL

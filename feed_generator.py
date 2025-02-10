@@ -4,6 +4,7 @@ from utils import convert_url_to_dropbox_direct
 import urllib.request
 import urllib.error
 import logging
+from concurrent.futures import ThreadPoolExecutor
 
 logger = logging.getLogger(__name__)
 
@@ -25,6 +26,19 @@ def get_file_size(url):
     except Exception as e:
         logger.error(f"Unexpected error while getting file size for {url}: {str(e)}", exc_info=True)
         return "0"
+
+def fetch_file_size_concurrent(episodes):
+    """Fetch file sizes concurrently for multiple episodes"""
+    def get_episode_size(episode):
+        try:
+            direct_url = convert_url_to_dropbox_direct(episode.audio_url)
+            return episode, get_file_size(direct_url)
+        except Exception as e:
+            logger.error(f"Error getting size for episode {getattr(episode, 'title', 'Unknown')}: {e}")
+            return episode, "0"
+
+    with ThreadPoolExecutor(max_workers=5) as executor:
+        return list(executor.map(get_episode_size, episodes))
 
 def generate_rss_feed(feed):
     """Generate RSS feed XML for a podcast feed"""
@@ -121,6 +135,9 @@ def generate_rss_feed(feed):
 
         logger.debug(f"Processing {len(updated_episodes)} available episodes")
 
+        # Fetch all file sizes concurrently
+        episode_sizes = dict(fetch_file_size_concurrent(sorted_episodes))
+
         # Episodes
         for episode in sorted_episodes:
             try:
@@ -149,8 +166,8 @@ def generate_rss_feed(feed):
                 direct_audio_url = convert_url_to_dropbox_direct(episode.audio_url)
                 logger.debug(f"Processing audio URL for {episode.title}: {direct_audio_url}")
 
-                # Get file size for enclosure tag
-                file_size = get_file_size(direct_audio_url)
+                # Get file size from pre-fetched sizes
+                file_size = episode_sizes.get(episode, "0")
                 logger.debug(f"File size for {episode.title}: {file_size}")
 
                 enclosure = ET.SubElement(item, 'enclosure')

@@ -24,7 +24,7 @@ def get_file_size(url):
         logger.error(f"Invalid URL format for {url}: {val_err}")
         return "0"
     except Exception as e:
-        logger.error(f"Unexpected error while getting file size for {url}: {str(e)}", exc_info=True)
+        logger.error(f"Failed to get file size for {url}: {str(e)}", exc_info=True)
         return "0"
 
 def fetch_file_size_concurrent(episodes):
@@ -43,7 +43,7 @@ def fetch_file_size_concurrent(episodes):
 def generate_rss_feed(feed):
     """Generate RSS feed XML for a podcast feed"""
     try:
-        logger.debug(f"Starting RSS feed generation for: {feed.name}")
+        logger.info(f"Starting RSS feed generation for: {feed.name}")
         logger.debug(f"Initial episode count: {len(feed.episodes)}")
 
         # Create RSS element with all required namespaces
@@ -91,8 +91,9 @@ def generate_rss_feed(feed):
                 direct_image_url = convert_url_to_dropbox_direct(feed.image_url)
                 itunes_image = ET.SubElement(channel, 'itunes:image')
                 itunes_image.set('href', direct_image_url)
+                logger.info(f"Successfully added podcast image for feed '{feed.name}'")
             except Exception as img_err:
-                logger.error(f"Error processing image URL {feed.image_url}: {img_err}")
+                logger.warning(f"Failed to process image URL {feed.image_url}, continuing without image: {img_err}")
 
         # Atom feed link
         atom_link = ET.SubElement(channel, 'atom:link')
@@ -121,7 +122,7 @@ def generate_rss_feed(feed):
                             ep.release_date = ep.release_date.replace(year=ep.release_date.year + 1)
                         except ValueError:
                             # Handle leap year issue for Feb 29 by setting to Feb 28
-                            logger.warning(f"Adjusting leap year date for episode {ep.title}")
+                            logger.warning(f"Adjusting leap year date for episode '{ep.title}'")
                             ep.release_date = ep.release_date.replace(month=2, day=28, year=ep.release_date.year + 1)
 
                         # Recalculate the days since release
@@ -129,7 +130,7 @@ def generate_rss_feed(feed):
                         iterations += 1
 
                     if iterations == max_iterations:
-                        logger.warning(f"Episode '{ep.title}' exceeded max recurrence adjustments.")
+                        logger.warning(f"Episode '{ep.title}' exceeded max recurrence adjustments")
 
                 # Only include episodes that should be visible (already released)
                 if ep.release_date <= current_time:
@@ -141,7 +142,7 @@ def generate_rss_feed(feed):
         # Sort the episodes by the (possibly updated) release date
         sorted_episodes = sorted(updated_episodes, key=lambda x: x.release_date, reverse=True)
 
-        logger.debug(f"Processing {len(updated_episodes)} available episodes")
+        logger.info(f"Processing {len(updated_episodes)} available episodes for feed '{feed.name}'")
 
         # Fetch all file sizes concurrently
         episode_sizes = dict(fetch_file_size_concurrent(sorted_episodes))
@@ -195,7 +196,7 @@ def generate_rss_feed(feed):
                 continue
 
         result = ET.tostring(rss, encoding='unicode', xml_declaration=True)
-        logger.debug(f"Successfully generated RSS feed with length: {len(result)}")
+        logger.info(f"Successfully generated RSS feed for '{feed.name}' with {len(sorted_episodes)} episodes")
         return result
     except Exception as e:
         logger.error(f"Critical error generating RSS feed: {str(e)}", exc_info=True)

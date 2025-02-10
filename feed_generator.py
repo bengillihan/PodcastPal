@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from xml.etree import ElementTree as ET
 from utils import convert_url_to_dropbox_direct
 import urllib.request
@@ -68,12 +68,35 @@ def generate_rss_feed(feed):
     atom_link.set('rel', 'self')
     atom_link.set('type', 'application/rss+xml')
 
-    # Filter episodes to include only past and present episodes
+    # Handle episodes with recurring logic
     current_time = datetime.utcnow()
-    available_episodes = [ep for ep in feed.episodes if ep.release_date <= current_time]
-    sorted_episodes = sorted(available_episodes, key=lambda x: x.release_date, reverse=True)
+    updated_episodes = []
 
-    logger.debug(f"Found {len(available_episodes)} available episodes (excluding future dates)")
+    for ep in feed.episodes:
+        if hasattr(ep, 'is_recurring') and ep.is_recurring:
+            # Check if the episode is more than 60 days past the release date
+            days_since_release = (current_time - ep.release_date).days
+
+            # Move the episode to the next year if 60+ days have passed since the last release
+            while days_since_release > 60:
+                # Move the release date to the next year
+                try:
+                    ep.release_date = ep.release_date.replace(year=ep.release_date.year + 1)
+                except ValueError:
+                    # Handle leap year issue for Feb 29 by setting to Feb 28
+                    ep.release_date = ep.release_date.replace(month=2, day=28, year=ep.release_date.year + 1)
+
+                # Recalculate the days since release
+                days_since_release = (current_time - ep.release_date).days
+
+        # Only include episodes that should be visible (already released)
+        if ep.release_date <= current_time:
+            updated_episodes.append(ep)
+
+    # Sort the episodes by the (possibly updated) release date
+    sorted_episodes = sorted(updated_episodes, key=lambda x: x.release_date, reverse=True)
+
+    logger.debug(f"Found {len(updated_episodes)} available episodes (excluding future dates)")
 
     # Episodes
     for episode in sorted_episodes:

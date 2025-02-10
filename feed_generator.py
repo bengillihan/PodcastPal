@@ -170,18 +170,23 @@ def generate_rss_feed(feed):
                 guid.text = f"episode_{episode.id}_{episode.release_date.year}"
                 guid.set('isPermaLink', 'false')
 
-                # Convert audio URL to direct format if it's a Dropbox URL
-                direct_audio_url = convert_url_to_dropbox_direct(episode.audio_url)
-                logger.debug(f"Processing audio URL for {episode.title}: {direct_audio_url}")
+                try:
+                    # Convert audio URL to direct format if it's a Dropbox URL and get file size
+                    direct_audio_url = convert_url_to_dropbox_direct(episode.audio_url)
+                    logger.debug(f"Processing audio URL for {episode.title}: {direct_audio_url}")
 
-                # Get file size from pre-fetched sizes
-                file_size = episode_sizes.get(episode, "0")
-                logger.debug(f"File size for {episode.title}: {file_size}")
+                    # Get file size from pre-fetched sizes
+                    file_size = episode_sizes.get(episode, "0")
+                    logger.debug(f"File size for {episode.title}: {file_size}")
 
-                enclosure = ET.SubElement(item, 'enclosure')
-                enclosure.set('url', direct_audio_url)
-                enclosure.set('type', 'audio/mpeg')
-                enclosure.set('length', file_size)
+                    enclosure = ET.SubElement(item, 'enclosure')
+                    enclosure.set('url', direct_audio_url)
+                    enclosure.set('type', 'audio/mpeg')
+                    enclosure.set('length', file_size)
+                except (AttributeError, ValueError, urllib.error.URLError) as e:
+                    logger.error(f"Error processing enclosure for episode '{getattr(episode, 'title', 'Unknown')}': {e}")
+                    continue
+
             except AttributeError as ep_err:
                 logger.error(f"Missing required episode attributes: {ep_err}")
                 continue

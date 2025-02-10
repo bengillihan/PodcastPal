@@ -110,8 +110,12 @@ def generate_rss_feed(feed):
                     # Check if the episode is more than 60 days past the release date
                     days_since_release = (current_time - ep.release_date).days
 
+                    # Add iteration limit to prevent infinite loops
+                    max_iterations = 5
+                    iterations = 0
+
                     # Move the episode to the next year if 60+ days have passed since the last release
-                    while days_since_release > 60:
+                    while days_since_release > 60 and iterations < max_iterations:
                         # Move the release date to the next year
                         try:
                             ep.release_date = ep.release_date.replace(year=ep.release_date.year + 1)
@@ -122,6 +126,10 @@ def generate_rss_feed(feed):
 
                         # Recalculate the days since release
                         days_since_release = (current_time - ep.release_date).days
+                        iterations += 1
+
+                    if iterations == max_iterations:
+                        logger.warning(f"Episode '{ep.title}' exceeded max recurrence adjustments.")
 
                 # Only include episodes that should be visible (already released)
                 if ep.release_date <= current_time:

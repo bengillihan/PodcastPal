@@ -1,7 +1,7 @@
 from flask import render_template, redirect, url_for, request, abort, flash
 from flask_login import login_required, current_user
 from app import app, db
-from models import Feed, Episode
+from models import Feed, Episode, DropboxTraffic # Added DropboxTraffic import
 from feed_generator import generate_rss_feed, _feed_cache # Added import for _feed_cache
 from datetime import datetime
 from slugify import slugify
@@ -347,3 +347,16 @@ def regenerate_feed_url(feed_id):
         flash('Error regenerating feed URL. Please try again.', 'error')
 
     return redirect(url_for('feed_details', feed_id=feed_id))
+
+@app.route('/dropbox-traffic')
+@login_required
+def dropbox_traffic():
+    """View Dropbox traffic statistics"""
+    try:
+        # Get the last 7 days of traffic data
+        traffic_data = DropboxTraffic.query.order_by(DropboxTraffic.date.desc()).limit(7).all()
+        return render_template('dropbox_traffic.html', traffic_data=traffic_data)
+    except Exception as e:
+        logger.error(f"Error fetching Dropbox traffic data: {e}")
+        flash('Error fetching traffic data', 'error')
+        return redirect(url_for('dashboard'))

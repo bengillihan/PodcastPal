@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <h1 class="mb-4">Dropbox Traffic Statistics</h1>
+    
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Requests</th>
+                            <th>Total Data</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for traffic in traffic_data %}
+                        <tr>
+                            <td>{{ traffic.date.strftime('%Y-%m-%d') }}</td>
+                            <td>{{ traffic.request_count }}</td>
+                            <td>{{ (traffic.total_bytes / 1024 / 1024)|round(2) }} MB</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

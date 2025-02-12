@@ -38,6 +38,9 @@ def get_file_size(url):
     try:
         response = urllib.request.urlopen(url)
         size = response.headers.get('Content-Length')
+        if size:
+            from models import DropboxTraffic
+            DropboxTraffic.log_request(int(size))
         return size if size else "0"
     except urllib.error.URLError as url_err:
         logger.error(f"URLError while getting file size for {url}: {url_err.reason}")

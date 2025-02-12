@@ -2,7 +2,7 @@ from flask import render_template, redirect, url_for, request, abort, flash
 from flask_login import login_required, current_user
 from app import app, db
 from models import Feed, Episode
-from feed_generator import generate_rss_feed
+from feed_generator import generate_rss_feed, _feed_cache # Added import for _feed_cache
 from datetime import datetime
 from slugify import slugify
 from utils import convert_url_to_dropbox_direct
@@ -87,6 +87,12 @@ def new_episode(feed_id):
                 is_recurring=bool(request.form.get('is_recurring'))
             )
             db.session.add(episode)
+
+            # Clear the cache when new episode is added
+            if feed_id in _feed_cache:
+                del _feed_cache[feed_id]
+                logger.info(f"Cleared RSS feed cache for feed_id: {feed_id}")
+
             db.session.commit()
             flash('Episode added successfully!', 'success')
             return redirect(url_for('feed_details', feed_id=feed_id))
@@ -123,6 +129,12 @@ def edit_feed(feed_id):
                 image_url = convert_url_to_dropbox_direct(image_url)
 
             feed.image_url = image_url if image_url else None
+
+            # Clear the cache when feed is updated
+            if feed_id in _feed_cache:
+                del _feed_cache[feed_id]
+                logger.info(f"Cleared RSS feed cache for feed_id: {feed_id}")
+
             db.session.commit()
             logger.info(f"Updated feed: {feed.name} with image: {feed.image_url}")
             flash('Feed updated successfully!', 'success')

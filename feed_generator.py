@@ -5,8 +5,33 @@ import urllib.request
 import urllib.error
 import logging
 from concurrent.futures import ThreadPoolExecutor
+from functools import lru_cache
 
 logger = logging.getLogger(__name__)
+
+_feed_cache = {}
+CACHE_DURATION = timedelta(hours=4)
+
+def should_update_cache(feed_id):
+    """Check if the cache for this feed needs to be updated"""
+    if feed_id not in _feed_cache:
+        return True
+    cache_time, _ = _feed_cache[feed_id]
+    return datetime.utcnow() - cache_time > CACHE_DURATION
+
+def get_cached_feed(feed_id):
+    """Get cached feed content if available and not expired"""
+    if feed_id in _feed_cache:
+        cache_time, content = _feed_cache[feed_id]
+        if datetime.utcnow() - cache_time <= CACHE_DURATION:
+            logger.info(f"Returning cached RSS feed for feed_id: {feed_id}")
+            return content
+    return None
+
+def cache_feed(feed_id, content):
+    """Cache feed content with current timestamp"""
+    _feed_cache[feed_id] = (datetime.utcnow(), content)
+    logger.info(f"Updated RSS feed cache for feed_id: {feed_id}")
 
 def get_file_size(url):
     """Get file size in bytes from URL"""
@@ -42,11 +67,14 @@ def fetch_file_size_concurrent(episodes):
 
 def generate_rss_feed(feed):
     """Generate RSS feed XML for a podcast feed"""
+    cached_content = get_cached_feed(feed.id)
+    if cached_content:
+        return cached_content
+
     try:
         logger.info(f"Starting RSS feed generation for: {feed.name}")
         logger.debug(f"Initial episode count: {len(feed.episodes)}")
 
-        # Create RSS element with all required namespaces
         rss = ET.Element('rss', version='2.0')
         rss.set('xmlns:itunes', 'http://www.itunes.com/dtds/podcast-1.0.dtd')
         rss.set('xmlns:content', 'http://purl.org/rss/1.0/modules/content/')
@@ -54,28 +82,23 @@ def generate_rss_feed(feed):
 
         channel = ET.SubElement(rss, 'channel')
 
-        # Required channel elements
         title = ET.SubElement(channel, 'title')
         title.text = feed.name
 
         description = ET.SubElement(channel, 'description')
         description.text = feed.description
 
-        # Add website link only if specified
         if feed.website_url:
             link = ET.SubElement(channel, 'link')
             link.text = feed.website_url
 
-        # Add language tag
         language = ET.SubElement(channel, 'language')
         language.text = 'en-us'
 
-        # Add copyright notice
         copyright_text = ET.SubElement(channel, 'copyright')
         copyright_text.text = f'Copyright © {datetime.now().year} {feed.name}'
 
         try:
-            # Add iTunes specific tags
             itunes_author = ET.SubElement(channel, 'itunes:author')
             itunes_author.text = feed.owner.name
 
@@ -85,7 +108,6 @@ def generate_rss_feed(feed):
             logger.error(f"Missing required feed attributes: {attr_err}")
             raise ValueError(f"Invalid feed configuration: {attr_err}")
 
-        # Add podcast image if available
         if feed.image_url:
             try:
                 direct_image_url = convert_url_to_dropbox_direct(feed.image_url)
@@ -95,59 +117,43 @@ def generate_rss_feed(feed):
             except Exception as img_err:
                 logger.warning(f"Failed to process image URL {feed.image_url}, continuing without image: {img_err}")
 
-        # Atom feed link
         atom_link = ET.SubElement(channel, 'atom:link')
         atom_link.set('href', f"https://{feed.owner.email.split('@')[0]}-{feed.url_slug}.repl.dev/feed.xml")
         atom_link.set('rel', 'self')
         atom_link.set('type', 'application/rss+xml')
 
-        # Handle episodes with recurring logic
         current_time = datetime.utcnow()
         updated_episodes = []
 
         for ep in feed.episodes:
             try:
                 if hasattr(ep, 'is_recurring') and ep.is_recurring:
-                    # Check if the episode is more than 60 days past the release date
                     days_since_release = (current_time - ep.release_date).days
-
-                    # Add iteration limit to prevent infinite loops
                     max_iterations = 5
                     iterations = 0
-
-                    # Move the episode to the next year if 60+ days have passed since the last release
                     while days_since_release > 60 and iterations < max_iterations:
-                        # Move the release date to the next year
                         try:
                             ep.release_date = ep.release_date.replace(year=ep.release_date.year + 1)
                         except ValueError:
-                            # Handle leap year issue for Feb 29 by setting to Feb 28
                             logger.warning(f"Adjusting leap year date for episode '{ep.title}'")
                             ep.release_date = ep.release_date.replace(month=2, day=28, year=ep.release_date.year + 1)
-
-                        # Recalculate the days since release
                         days_since_release = (current_time - ep.release_date).days
                         iterations += 1
-
                     if iterations == max_iterations:
                         logger.warning(f"Episode '{ep.title}' exceeded max recurrence adjustments")
 
-                # Only include episodes that should be visible (already released)
                 if ep.release_date <= current_time:
                     updated_episodes.append(ep)
             except AttributeError as attr_err:
                 logger.error(f"Invalid episode data for {getattr(ep, 'title', 'Unknown')}: {attr_err}")
                 continue
 
-        # Sort the episodes by the (possibly updated) release date
         sorted_episodes = sorted(updated_episodes, key=lambda x: x.release_date, reverse=True)
 
         logger.info(f"Processing {len(updated_episodes)} available episodes for feed '{feed.name}'")
 
-        # Fetch all file sizes concurrently
         episode_sizes = dict(fetch_file_size_concurrent(sorted_episodes))
 
-        # Episodes
         for episode in sorted_episodes:
             try:
                 logger.debug(f"Processing episode: {episode.title}")
@@ -159,24 +165,20 @@ def generate_rss_feed(feed):
                 episode_desc = ET.SubElement(item, 'description')
                 episode_desc.text = episode.description
 
-                # Add iTunes specific episode description
                 itunes_summary = ET.SubElement(item, 'itunes:summary')
                 itunes_summary.text = episode.description
 
                 pub_date = ET.SubElement(item, 'pubDate')
                 pub_date.text = episode.release_date.strftime('%a, %d %b %Y %H:%M:%S GMT')
 
-                # Add guid for episode
                 guid = ET.SubElement(item, 'guid')
                 guid.text = f"episode_{episode.id}_{episode.release_date.year}"
                 guid.set('isPermaLink', 'false')
 
                 try:
-                    # Convert audio URL to direct format if it's a Dropbox URL and get file size
                     direct_audio_url = convert_url_to_dropbox_direct(episode.audio_url)
                     logger.debug(f"Processing audio URL for {episode.title}: {direct_audio_url}")
 
-                    # Get file size from pre-fetched sizes
                     file_size = episode_sizes.get(episode, "0")
                     logger.debug(f"File size for {episode.title}: {file_size}")
 
@@ -197,6 +199,8 @@ def generate_rss_feed(feed):
 
         result = ET.tostring(rss, encoding='unicode', xml_declaration=True)
         logger.info(f"Successfully generated RSS feed for '{feed.name}' with {len(sorted_episodes)} episodes")
+
+        cache_feed(feed.id, result)
         return result
     except Exception as e:
         logger.error(f"Critical error generating RSS feed: {str(e)}", exc_info=True)

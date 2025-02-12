@@ -74,3 +74,25 @@ class DropboxTraffic(db.Model):
         except Exception as e:
             db.session.rollback()
             logger.error(f"Error logging Dropbox traffic: {e}")
+
+    @classmethod
+    def import_historical_data(cls, date, request_count, total_bytes):
+        """Import historical traffic data for a specific date"""
+        try:
+            traffic = cls.query.filter_by(date=date).first()
+            if not traffic:
+                traffic = cls(
+                    date=date,
+                    request_count=request_count,
+                    total_bytes=total_bytes,
+                    created_at=datetime.utcnow(),
+                    updated_at=datetime.utcnow()
+                )
+                db.session.add(traffic)
+                db.session.commit()
+                return True
+            return False
+        except Exception as e:
+            db.session.rollback()
+            logger.error(f"Error importing historical traffic data: {e}")
+            return False

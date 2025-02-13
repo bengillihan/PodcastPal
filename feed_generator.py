@@ -15,23 +15,29 @@ CACHE_DURATION = timedelta(hours=4)
 def should_update_cache(feed_id):
     """Check if the cache for this feed needs to be updated"""
     if feed_id not in _feed_cache:
+        logger.info(f"No cache entry found for feed_id: {feed_id}")
         return True
     cache_time, _ = _feed_cache[feed_id]
-    return datetime.utcnow() - cache_time > CACHE_DURATION
+    is_expired = datetime.utcnow() - cache_time > CACHE_DURATION
+    if is_expired:
+        logger.info(f"Cache expired for feed_id: {feed_id}. Last update: {cache_time}")
+    return is_expired
 
 def get_cached_feed(feed_id):
     """Get cached feed content if available and not expired"""
     if feed_id in _feed_cache:
         cache_time, content = _feed_cache[feed_id]
         if datetime.utcnow() - cache_time <= CACHE_DURATION:
-            logger.info(f"Returning cached RSS feed for feed_id: {feed_id}")
+            logger.info(f"Returning cached RSS feed for feed_id: {feed_id}. Cache age: {datetime.utcnow() - cache_time}")
             return content
+        logger.info(f"Cache expired for feed_id: {feed_id}. Last update: {cache_time}")
     return None
 
 def cache_feed(feed_id, content):
     """Cache feed content with current timestamp"""
-    _feed_cache[feed_id] = (datetime.utcnow(), content)
-    logger.info(f"Updated RSS feed cache for feed_id: {feed_id}")
+    current_time = datetime.utcnow()
+    _feed_cache[feed_id] = (current_time, content)
+    logger.info(f"Updated RSS feed cache for feed_id: {feed_id} at {current_time}")
 
 def get_file_size(url):
     """Get file size in bytes from URL"""

@@ -39,6 +39,20 @@
                 </div>
             </div>
             <p class="lead">{{ feed.description }}</p>
+            {% if feed.id in _feed_cache %}
+            <div class="alert alert-info">
+                <i class="bi bi-clock-history me-2"></i>
+                RSS Feed last updated: {{ _feed_cache[feed.id][0].strftime('%Y-%m-%d %H:%M:%S UTC') }}
+                {% set time_since_update = (now - _feed_cache[feed.id][0]).total_seconds() / 3600 %}
+                <br>
+                Next update in: {{ (4 - time_since_update)|round(1) }} hours
+            </div>
+            {% else %}
+            <div class="alert alert-warning">
+                <i class="bi bi-exclamation-triangle me-2"></i>
+                RSS Feed not yet cached. It will be generated on the next request.
+            </div>
+            {% endif %}
             <div class="d-flex gap-2">
                 <a href="{{ url_for('new_episode', feed_id=feed.id) }}" class="btn btn-primary">Add New Episode</a>
                 <a href="{{ url_for('download_episode_template') }}" class="btn btn-outline-secondary">

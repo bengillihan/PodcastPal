@@ -1,8 +1,8 @@
 from flask import render_template, redirect, url_for, request, abort, flash
 from flask_login import login_required, current_user
 from app import app, db
-from models import Feed, Episode, DropboxTraffic # Added DropboxTraffic import
-from feed_generator import generate_rss_feed, _feed_cache # Added import for _feed_cache
+from models import Feed, Episode, DropboxTraffic
+from feed_generator import generate_rss_feed, _feed_cache, CACHE_DURATION
 from datetime import datetime
 from slugify import slugify
 from utils import convert_url_to_dropbox_direct
@@ -208,7 +208,10 @@ def feed_details(feed_id):
     feed = Feed.query.get_or_404(feed_id)
     if feed.user_id != current_user.id:
         abort(403)
-    return render_template('feed_details.html', feed=feed)
+    return render_template('feed_details.html', 
+                         feed=feed, 
+                         _feed_cache=_feed_cache,
+                         now=datetime.utcnow())
 
 @app.route('/feed/<int:feed_id>/delete', methods=['POST'])
 @login_required
@@ -245,8 +248,7 @@ def download_episode_template():
     output = StringIO()
     writer = csv.writer(output)
     writer.writerow(['title', 'description', 'audio_url', 'release_date', 'is_recurring'])
-    writer.writerow(['Example Episode', 'Episode description here', 'https://www.dropbox.com/s/example/audio.mp3?dl=0', '2024-01-20 15:30', 'FALSE']) #Updated example date
-
+    writer.writerow(['Example Episode', 'Episode description here', 'https://www.dropbox.com/s/example/audio.mp3?dl=0', '2024-01-20 15:30', 'FALSE'])
     output.seek(0)
     return output.getvalue(), 200, {
         'Content-Type': 'text/csv',

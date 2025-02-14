@@ -31,6 +31,11 @@
                             data-feed-url="{{ url_for('rss_feed', url_slug=feed.url_slug, _external=True) }}">
                         Copy RSS URL
                     </button>
+                    <form method="POST" action="{{ url_for('refresh_feed', feed_id=feed.id) }}" class="d-inline me-2">
+                        <button type="submit" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-repeat me-1"></i>Refresh Feed
+                        </button>
+                    </form>
                     <form method="POST" action="{{ url_for('regenerate_feed_url', feed_id=feed.id) }}" class="d-inline">
                         <button type="submit" class="btn btn-outline-secondary">
                             <i class="bi bi-arrow-clockwise me-1"></i>Regenerate URL

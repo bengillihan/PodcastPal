@@ -362,3 +362,25 @@ def dropbox_traffic():
         logger.error(f"Error fetching Dropbox traffic data: {e}")
         flash('Error fetching traffic data', 'error')
         return redirect(url_for('dashboard'))
+
+@app.route('/feed/<int:feed_id>/refresh', methods=['POST'])
+@login_required
+def refresh_feed(feed_id):
+    feed = Feed.query.get_or_404(feed_id)
+    if feed.user_id != current_user.id:
+        abort(403)
+
+    try:
+        # Clear the cache for this feed
+        if feed_id in _feed_cache:
+            del _feed_cache[feed_id]
+            logger.info(f"Manually cleared RSS feed cache for feed_id: {feed_id}")
+
+        # Generate new feed content
+        generate_rss_feed(feed)
+        flash('Feed refreshed successfully!', 'success')
+    except Exception as e:
+        logger.error(f"Error refreshing feed: {str(e)}")
+        flash('Error refreshing feed. Please try again.', 'error')
+
+    return redirect(url_for('feed_details', feed_id=feed_id))

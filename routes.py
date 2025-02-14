@@ -1,3 +1,4 @@
+import pytz
 from flask import render_template, redirect, url_for, request, abort, flash
 from flask_login import login_required, current_user
 from app import app, db
@@ -208,10 +209,11 @@ def feed_details(feed_id):
     feed = Feed.query.get_or_404(feed_id)
     if feed.user_id != current_user.id:
         abort(403)
+    TIMEZONE = pytz.timezone('UTC')
     return render_template('feed_details.html', 
                          feed=feed, 
                          _feed_cache=_feed_cache,
-                         now=datetime.utcnow())
+                         now=datetime.now(TIMEZONE))
 
 @app.route('/feed/<int:feed_id>/delete', methods=['POST'])
 @login_required

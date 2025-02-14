@@ -6,6 +6,7 @@ import urllib.error
 import logging
 from concurrent.futures import ThreadPoolExecutor
 from functools import lru_cache
+from app import TIMEZONE
 
 logger = logging.getLogger(__name__)
 
@@ -131,7 +132,7 @@ def generate_rss_feed(feed):
         atom_link.set('rel', 'self')
         atom_link.set('type', 'application/rss+xml')
 
-        current_time = datetime.utcnow()
+        current_time = datetime.now(TIMEZONE)
         updated_episodes = []
 
         for ep in feed.episodes:

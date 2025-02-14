@@ -4,6 +4,9 @@ from flask_login import UserMixin
 from slugify import slugify
 import random
 import string
+import logging
+
+logger = logging.getLogger(__name__)
 
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)

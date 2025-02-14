@@ -1,5 +1,6 @@
 import os
 import logging
+import pytz
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
@@ -7,6 +8,11 @@ from sqlalchemy.orm import DeclarativeBase
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
+
+# Configure timezone
+TIMEZONE = pytz.timezone('America/Los_Angeles')
+logger.info(f"Configured timezone: {TIMEZONE}")
 
 class Base(DeclarativeBase):
     pass
@@ -21,6 +27,7 @@ app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
     "pool_recycle": 300,
     "pool_pre_ping": True,
 }
+app.config['TIMEZONE'] = TIMEZONE
 
 # Initialize extensions
 db.init_app(app)
@@ -32,7 +39,7 @@ login_manager.login_view = "google_auth.login"
 with app.app_context():
     from models import User, Feed, Episode
     db.create_all()
-    
+
     from google_auth import google_auth
     app.register_blueprint(google_auth)
 

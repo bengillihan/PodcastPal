@@ -55,10 +55,19 @@
 {% block scripts %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Convert UTC to Pacific Time for display
+    const convertToPacificTime = (date) => {
+        // Get Pacific Time offset in minutes
+        const pacificOffset = -480; // UTC-8 (in minutes)
+        const localOffset = date.getTimezoneOffset();
+        // Adjust the date by the difference between Pacific and local time
+        return new Date(date.getTime() + (localOffset - pacificOffset) * 60000);
+    };
+
     // Handle datetime input default value
-    const now = new Date();
+    const now = convertToPacificTime(new Date());
     {% if episode %}
-    const existingDate = new Date('{{ episode.release_date.strftime("%Y-%m-%d %H:%M") }}');
+    const existingDate = convertToPacificTime(new Date('{{ episode.release_date.strftime("%Y-%m-%d %H:%M") }}'));
     const defaultDateTime = existingDate.toISOString().slice(0, 16);
     {% else %}
     const year = now.getFullYear();
@@ -72,7 +81,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Handle "Release Today" button click
     document.getElementById('release-today').addEventListener('click', function() {
-        const now = new Date();
+        const now = convertToPacificTime(new Date());
         const year = now.getFullYear();
         const month = String(now.getMonth() + 1).padStart(2, '0');
         const day = String(now.getDate()).padStart(2, '0');

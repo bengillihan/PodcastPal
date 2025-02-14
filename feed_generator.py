@@ -7,6 +7,7 @@ import logging
 from concurrent.futures import ThreadPoolExecutor
 from functools import lru_cache
 from app import TIMEZONE
+import pytz
 
 logger = logging.getLogger(__name__)
 
@@ -19,7 +20,7 @@ def should_update_cache(feed_id):
         logger.info(f"No cache entry found for feed_id: {feed_id}")
         return True
     cache_time, _ = _feed_cache[feed_id]
-    is_expired = datetime.utcnow() - cache_time > CACHE_DURATION
+    is_expired = datetime.now(TIMEZONE) - cache_time > CACHE_DURATION
     if is_expired:
         logger.info(f"Cache expired for feed_id: {feed_id}. Last update: {cache_time}")
     return is_expired
@@ -28,15 +29,15 @@ def get_cached_feed(feed_id):
     """Get cached feed content if available and not expired"""
     if feed_id in _feed_cache:
         cache_time, content = _feed_cache[feed_id]
-        if datetime.utcnow() - cache_time <= CACHE_DURATION:
-            logger.info(f"Returning cached RSS feed for feed_id: {feed_id}. Cache age: {datetime.utcnow() - cache_time}")
+        if datetime.now(TIMEZONE) - cache_time <= CACHE_DURATION:
+            logger.info(f"Returning cached RSS feed for feed_id: {feed_id}. Cache age: {datetime.now(TIMEZONE) - cache_time}")
             return content
         logger.info(f"Cache expired for feed_id: {feed_id}. Last update: {cache_time}")
     return None
 
 def cache_feed(feed_id, content):
     """Cache feed content with current timestamp"""
-    current_time = datetime.utcnow()
+    current_time = datetime.now(TIMEZONE)
     _feed_cache[feed_id] = (current_time, content)
     logger.info(f"Updated RSS feed cache for feed_id: {feed_id} at {current_time}")
 
@@ -51,12 +52,6 @@ def get_file_size(url):
         return size if size else "0"
     except urllib.error.URLError as url_err:
         logger.error(f"URLError while getting file size for {url}: {url_err.reason}")
-        return "0"
-    except urllib.error.HTTPError as http_err:
-        logger.error(f"HTTPError {http_err.code} while getting file size for {url}: {http_err.reason}")
-        return "0"
-    except ValueError as val_err:
-        logger.error(f"Invalid URL format for {url}: {val_err}")
         return "0"
     except Exception as e:
         logger.error(f"Failed to get file size for {url}: {str(e)}", exc_info=True)
@@ -106,7 +101,7 @@ def generate_rss_feed(feed):
         language.text = 'en-us'
 
         copyright_text = ET.SubElement(channel, 'copyright')
-        copyright_text.text = f'Copyright © {datetime.now().year} {feed.name}'
+        copyright_text.text = f'Copyright © {datetime.now(TIMEZONE).year} {feed.name}'
 
         try:
             itunes_author = ET.SubElement(channel, 'itunes:author')
@@ -137,22 +132,28 @@ def generate_rss_feed(feed):
 
         for ep in feed.episodes:
             try:
+                # Make release_date timezone-aware if it isn't already
+                ep_release_date = ep.release_date.replace(tzinfo=TIMEZONE) if ep.release_date.tzinfo is None else ep.release_date
+
                 if hasattr(ep, 'is_recurring') and ep.is_recurring:
-                    days_since_release = (current_time - ep.release_date).days
+                    days_since_release = (current_time - ep_release_date).days
                     max_iterations = 5
                     iterations = 0
                     while days_since_release > 60 and iterations < max_iterations:
                         try:
-                            ep.release_date = ep.release_date.replace(year=ep.release_date.year + 1)
+                            ep_release_date = ep_release_date.replace(year=ep_release_date.year + 1)
                         except ValueError:
                             logger.warning(f"Adjusting leap year date for episode '{ep.title}'")
-                            ep.release_date = ep.release_date.replace(month=2, day=28, year=ep.release_date.year + 1)
-                        days_since_release = (current_time - ep.release_date).days
+                            ep_release_date = ep_release_date.replace(month=2, day=28, year=ep_release_date.year + 1)
+                        days_since_release = (current_time - ep_release_date).days
                         iterations += 1
                     if iterations == max_iterations:
                         logger.warning(f"Episode '{ep.title}' exceeded max recurrence adjustments")
 
-                if ep.release_date <= current_time:
+                # Update episode's release_date with the potentially adjusted timezone-aware date
+                ep.release_date = ep_release_date
+
+                if ep_release_date <= current_time:
                     updated_episodes.append(ep)
             except AttributeError as attr_err:
                 logger.error(f"Invalid episode data for {getattr(ep, 'title', 'Unknown')}: {attr_err}")
@@ -179,7 +180,7 @@ def generate_rss_feed(feed):
                 itunes_summary.text = episode.description
 
                 pub_date = ET.SubElement(item, 'pubDate')
-                pub_date.text = episode.release_date.strftime('%a, %d %b %Y %H:%M:%S GMT')
+                pub_date.text = episode.release_date.strftime('%a, %d %b %Y %H:%M:%S %z')
 
                 guid = ET.SubElement(item, 'guid')
                 guid.text = f"episode_{episode.id}_{episode.release_date.year}"

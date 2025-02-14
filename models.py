@@ -62,21 +62,25 @@ class DropboxTraffic(db.Model):
     def log_request(cls, bytes_transferred=0):
         """Log a Dropbox request with optional bytes transferred"""
         today = datetime.utcnow().date()
-        traffic = cls.query.filter_by(date=today).first()
-
-        if not traffic:
-            traffic = cls(date=today)
-            db.session.add(traffic)
-
-        traffic.request_count += 1
-        traffic.total_bytes += bytes_transferred
-        traffic.updated_at = datetime.utcnow()
+        logger.info(f"Attempting to log traffic data for date: {today} with {bytes_transferred} bytes")
 
         try:
+            traffic = cls.query.filter_by(date=today).first()
+            if not traffic:
+                logger.info(f"Creating new traffic record for date: {today}")
+                traffic = cls(date=today)
+                db.session.add(traffic)
+
+            traffic.request_count += 1
+            traffic.total_bytes += bytes_transferred
+            traffic.updated_at = datetime.utcnow()
+
             db.session.commit()
+            logger.info(f"Successfully logged traffic: {traffic.request_count} requests, {traffic.total_bytes} bytes total")
         except Exception as e:
             db.session.rollback()
             logger.error(f"Error logging Dropbox traffic: {e}")
+            raise
 
     @classmethod
     def import_historical_data(cls, date, request_count, total_bytes):

@@ -359,9 +359,16 @@ def dropbox_traffic():
     try:
         # Get the last 7 days of traffic data
         traffic_data = DropboxTraffic.query.order_by(DropboxTraffic.date.desc()).limit(7).all()
+
+        if not traffic_data:
+            logger.info("No traffic data available yet")
+            flash('No traffic data available yet. Data will appear after podcast episodes are accessed.', 'info')
+        else:
+            logger.info(f"Found {len(traffic_data)} traffic records")
+
         return render_template('dropbox_traffic.html', traffic_data=traffic_data)
     except Exception as e:
-        logger.error(f"Error fetching Dropbox traffic data: {e}")
+        logger.error(f"Error fetching Dropbox traffic data: {e}", exc_info=True)
         flash('Error fetching traffic data', 'error')
         return redirect(url_for('dashboard'))
 

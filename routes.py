@@ -393,3 +393,41 @@ def refresh_feed(feed_id):
         flash('Error refreshing feed. Please try again.', 'error')
 
     return redirect(url_for('feed_details', feed_id=feed_id))
+
+
+@app.route('/feed/<int:feed_id>/export')
+@login_required
+def export_episodes(feed_id):
+    """Export feed episodes to CSV"""
+    feed = Feed.query.get_or_404(feed_id)
+    if feed.user_id != current_user.id:
+        abort(403)
+
+    try:
+        # Create CSV in memory
+        output = StringIO()
+        writer = csv.writer(output)
+
+        # Write header
+        writer.writerow(['title', 'description', 'audio_url', 'release_date', 'is_recurring'])
+
+        # Write episodes
+        for episode in feed.episodes:
+            writer.writerow([
+                episode.title,
+                episode.description,
+                episode.audio_url,
+                episode.release_date.strftime('%Y-%m-%d %H:%M'),
+                'TRUE' if episode.is_recurring else 'FALSE'
+            ])
+
+        # Prepare the response
+        output.seek(0)
+        return output.getvalue(), 200, {
+            'Content-Type': 'text/csv',
+            'Content-Disposition': f'attachment; filename={feed.url_slug}_episodes.csv'
+        }
+    except Exception as e:
+        logger.error(f"Error exporting episodes: {str(e)}")
+        flash('Error exporting episodes. Please try again.', 'error')
+        return redirect(url_for('feed_details', feed_id=feed_id))

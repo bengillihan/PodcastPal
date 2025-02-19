@@ -95,18 +95,35 @@ document.addEventListener('DOMContentLoaded', function() {
     const audioUrlInput = document.getElementById('audio_url');
     const reformattedUrlInput = document.getElementById('reformattedUrl');
 
+    function extractGoogleDriveFileId(url) {
+        const fileIdPattern = /\/file\/d\/([a-zA-Z0-9_-]+)/;
+        const idPattern = /[?&]id=([a-zA-Z0-9_-]+)/;
+
+        let match = url.match(fileIdPattern);
+        if (match) return match[1];
+
+        match = url.match(idPattern);
+        if (match) return match[1];
+
+        return null;
+    }
+
     function reformatUrl(url) {
         if (!url) return '';
 
         if (url.includes('dropbox.com')) {
-            return url.replace('www.dropbox.com', 'dl.dropboxusercontent.com').split('?')[0];
-        } else if (url.includes('drive.google.com')) {
-            let fileId = '';
-            if (url.includes('/file/d/')) {
-                fileId = url.split('/file/d/')[1].split('/')[0];
-            } else if (url.includes('id=')) {
-                fileId = url.split('id=')[1].split('&')[0];
+            let base_url = url.replace('www.dropbox.com', 'dl.dropboxusercontent.com');
+            if (base_url.includes('?')) {
+                const params = base_url.split('?')[1].split('&')
+                    .filter(p => !p.startsWith('dl='));
+                if (params.length) {
+                    return `${base_url.split('?')[0]}?${params.join('&')}`;
+                }
+                return base_url.split('?')[0];
             }
+            return base_url;
+        } else if (url.includes('drive.google.com')) {
+            const fileId = extractGoogleDriveFileId(url);
             if (fileId) {
                 return `https://drive.google.com/uc?export=download&id=${fileId}`;
             }

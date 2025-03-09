@@ -11,6 +11,7 @@ import logging
 import csv
 from io import StringIO
 from werkzeug.utils import secure_filename
+from sqlalchemy import or_
 
 logger = logging.getLogger(__name__)
 
@@ -431,3 +432,25 @@ def export_episodes(feed_id):
         logger.error(f"Error exporting episodes: {str(e)}")
         flash('Error exporting episodes. Please try again.', 'error')
         return redirect(url_for('feed_details', feed_id=feed_id))
+
+@app.route('/search', methods=['GET'])
+@login_required
+def search_episodes():
+    query = request.args.get('q', '').strip()
+    results = []
+
+    if query:
+        # Search through episodes in user's feeds
+        results = (Episode.query
+                  .join(Feed)
+                  .filter(Feed.user_id == current_user.id)
+                  .filter(or_(
+                      Episode.title.ilike(f'%{query}%'),
+                      Episode.description.ilike(f'%{query}%')
+                  ))
+                  .order_by(Episode.release_date.desc())
+                  .all())
+
+        logger.info(f"Search query '{query}' returned {len(results)} results")
+
+    return render_template('search.html', query=query, results=results)

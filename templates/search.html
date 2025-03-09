@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <h1 class="mb-4">Search Episodes</h1>
+    
+    <form method="GET" action="{{ url_for('search_episodes') }}" class="mb-4">
+        <div class="input-group">
+            <input type="search" 
+                   name="q" 
+                   class="form-control" 
+                   placeholder="Search episode titles and descriptions..." 
+                   value="{{ query }}"
+                   required>
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-search me-1"></i>Search
+            </button>
+        </div>
+    </form>
+
+    {% if query %}
+        {% if results %}
+            <h2 class="h4 mb-3">Found {{ results|length }} result{% if results|length != 1 %}s{% endif %} for "{{ query }}"</h2>
+            <div class="list-group">
+                {% for episode in results %}
+                <a href="{{ url_for('feed_details', feed_id=episode.feed.id) }}#episode-{{ episode.id }}" 
+                   class="list-group-item list-group-item-action">
+                    <div class="d-flex w-100 justify-content-between">
+                        <h5 class="mb-1">{{ episode.title }}</h5>
+                        <small class="text-muted">{{ episode.release_date.strftime('%Y-%m-%d') }}</small>
+                    </div>
+                    <p class="mb-1">{{ episode.description[:200] }}{% if episode.description|length > 200 %}...{% endif %}</p>
+                    <small class="text-muted">Feed: {{ episode.feed.name }}</small>
+                </a>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="alert alert-info">
+                No episodes found matching "{{ query }}". Try different search terms.
+            </div>
+        {% endif %}
+    {% endif %}
+</div>
+{% endblock %}

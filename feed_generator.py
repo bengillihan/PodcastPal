@@ -12,7 +12,7 @@ import pytz
 logger = logging.getLogger(__name__)
 
 _feed_cache = {}
-CACHE_DURATION = timedelta(hours=4)
+CACHE_DURATION = timedelta(hours=12)  # Changed from 4 to 12 hours
 
 def should_update_cache(feed_id):
     """Check if the cache for this feed needs to be updated"""

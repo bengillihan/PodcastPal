@@ -33,7 +33,7 @@
                 </div>
             </div>
             <div class="mb-3">
-                <label for="release_date" class="form-label">Release Date and Time</label>
+                <label for="release_date" class="form-label">Release Date and Time (Pacific Time)</label>
                 <div class="input-group">
                     <input type="datetime-local" class="form-control" id="release_date" name="release_date" required>
                     <button type="button" class="btn btn-outline-secondary" id="release-today">Release Today</button>
@@ -55,19 +55,17 @@
 {% block scripts %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Convert UTC to Pacific Time for display
-    const convertToPacificTime = (date) => {
-        // Get Pacific Time offset in minutes
-        const pacificOffset = -480; // UTC-8 (in minutes)
-        const localOffset = date.getTimezoneOffset();
-        // Adjust the date by the difference between Pacific and local time
-        return new Date(date.getTime() + (localOffset - pacificOffset) * 60000);
+    // Get Pacific Time offset in minutes (UTC-8)
+    const getPacificDate = () => {
+        const now = new Date();
+        const pacificTime = new Date(now.toLocaleString("en-US", {timeZone: "America/Los_Angeles"}));
+        return pacificTime;
     };
 
     // Handle datetime input default value
-    const now = convertToPacificTime(new Date());
+    const now = getPacificDate();
     {% if episode %}
-    const existingDate = convertToPacificTime(new Date('{{ episode.release_date.strftime("%Y-%m-%d %H:%M") }}'));
+    const existingDate = new Date('{{ episode.release_date.strftime("%Y-%m-%d %H:%M") }}');
     const defaultDateTime = existingDate.toISOString().slice(0, 16);
     {% else %}
     const year = now.getFullYear();
@@ -81,7 +79,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Handle "Release Today" button click
     document.getElementById('release-today').addEventListener('click', function() {
-        const now = convertToPacificTime(new Date());
+        const now = getPacificDate();
         const year = now.getFullYear();
         const month = String(now.getMonth() + 1).padStart(2, '0');
         const day = String(now.getDate()).padStart(2, '0');

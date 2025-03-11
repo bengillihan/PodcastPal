@@ -3,7 +3,7 @@ from flask import render_template, redirect, url_for, request, abort, flash
 from flask_login import login_required, current_user
 from app import app, db
 from models import Feed, Episode, DropboxTraffic
-from feed_generator import generate_rss_feed, _feed_cache, CACHE_DURATION
+from feed_generator import generate_rss_feed, _feed_cache, CACHE_DURATION, TIMEZONE
 from datetime import datetime
 from slugify import slugify
 from utils import convert_url_to_dropbox_direct
@@ -80,17 +80,20 @@ def new_episode(feed_id):
             if audio_url:
                 audio_url = convert_url_to_dropbox_direct(audio_url)
 
+            # Parse the date in Pacific Time
+            release_date = datetime.strptime(request.form['release_date'], '%Y-%m-%dT%H:%M')
+            release_date = TIMEZONE.localize(release_date)
+
             episode = Episode(
                 feed_id=feed_id,
                 title=request.form['title'],
                 description=request.form['description'],
                 audio_url=audio_url,
-                release_date=datetime.strptime(request.form['release_date'], '%Y-%m-%dT%H:%M'),
+                release_date=release_date,
                 is_recurring=bool(request.form.get('is_recurring'))
             )
             db.session.add(episode)
 
-            # Clear the cache when new episode is added
             if feed_id in _feed_cache:
                 del _feed_cache[feed_id]
                 logger.info(f"Cleared RSS feed cache for feed_id: {feed_id}")
@@ -210,11 +213,11 @@ def feed_details(feed_id):
     feed = Feed.query.get_or_404(feed_id)
     if feed.user_id != current_user.id:
         abort(403)
-    TIMEZONE = pytz.timezone('UTC')
     return render_template('feed_details.html', 
                          feed=feed, 
                          _feed_cache=_feed_cache,
-                         now=datetime.now(TIMEZONE))
+                         now=datetime.now(TIMEZONE),
+                         TIMEZONE=TIMEZONE)
 
 @app.route('/feed/<int:feed_id>/delete', methods=['POST'])
 @login_required

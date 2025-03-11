@@ -6,13 +6,13 @@ import urllib.error
 import logging
 from concurrent.futures import ThreadPoolExecutor
 from functools import lru_cache
-from app import TIMEZONE
 import pytz
 
 logger = logging.getLogger(__name__)
 
 _feed_cache = {}
 CACHE_DURATION = timedelta(hours=12)  # Changed from 4 to 12 hours
+TIMEZONE = pytz.timezone('America/Los_Angeles')  # Changed to Pacific Time
 
 def should_update_cache(feed_id):
     """Check if the cache for this feed needs to be updated"""

@@ -3,7 +3,7 @@ from flask import render_template, redirect, url_for, request, abort, flash
 from flask_login import login_required, current_user
 from app import app, db
 from models import Feed, Episode, DropboxTraffic
-from feed_generator import generate_rss_feed, _feed_cache, CACHE_DURATION, TIMEZONE
+from feed_generator import generate_rss_feed, _feed_cache, TIMEZONE, get_next_refresh_time
 from datetime import datetime
 from slugify import slugify
 from utils import convert_url_to_dropbox_direct
@@ -217,7 +217,8 @@ def feed_details(feed_id):
                          feed=feed, 
                          _feed_cache=_feed_cache,
                          now=datetime.now(TIMEZONE),
-                         TIMEZONE=TIMEZONE)
+                         TIMEZONE=TIMEZONE,
+                         get_next_refresh_time=get_next_refresh_time)
 
 @app.route('/feed/<int:feed_id>/delete', methods=['POST'])
 @login_required

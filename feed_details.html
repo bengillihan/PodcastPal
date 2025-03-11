@@ -3,9 +3,12 @@
 <div class="alert alert-info">
     <i class="bi bi-clock-history me-2"></i>
     RSS Feed last updated: {{ _feed_cache[feed.id][0].astimezone(TIMEZONE).strftime('%Y-%m-%d %H:%M:%S %Z') }}
-    {% set time_since_update = (now - _feed_cache[feed.id][0]).total_seconds() / 3600 %}
+    {% set next_refresh = get_next_refresh_time(now) %}
     <br>
-    Next update in: {{ (12 - time_since_update)|round(1) }} hours
+    Next update at: {{ next_refresh.strftime('%I:%M %p %Z') }} today
+    {% if next_refresh.date() > now.date() %}
+    tomorrow
+    {% endif %}
 </div>
 {% else %}
 <div class="alert alert-warning">

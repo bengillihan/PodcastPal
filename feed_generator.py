@@ -1,3 +1,4 @@
+import pytz
 from datetime import datetime, timedelta
 from xml.etree import ElementTree as ET
 from utils import convert_url_to_dropbox_direct
@@ -6,33 +7,72 @@ import urllib.error
 import logging
 from concurrent.futures import ThreadPoolExecutor
 from functools import lru_cache
-import pytz
 
 logger = logging.getLogger(__name__)
 
 _feed_cache = {}
-CACHE_DURATION = timedelta(hours=12)  # Changed from 4 to 12 hours
-TIMEZONE = pytz.timezone('America/Los_Angeles')  # Changed to Pacific Time
+TIMEZONE = pytz.timezone('America/Los_Angeles')  # Pacific Time
+
+# Define refresh times (6am and 3pm Pacific Time)
+REFRESH_TIMES = [
+    (6, 0),   # 6:00 AM PT
+    (15, 0),  # 3:00 PM PT
+]
+
+def get_next_refresh_time(current_time):
+    """Get the next refresh time based on current time"""
+    current_time = current_time.astimezone(TIMEZONE)
+    current_hour = current_time.hour
+    current_minute = current_time.minute
+
+    next_refresh = None
+    for hour, minute in REFRESH_TIMES:
+        if hour > current_hour or (hour == current_hour and minute > current_minute):
+            next_refresh = current_time.replace(hour=hour, minute=minute, second=0, microsecond=0)
+            break
+
+    if not next_refresh:
+        # If we've passed all refresh times today, get the first refresh time tomorrow
+        next_refresh = (current_time + timedelta(days=1)).replace(
+            hour=REFRESH_TIMES[0][0],
+            minute=REFRESH_TIMES[0][1],
+            second=0,
+            microsecond=0
+        )
+
+    return next_refresh
 
 def should_update_cache(feed_id):
     """Check if the cache for this feed needs to be updated"""
+    current_time = datetime.now(TIMEZONE)
+
     if feed_id not in _feed_cache:
         logger.info(f"No cache entry found for feed_id: {feed_id}")
         return True
+
     cache_time, _ = _feed_cache[feed_id]
-    is_expired = datetime.now(TIMEZONE) - cache_time > CACHE_DURATION
-    if is_expired:
-        logger.info(f"Cache expired for feed_id: {feed_id}. Last update: {cache_time}")
-    return is_expired
+    cache_time = cache_time.astimezone(TIMEZONE)
+
+    # Check if we've passed a refresh time since the last cache
+    last_refresh = None
+    for hour, minute in REFRESH_TIMES:
+        refresh_time = current_time.replace(hour=hour, minute=minute, second=0, microsecond=0)
+        if cache_time < refresh_time <= current_time:
+            last_refresh = refresh_time
+            break
+
+    if last_refresh:
+        logger.info(f"Cache expired for feed_id: {feed_id}. Last refresh time: {last_refresh}")
+        return True
+
+    return False
 
 def get_cached_feed(feed_id):
     """Get cached feed content if available and not expired"""
-    if feed_id in _feed_cache:
-        cache_time, content = _feed_cache[feed_id]
-        if datetime.now(TIMEZONE) - cache_time <= CACHE_DURATION:
-            logger.info(f"Returning cached RSS feed for feed_id: {feed_id}. Cache age: {datetime.now(TIMEZONE) - cache_time}")
-            return content
-        logger.info(f"Cache expired for feed_id: {feed_id}. Last update: {cache_time}")
+    if feed_id in _feed_cache and not should_update_cache(feed_id):
+        _, content = _feed_cache[feed_id]
+        logger.info(f"Returning cached RSS feed for feed_id: {feed_id}")
+        return content
     return None
 
 def cache_feed(feed_id, content):

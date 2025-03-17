@@ -185,7 +185,8 @@ def generate_rss_feed(feed):
                     days_since_release = (current_time - ep_release_date).days
                     max_iterations = 5
                     iterations = 0
-                    while days_since_release > 60 and iterations < max_iterations:
+                    # Changed from 60 to 180 days (6 months)
+                    while days_since_release > 180 and iterations < max_iterations:
                         try:
                             ep_release_date = ep_release_date.replace(year=ep_release_date.year + 1)
                         except ValueError:

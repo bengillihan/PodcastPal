@@ -7,6 +7,7 @@ import urllib.error
 import logging
 from concurrent.futures import ThreadPoolExecutor
 from functools import lru_cache
+from flask import request
 
 logger = logging.getLogger(__name__)
 
@@ -165,8 +166,10 @@ def generate_rss_feed(feed):
             except Exception as img_err:
                 logger.warning(f"Failed to process image URL {feed.image_url}, continuing without image: {img_err}")
 
+        # Update the atom:link to use the actual host URL
+        feed_url = request.host_url.rstrip('/') + f"/feed/{feed.url_slug}/rss"
         atom_link = ET.SubElement(channel, 'atom:link')
-        atom_link.set('href', f"https://{feed.owner.email.split('@')[0]}-{feed.url_slug}.repl.dev/feed.xml")
+        atom_link.set('href', feed_url)
         atom_link.set('rel', 'self')
         atom_link.set('type', 'application/rss+xml')
 

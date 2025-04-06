@@ -57,30 +57,58 @@ class DropboxTraffic(db.Model):
     total_bytes = db.Column(db.BigInteger, default=0)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    # In-memory batch storage of traffic data
+    _batch_data = {}
+    _last_batch_update = datetime.utcnow()
+    _batch_update_interval = 900  # 15 minutes in seconds
 
     @classmethod
     def log_request(cls, bytes_transferred=0):
         """Log a Dropbox request with optional bytes transferred"""
         today = datetime.utcnow().date()
-        logger.info(f"Attempting to log traffic data for date: {today} with {bytes_transferred} bytes")
-
+        
+        # Add to in-memory batch
+        if today not in cls._batch_data:
+            cls._batch_data[today] = {
+                'count': 0,
+                'bytes': 0
+            }
+        
+        cls._batch_data[today]['count'] += 1
+        cls._batch_data[today]['bytes'] += bytes_transferred
+        
+        # If it's been more than batch_update_interval since the last update, commit to database
+        current_time = datetime.utcnow()
+        if (current_time - cls._last_batch_update).total_seconds() > cls._batch_update_interval:
+            cls._commit_batch()
+            cls._last_batch_update = current_time
+    
+    @classmethod
+    def _commit_batch(cls):
+        """Commit the batched traffic data to the database"""
+        if not cls._batch_data:
+            return
+            
         try:
-            traffic = cls.query.filter_by(date=today).first()
-            if not traffic:
-                logger.info(f"Creating new traffic record for date: {today}")
-                traffic = cls(date=today)
-                db.session.add(traffic)
+            for date, data in cls._batch_data.items():
+                traffic = cls.query.filter_by(date=date).first()
+                if not traffic:
+                    logger.info(f"Creating new traffic record for date: {date}")
+                    traffic = cls(date=date)
+                    db.session.add(traffic)
 
-            traffic.request_count += 1
-            traffic.total_bytes += bytes_transferred
-            traffic.updated_at = datetime.utcnow()
-
+                traffic.request_count += data['count']
+                traffic.total_bytes += data['bytes']
+                traffic.updated_at = datetime.utcnow()
+            
             db.session.commit()
-            logger.info(f"Successfully logged traffic: {traffic.request_count} requests, {traffic.total_bytes} bytes total")
+            logger.info(f"Successfully committed batch traffic data for {len(cls._batch_data)} date(s)")
+            cls._batch_data = {}  # Clear the batch after committing
         except Exception as e:
             db.session.rollback()
-            logger.error(f"Error logging Dropbox traffic: {e}")
-            raise
+            logger.error(f"Error committing batch traffic data: {e}")
+            # Don't raise - we'll try again on the next batch
 
     @classmethod
     def import_historical_data(cls, date, request_count, total_bytes):

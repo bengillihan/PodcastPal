@@ -14,10 +14,9 @@ logger = logging.getLogger(__name__)
 _feed_cache = {}
 TIMEZONE = pytz.timezone('America/Los_Angeles')  # Pacific Time
 
-# Define refresh times (6am and 3pm Pacific Time)
+# Define refresh times (once per day at 3am Pacific Time for lower database load)
 REFRESH_TIMES = [
-    (6, 0),   # 6:00 AM PT
-    (15, 0),  # 3:00 PM PT
+    (3, 0),   # 3:00 AM PT
 ]
 
 def get_next_refresh_time(current_time):

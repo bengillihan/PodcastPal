@@ -22,8 +22,16 @@ def index():
 @app.route('/dashboard')
 @login_required
 def dashboard():
-    feeds = Feed.query.filter_by(user_id=current_user.id).all()
-    return render_template('dashboard.html', feeds=feeds)
+    page = request.args.get('page', 1, type=int)
+    per_page = 10  # Number of feeds per page
+    
+    # Use pagination instead of fetching all feeds at once
+    pagination = Feed.query.filter_by(user_id=current_user.id) \
+                     .order_by(Feed.created_at.desc()) \
+                     .paginate(page=page, per_page=per_page, error_out=False)
+                     
+    feeds = pagination.items
+    return render_template('dashboard.html', feeds=feeds, pagination=pagination)
 
 @app.route('/feed/new', methods=['GET', 'POST'])
 @login_required
@@ -213,8 +221,22 @@ def feed_details(feed_id):
     feed = Feed.query.get_or_404(feed_id)
     if feed.user_id != current_user.id:
         abort(403)
+        
+    # Add pagination for episodes
+    page = request.args.get('page', 1, type=int)
+    per_page = 15  # Number of episodes per page
+    
+    # Get episodes with pagination instead of loading all at once via relationship
+    episodes_pagination = Episode.query.filter_by(feed_id=feed_id) \
+                               .order_by(Episode.release_date.desc()) \
+                               .paginate(page=page, per_page=per_page, error_out=False)
+    
+    episodes = episodes_pagination.items
+    
     return render_template('feed_details.html', 
                          feed=feed, 
+                         episodes=episodes,
+                         pagination=episodes_pagination,
                          _feed_cache=_feed_cache,
                          now=datetime.now(TIMEZONE),
                          TIMEZONE=TIMEZONE,
@@ -441,20 +463,27 @@ def export_episodes(feed_id):
 @login_required
 def search_episodes():
     query = request.args.get('q', '').strip()
-    results = []
-
+    page = request.args.get('page', 1, type=int)
+    per_page = 20  # Number of search results per page
+    
     if query:
-        # Search through episodes in user's feeds
-        results = (Episode.query
-                  .join(Feed)
-                  .filter(Feed.user_id == current_user.id)
-                  .filter(or_(
-                      Episode.title.ilike(f'%{query}%'),
-                      Episode.description.ilike(f'%{query}%')
-                  ))
-                  .order_by(Episode.release_date.desc())
-                  .all())
-
-        logger.info(f"Search query '{query}' returned {len(results)} results")
-
-    return render_template('search.html', query=query, results=results)
+        # Search through episodes in user's feeds with pagination
+        search_query = (Episode.query
+                      .join(Feed)
+                      .filter(Feed.user_id == current_user.id)
+                      .filter(or_(
+                          Episode.title.ilike(f'%{query}%'),
+                          Episode.description.ilike(f'%{query}%')
+                      ))
+                      .order_by(Episode.release_date.desc()))
+        
+        # Apply pagination
+        pagination = search_query.paginate(page=page, per_page=per_page, error_out=False)
+        results = pagination.items
+        
+        logger.info(f"Search query '{query}' returned {pagination.total} total results, showing page {page}")
+        
+        return render_template('search.html', query=query, results=results, pagination=pagination)
+    
+    # If no query, just show the empty search page
+    return render_template('search.html', query='', results=[])

@@ -26,6 +26,9 @@ app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL")
 app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
     "pool_recycle": 300,
     "pool_pre_ping": True,
+    "pool_size": 5,         # Limit max connections
+    "max_overflow": 10,     # Allow temporary overflow connections
+    "pool_timeout": 30      # Wait 30 seconds before timing out
 }
 app.config['TIMEZONE'] = TIMEZONE
 

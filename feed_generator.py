@@ -174,17 +174,16 @@ def generate_rss_feed(feed):
 
         current_time = datetime.now(TIMEZONE)
         updated_episodes = []
+        three_months_ago = current_time - timedelta(days=90)
 
         for ep in feed.episodes:
             try:
-                # Make release_date timezone-aware if it isn't already
                 ep_release_date = ep.release_date.replace(tzinfo=TIMEZONE) if ep.release_date.tzinfo is None else ep.release_date
 
                 if hasattr(ep, 'is_recurring') and ep.is_recurring:
                     days_since_release = (current_time - ep_release_date).days
                     max_iterations = 5
                     iterations = 0
-                    # Changed from 60 to 180 days (6 months)
                     while days_since_release > 180 and iterations < max_iterations:
                         try:
                             ep_release_date = ep_release_date.replace(year=ep_release_date.year + 1)
@@ -196,11 +195,12 @@ def generate_rss_feed(feed):
                     if iterations == max_iterations:
                         logger.warning(f"Episode '{ep.title}' exceeded max recurrence adjustments")
 
-                # Update episode's release_date with the potentially adjusted timezone-aware date
                 ep.release_date = ep_release_date
 
-                if ep_release_date <= current_time:
+                # Include only recent episodes (from the last 3 months)
+                if three_months_ago <= ep_release_date <= current_time:
                     updated_episodes.append(ep)
+
             except AttributeError as attr_err:
                 logger.error(f"Invalid episode data for {getattr(ep, 'title', 'Unknown')}: {attr_err}")
                 continue

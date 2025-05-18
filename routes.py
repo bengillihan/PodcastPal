@@ -310,6 +310,7 @@ def upload_episodes_csv(feed_id):
         encodings = ['utf-8', 'latin-1', 'windows-1252', 'iso-8859-1']
         
         # Try each encoding until one works
+        best_encoding = None
         for encoding in encodings:
             try:
                 decoded_content = file_content.decode(encoding)
@@ -318,9 +319,8 @@ def upload_episodes_csv(feed_id):
                 test_reader = csv.DictReader(stream)
                 # Read one row to test if it's valid
                 next(test_reader, None)
-                # Reset the stream for actual reading
-                stream.seek(0)
-                csv_reader = csv.DictReader(stream)
+                # Found a working encoding
+                best_encoding = encoding
                 logger.info(f"Successfully decoded CSV with {encoding} encoding")
                 break
             except UnicodeDecodeError:
@@ -329,9 +329,20 @@ def upload_episodes_csv(feed_id):
             except Exception as e:
                 logger.debug(f"Error with {encoding}: {str(e)}")
                 continue
+        
+        if best_encoding:
+            # Process the file with the best encoding found
+            try:
+                stream = StringIO(file_content.decode(best_encoding, errors='replace'), newline=None)
+                csv_reader = csv.DictReader(stream)
+            except Exception as e:
+                logger.error(f"Error creating CSV reader with {best_encoding}: {str(e)}")
+                raise
         else:
-            # This runs if the for loop completes without a break
-            raise UnicodeDecodeError("utf-8", file_content, 0, 1, "Could not decode the CSV file with any encoding")
+            # If no encoding worked completely, try error-replacement mode with UTF-8
+            logger.warning("No perfect encoding found, using UTF-8 with replacement")
+            stream = StringIO(file_content.decode('utf-8', errors='replace'), newline=None)
+            csv_reader = csv.DictReader(stream)
 
         episodes_added = 0
         episodes_failed = 0

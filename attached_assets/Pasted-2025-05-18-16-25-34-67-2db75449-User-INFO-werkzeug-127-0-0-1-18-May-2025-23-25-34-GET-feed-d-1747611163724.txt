@@ -1,0 +1,60 @@
+2025-05-18 16:25:34.67
+2db75449
+User
+INFO:werkzeug:127.0.0.1 - - [18/May/2025 23:25:34] "GET /feed/daily-drucker/rss HTTP/1.1" 200 -
+2025-05-18 16:28:02.07
+2db75449
+User
+ERROR:routes:Error processing CSV file: 'utf-8' codec can't decode byte 0xd5 in position 2772: invalid continuation byte
+2025-05-18 16:28:02.10
+2db75449
+User
+INFO:werkzeug:127.0.0.1 - - [18/May/2025 23:28:02] "POST /feed/10/upload-csv HTTP/1.1" 302 -
+2025-05-18 16:28:02.80
+2db75449
+User
+INFO:werkzeug:127.0.0.1 - - [18/May/2025 23:28:02] "GET /feed/10 HTTP/1.1" 200 -
+2025-05-18 16:28:02.93
+2db75449
+User
+INFO:werkzeug:127.0.0.1 - - [18/May/2025 23:28:02] "GET /static/css/custom.css HTTP/1.1" 304 -
+2025-05-18 16:28:03.00
+2db75449
+User
+INFO:werkzeug:127.0.0.1 - - [18/May/2025 23:28:03] "GET /static/js/dashboard.js HTTP/1.1" 304 -
+2025-05-18 16:28:53.02
+2db75449
+User
+ERROR:routes:Error processing CSV file: 'utf-8' codec can't decode byte 0xd5 in position 2770: invalid continuation byte
+2025-05-18 16:28:53.04
+2db75449
+User
+INFO:werkzeug:127.0.0.1 - - [18/May/2025 23:28:53] "POST /feed/10/upload-csv HTTP/1.1" 302 -
+2025-05-18 16:28:53.58
+2db75449
+User
+INFO:werkzeug:127.0.0.1 - - [18/May/2025 23:28:53] "GET /feed/10 HTTP/1.1" 200 -
+2025-05-18 16:28:53.75
+2db75449
+User
+INFO:werkzeug:127.0.0.1 - - [18/May/2025 23:28:53] "GET /static/css/custom.css HTTP/1.1" 304 -
+2025-05-18 16:28:53.86
+2db75449
+User
+INFO:werkzeug:127.0.0.1 - - [18/May/2025 23:28:53] "GET /static/js/dashboard.js HTTP/1.1" 304 -
+2025-05-18 16:29:17.01
+2db75449
+User
+ERROR:routes:Error processing CSV file: 'utf-8' codec can't decode byte 0xd5 in position 2770: invalid continuation byte
+2025-05-18 16:29:17.03
+2db75449
+User
+INFO:werkzeug:127.0.0.1 - - [18/May/2025 23:29:17] "POST /feed/10/upload-csv HTTP/1.1" 302 -
+2025-05-18 16:29:17.39
+2db75449
+User
+INFO:werkzeug:127.0.0.1 - - [18/May/2025 23:29:17] "GET /feed/10 HTTP/1.1" 200 -
+2025-05-18 16:29:17.50
+2db75449
+User
+INFO:werkzeug:127.0.0.1 - - [18/May/2025 23:29:17] "GET /static/css/custom.css HTTP/1.1" 304 -

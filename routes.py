@@ -305,8 +305,33 @@ def upload_episodes_csv(feed_id):
         return redirect(url_for('feed_details', feed_id=feed_id))
 
     try:
-        stream = StringIO(file.stream.read().decode("UTF8"), newline=None)
-        csv_reader = csv.DictReader(stream)
+        # Try multiple encodings to handle different CSV file formats
+        file_content = file.stream.read()
+        encodings = ['utf-8', 'latin-1', 'windows-1252', 'iso-8859-1']
+        
+        # Try each encoding until one works
+        for encoding in encodings:
+            try:
+                decoded_content = file_content.decode(encoding)
+                stream = StringIO(decoded_content, newline=None)
+                # Test if we can read it as CSV
+                test_reader = csv.DictReader(stream)
+                # Read one row to test if it's valid
+                next(test_reader, None)
+                # Reset the stream for actual reading
+                stream.seek(0)
+                csv_reader = csv.DictReader(stream)
+                logger.info(f"Successfully decoded CSV with {encoding} encoding")
+                break
+            except UnicodeDecodeError:
+                logger.debug(f"Failed to decode with {encoding}, trying next encoding")
+                continue
+            except Exception as e:
+                logger.debug(f"Error with {encoding}: {str(e)}")
+                continue
+        else:
+            # This runs if the for loop completes without a break
+            raise UnicodeDecodeError("utf-8", file_content, 0, 1, "Could not decode the CSV file with any encoding")
 
         episodes_added = 0
         episodes_failed = 0

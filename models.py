@@ -86,21 +86,42 @@ class DropboxTraffic(db.Model):
     
     @classmethod
     def _commit_batch(cls):
-        """Commit the batched traffic data to the database"""
+        """Commit the batched traffic data to the database using bulk operations"""
         if not cls._batch_data:
             return
             
         try:
+            # Use bulk operations to reduce database round trips
+            existing_dates = [date for date in cls._batch_data.keys()]
+            existing_records = {
+                record.date: record 
+                for record in cls.query.filter(cls.date.in_(existing_dates)).all()
+            }
+            
+            updates = []
+            inserts = []
+            
             for date, data in cls._batch_data.items():
-                traffic = cls.query.filter_by(date=date).first()
-                if not traffic:
-                    logger.info(f"Creating new traffic record for date: {date}")
-                    traffic = cls(date=date)
-                    db.session.add(traffic)
-
-                traffic.request_count += data['count']
-                traffic.total_bytes += data['bytes']
-                traffic.updated_at = datetime.utcnow()
+                if date in existing_records:
+                    # Update existing record
+                    record = existing_records[date]
+                    record.request_count += data['count']
+                    record.total_bytes += data['bytes']
+                    record.updated_at = datetime.utcnow()
+                    updates.append(record)
+                else:
+                    # Insert new record
+                    inserts.append(cls(
+                        date=date,
+                        request_count=data['count'],
+                        total_bytes=data['bytes'],
+                        created_at=datetime.utcnow(),
+                        updated_at=datetime.utcnow()
+                    ))
+            
+            # Bulk insert new records
+            if inserts:
+                db.session.add_all(inserts)
             
             db.session.commit()
             logger.info(f"Successfully committed batch traffic data for {len(cls._batch_data)} date(s)")

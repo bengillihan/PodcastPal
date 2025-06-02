@@ -24,11 +24,15 @@ app = Flask(__name__)
 app.secret_key = os.environ.get("FLASK_SECRET_KEY", "dev_key")
 app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL")
 app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
-    "pool_recycle": 300,
-    "pool_pre_ping": True,
-    "pool_size": 5,         # Limit max connections
-    "max_overflow": 10,     # Allow temporary overflow connections
-    "pool_timeout": 30      # Wait 30 seconds before timing out
+    "pool_recycle": 1800,    # Recycle connections every 30 minutes (was 5 min)
+    "pool_pre_ping": True,   # Verify connections before use
+    "pool_size": 3,          # Reduce default connection pool size
+    "max_overflow": 5,       # Reduce overflow connections 
+    "pool_timeout": 20,      # Reduce timeout to fail faster
+    "connect_args": {
+        "connect_timeout": 10,      # Connection timeout
+        "application_name": "PodcastPal"  # Help identify app in DB logs
+    }
 }
 app.config['TIMEZONE'] = TIMEZONE
 

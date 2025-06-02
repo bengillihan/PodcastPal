@@ -11,7 +11,8 @@ import logging
 import csv
 from io import StringIO
 from werkzeug.utils import secure_filename
-from sqlalchemy import or_
+from sqlalchemy import or_, func
+from sqlalchemy.orm import joinedload, selectinload
 
 logger = logging.getLogger(__name__)
 
@@ -25,12 +26,29 @@ def dashboard():
     page = request.args.get('page', 1, type=int)
     per_page = 10  # Number of feeds per page
     
-    # Use pagination instead of fetching all feeds at once
+    # Get feeds with pagination first
     pagination = Feed.query.filter_by(user_id=current_user.id) \
                      .order_by(Feed.created_at.desc()) \
                      .paginate(page=page, per_page=per_page, error_out=False)
-                     
+    
     feeds = pagination.items
+    
+    # Get episode counts for only the feeds on this page (reduces database load)
+    if feeds:
+        feed_ids = [feed.id for feed in feeds]
+        episode_counts = db.session.query(
+            Episode.feed_id,
+            func.count(Episode.id).label('count')
+        ).filter(Episode.feed_id.in_(feed_ids)) \
+         .group_by(Episode.feed_id).all()
+        
+        # Create a mapping of feed_id to episode count
+        count_map = {feed_id: count for feed_id, count in episode_counts}
+        
+        # Attach episode counts to feeds
+        for feed in feeds:
+            feed.episode_count = count_map.get(feed.id, 0)
+    
     return render_template('dashboard.html', feeds=feeds, pagination=pagination)
 
 @app.route('/feed/new', methods=['GET', 'POST'])
@@ -196,16 +214,21 @@ def edit_episode(feed_id, episode_id):
 @app.route('/feed/<int:feed_id>/episode/<int:episode_id>/delete', methods=['POST'])
 @login_required
 def delete_episode(feed_id, episode_id):
-    feed = Feed.query.get_or_404(feed_id)
-    if feed.user_id != current_user.id:
-        abort(403)
-
-    episode = Episode.query.get_or_404(episode_id)
-    if episode.feed_id != feed_id:
-        abort(404)
+    # Single query to verify ownership and get episode
+    episode = Episode.query.join(Feed).filter(
+        Episode.id == episode_id,
+        Episode.feed_id == feed_id,
+        Feed.user_id == current_user.id
+    ).first_or_404()
 
     try:
         db.session.delete(episode)
+        
+        # Clear RSS cache for this feed
+        if feed_id in _feed_cache:
+            del _feed_cache[feed_id]
+            logger.info(f"Cleared RSS feed cache for feed_id: {feed_id}")
+        
         db.session.commit()
         flash('Episode deleted successfully!', 'success')
     except Exception as e:
@@ -218,15 +241,14 @@ def delete_episode(feed_id, episode_id):
 @app.route('/feed/<int:feed_id>')
 @login_required
 def feed_details(feed_id):
-    feed = Feed.query.get_or_404(feed_id)
-    if feed.user_id != current_user.id:
-        abort(403)
+    # Single query to get feed and verify ownership
+    feed = Feed.query.filter_by(id=feed_id, user_id=current_user.id).first_or_404()
         
     # Add pagination for episodes
     page = request.args.get('page', 1, type=int)
     per_page = 15  # Number of episodes per page
     
-    # Get episodes with pagination instead of loading all at once via relationship
+    # Get episodes with pagination - using single query with all needed data
     episodes_pagination = Episode.query.filter_by(feed_id=feed_id) \
                                .order_by(Episode.release_date.desc()) \
                                .paginate(page=page, per_page=per_page, error_out=False)

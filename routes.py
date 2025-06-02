@@ -267,13 +267,18 @@ def feed_details(feed_id):
 @app.route('/feed/<int:feed_id>/delete', methods=['POST'])
 @login_required
 def delete_feed(feed_id):
-    feed = Feed.query.get_or_404(feed_id)
-    if feed.user_id != current_user.id:
-        abort(403)
+    # Verify ownership with single query
+    feed = Feed.query.filter_by(id=feed_id, user_id=current_user.id).first_or_404()
 
     try:
-        # Delete associated episodes first
+        # Use bulk delete for episodes (more efficient than individual deletes)
         Episode.query.filter_by(feed_id=feed.id).delete()
+        
+        # Clear RSS cache before deleting feed
+        if feed_id in _feed_cache:
+            del _feed_cache[feed_id]
+            logger.info(f"Cleared RSS feed cache for feed_id: {feed_id}")
+        
         db.session.delete(feed)
         db.session.commit()
         flash('Feed deleted successfully!', 'success')

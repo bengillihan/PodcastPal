@@ -470,14 +470,15 @@ def refresh_feed(feed_id):
         abort(403)
 
     try:
-        # Clear the cache for this feed
+        # Force clear the cache for this feed (manual refresh)
         if feed_id in _feed_cache:
             del _feed_cache[feed_id]
             logger.info(f"Manually cleared RSS feed cache for feed_id: {feed_id}")
 
-        # Generate new feed content
-        generate_rss_feed(feed)
-        flash('Feed refreshed successfully!', 'success')
+        # Force regenerate feed content by bypassing cache check
+        from feed_generator import generate_rss_feed_force
+        generate_rss_feed_force(feed)
+        flash('Feed refreshed successfully! Changes will be visible immediately.', 'success')
     except Exception as e:
         logger.error(f"Error refreshing feed: {str(e)}")
         flash('Error refreshing feed. Please try again.', 'error')

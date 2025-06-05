@@ -114,11 +114,20 @@ def fetch_file_size_concurrent(episodes):
     with ThreadPoolExecutor(max_workers=5) as executor:
         return list(executor.map(get_episode_size, episodes))
 
+def generate_rss_feed_force(feed):
+    """Force generate RSS feed XML, bypassing cache"""
+    return _generate_rss_content(feed, force=True)
+
 def generate_rss_feed(feed):
     """Generate RSS feed XML for a podcast feed"""
     cached_content = get_cached_feed(feed.id)
     if cached_content:
         return cached_content
+    
+    return _generate_rss_content(feed, force=False)
+
+def _generate_rss_content(feed, force=False):
+    """Internal function to generate RSS content"""
 
     try:
         logger.info(f"Starting RSS feed generation for: {feed.name}")
@@ -260,7 +269,12 @@ def generate_rss_feed(feed):
         result = ET.tostring(rss, encoding='unicode', xml_declaration=True)
         logger.info(f"Successfully generated RSS feed for '{feed.name}' with {len(sorted_episodes)} episodes")
 
-        cache_feed(feed.id, result)
+        # Only cache if not forced refresh
+        if not force:
+            cache_feed(feed.id, result)
+        else:
+            logger.info(f"Force refresh - not caching RSS feed for '{feed.name}'")
+            
         return result
     except Exception as e:
         logger.error(f"Critical error generating RSS feed: {str(e)}", exc_info=True)

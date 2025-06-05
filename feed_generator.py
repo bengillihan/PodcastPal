@@ -131,9 +131,12 @@ def _generate_rss_content(feed, force=False):
 
     try:
         logger.info(f"Starting RSS feed generation for: {feed.name}")
-        # Get episodes with optimized query (ordered by release date for RSS)
-        episodes = feed.episodes.order_by(Episode.release_date.desc()).all()
-        logger.debug(f"Initial episode count: {len(episodes)}")
+        # Get only episodes from the last 3 months to save bandwidth and resources
+        three_months_ago = datetime.now(TIMEZONE) - timedelta(days=90)
+        episodes = feed.episodes.filter(
+            Episode.release_date >= three_months_ago
+        ).order_by(Episode.release_date.desc()).all()
+        logger.debug(f"Episodes from last 3 months: {len(episodes)}")
 
         rss = ET.Element('rss', version='2.0')
         rss.set('xmlns:itunes', 'http://www.itunes.com/dtds/podcast-1.0.dtd')
@@ -186,7 +189,6 @@ def _generate_rss_content(feed, force=False):
 
         current_time = datetime.now(TIMEZONE)
         updated_episodes = []
-        three_months_ago = current_time - timedelta(days=90)
 
         for ep in episodes:
             try:
@@ -208,10 +210,8 @@ def _generate_rss_content(feed, force=False):
                         logger.warning(f"Episode '{ep.title}' exceeded max recurrence adjustments")
 
                 ep.release_date = ep_release_date
-
-                # Include only recent episodes (from the last 3 months)
-                if three_months_ago <= ep_release_date <= current_time:
-                    updated_episodes.append(ep)
+                # Episodes are already filtered at database level to last 3 months
+                updated_episodes.append(ep)
 
             except AttributeError as attr_err:
                 logger.error(f"Invalid episode data for {getattr(ep, 'title', 'Unknown')}: {attr_err}")

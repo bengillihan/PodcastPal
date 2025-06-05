@@ -123,7 +123,6 @@ def generate_rss_feed(feed):
     try:
         logger.info(f"Starting RSS feed generation for: {feed.name}")
         # Get episodes with optimized query (ordered by release date for RSS)
-        from models import Episode
         episodes = feed.episodes.order_by(Episode.release_date.desc()).all()
         logger.debug(f"Initial episode count: {len(episodes)}")
 

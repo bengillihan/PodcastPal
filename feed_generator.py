@@ -131,12 +131,10 @@ def _generate_rss_content(feed, force=False):
 
     try:
         logger.info(f"Starting RSS feed generation for: {feed.name}")
-        # Get only episodes from the last 3 months to save bandwidth and resources
-        three_months_ago = datetime.now(TIMEZONE) - timedelta(days=90)
-        episodes = feed.episodes.filter(
-            Episode.release_date >= three_months_ago
-        ).order_by(Episode.release_date.desc()).all()
-        logger.debug(f"Episodes from last 3 months: {len(episodes)}")
+        # Get episodes - we'll filter recurring episodes in the processing loop
+        # to ensure proper date calculations for episodes that repeat annually
+        episodes = feed.episodes.order_by(Episode.release_date.desc()).all()
+        logger.debug(f"Total episodes to process: {len(episodes)}")
 
         rss = ET.Element('rss', version='2.0')
         rss.set('xmlns:itunes', 'http://www.itunes.com/dtds/podcast-1.0.dtd')
@@ -188,38 +186,44 @@ def _generate_rss_content(feed, force=False):
         atom_link.set('type', 'application/rss+xml')
 
         current_time = datetime.now(TIMEZONE)
+        three_months_ago = current_time - timedelta(days=90)
         updated_episodes = []
 
         for ep in episodes:
             try:
                 ep_release_date = ep.release_date.replace(tzinfo=TIMEZONE) if ep.release_date.tzinfo is None else ep.release_date
 
+                # For recurring episodes, only include if the original date is within 3 months
+                # Don't advance dates into the future - only show episodes from today backwards
                 if hasattr(ep, 'is_recurring') and ep.is_recurring:
-                    days_since_release = (current_time - ep_release_date).days
-                    max_iterations = 5
-                    iterations = 0
-                    while days_since_release > 180 and iterations < max_iterations:
+                    # Calculate the most recent occurrence that's NOT in the future
+                    while ep_release_date < current_time - timedelta(days=365):
                         try:
                             ep_release_date = ep_release_date.replace(year=ep_release_date.year + 1)
                         except ValueError:
-                            logger.warning(f"Adjusting leap year date for episode '{ep.title}'")
                             ep_release_date = ep_release_date.replace(month=2, day=28, year=ep_release_date.year + 1)
-                        days_since_release = (current_time - ep_release_date).days
-                        iterations += 1
-                    if iterations == max_iterations:
-                        logger.warning(f"Episode '{ep.title}' exceeded max recurrence adjustments")
+                    
+                    # If the adjusted date is still in the future, skip this episode
+                    if ep_release_date > current_time:
+                        continue
 
-                ep.release_date = ep_release_date
-                # Episodes are already filtered at database level to last 3 months
-                updated_episodes.append(ep)
+                # Only include episodes from today backwards and within last 3 months
+                if ep_release_date <= current_time and ep_release_date >= three_months_ago:
+                    ep.release_date = ep_release_date
+                    updated_episodes.append(ep)
 
             except AttributeError as attr_err:
                 logger.error(f"Invalid episode data for {getattr(ep, 'title', 'Unknown')}: {attr_err}")
                 continue
 
         sorted_episodes = sorted(updated_episodes, key=lambda x: x.release_date, reverse=True)
+        
+        # Limit to maximum 100 episodes to save bandwidth and processing resources
+        if len(sorted_episodes) > 100:
+            sorted_episodes = sorted_episodes[:100]
+            logger.info(f"Limited to 100 most recent episodes for bandwidth optimization")
 
-        logger.info(f"Processing {len(updated_episodes)} available episodes for feed '{feed.name}'")
+        logger.info(f"Processing {len(sorted_episodes)} episodes for feed '{feed.name}' (from last 3 months)")
 
         episode_sizes = dict(fetch_file_size_concurrent(sorted_episodes))
 

@@ -1,0 +1,933 @@
+This XML file does not appear to have any style information associated with it. The document tree is shown below.
+<rss xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
+<channel>
+<title>Daily Tozer</title>
+<description>Daily AW Tozer Meditations</description>
+<language>en-us</language>
+<copyright>Copyright © 2025 Daily Tozer</copyright>
+<itunes:author>Ben Gillihan</itunes:author>
+<itunes:category text="Arts"/>
+<itunes:image href="https://dl.dropboxusercontent.com/scl/fi/71mao2b59pz6gsnomt4os/Tozer.jpeg?rlkey=928jdgwmrvtzgaebjgmazq444&st=824g2t2m"/>
+<atom:link href="http://podcast-pal-bdgillihan.replit.app/feed/daily-tozer-nj2dyy/rss" rel="self" type="application/rss+xml"/>
+<item>
+<title>What's Missing</title>
+<description>What's Missing</description>
+<itunes:summary>What's Missing</itunes:summary>
+<pubDate>Mon, 30 Jun 2025 10:00:00 -0753</pubDate>
+<guid isPermaLink="false">episode_1059_2025</guid>
+<enclosure url="https://dl.dropboxusercontent.com/scl/fi/5586sfdcsbendxl2g7k7v/Tozer_-_June_30_-_What-s_Missing.mp3?rlkey=kqoxlfo512jlq5l4lq1tin2yq&st=4ptpouxy" type="audio/mpeg" length="713709"/>
+</item>
+<item>
+<title>Truckloads of Gadgets</title>
+<description>Truckloads of Gadgets</description>
+<itunes:summary>Truckloads of Gadgets</itunes:summary>
+<pubDate>Sun, 29 Jun 2025 03:00:00 -0753</pubDate>
+<guid isPermaLink="false">episode_1058_2025</guid>
+<enclosure url="https://dl.dropboxusercontent.com/scl/fi/y46xo607ci7cvdz93688y/Tozer_-_June_29_-_Truckloads_of_Gadgets.mp3?rlkey=ndn3czfh4tf8eep50c2ztbcjc&st=jj7gaeoq" type="audio/mpeg" length="745965"/>
+</item>
+<item>
+<title>Omit the Third Verse</title>
+<description>Omit the Third Verse</description>
+<itunes:summary>Omit the Third Verse</itunes:summary>
+<pubDate>Sat, 28 Jun 2025 03:00:00 -0753</pubDate>
+<guid isPermaLink="false">episode_1057_2025</guid>
+<enclosure url="https://dl.dropboxusercontent.com/scl/fi/2alrximvqv8dz1bd8pejv/Tozer_-_June_28_-_Omit_the_Third_Verse.mp3?rlkey=05qqwn4opq4qtkgvnrf03et03&st=nsm4tore" type="audio/mpeg" length="811245"/>
+</item>
+<item>
+<title>The Program</title>
+<description>The Program</description>
+<itunes:summary>The Program</itunes:summary>
+<pubDate>Fri, 27 Jun 2025 03:00:00 -0753</pubDate>
+<guid isPermaLink="false">episode_1056_2025</guid>
+<enclosure url="https://dl.dropboxusercontent.com/scl/fi/ndg63r6po9avbx56qib09/Tozer_-_June_27_-_The_Program.mp3?rlkey=tg4xbzwy45jtcz7ujs0k42xwg&st=pzwpxjau" type="audio/mpeg" length="746829"/>
+</item>
+<item>
+<title>In Need of Worshipers</title>
+<description>In Need of Worshipers</description>
+<itunes:summary>In Need of Worshipers</itunes:summary>
+<pubDate>Thu, 26 Jun 2025 03:00:00 -0753</pubDate>
+<guid isPermaLink="false">episode_1055_2025</guid>
+<enclosure url="https://dl.dropboxusercontent.com/scl/fi/k052y6shjcd7g5q63alsx/Tozer_-_June_26_-_In_Need_of_Worshipers.mp3?rlkey=a1jwxvmhz02fqovk45uj4rzef&st=fxgkrijl" type="audio/mpeg" length="770157"/>
+</item>
+<item>
+<title>Noncritical Worship</title>
+<description>Noncritical Worship</description>
+<itunes:summary>Noncritical Worship</itunes:summary>
+<pubDate>Wed, 25 Jun 2025 03:00:00 -0753</pubDate>
+<guid isPermaLink="false">episode_1054_2025</guid>
+<enclosure url="https://dl.dropboxusercontent.com/scl/fi/m52vorh8bur37bty6f7zq/Tozer_-_June_25_-_Noncritical_Worship.mp3?rlkey=s67d3r6ribwjuwyz7ggm7eudl&st=enr44z2c" type="audio/mpeg" length="763725"/>
+</item>
+<item>
+<title>The Art of True Worship</title>
+<description>The Art of True Worship</description>
+<itunes:summary>The Art of True Worship</itunes:summary>
+<pubDate>Tue, 24 Jun 2025 03:00:00 -0753</pubDate>
+<guid isPermaLink="false">episode_1053_2025</guid>
+<enclosure url="https://dl.dropboxusercontent.com/scl/fi/6iqs7fm3rs338i07vnr3c/Tozer_-_June_24_-_The_Art_of_True_Worship.mp3?rlkey=u588z5ir8ujsktvb6orn9mb6k&st=tg0z9tpr" type="audio/mpeg" length="751725"/>
+</item>
+<item>
+<title>Busy busy busy</title>
+<description>Busy busy busy</description>
+<itunes:summary>Busy busy busy</itunes:summary>
+<pubDate>Mon, 23 Jun 2025 03:00:00 -0753</pubDate>
+<guid isPermaLink="false">episode_1052_2025</guid>
+<enclosure url="https://dl.dropboxusercontent.com/scl/fi/fe4vqyliwmsd3p9uwolop/Tozer_-_June_22_-_Busy-_Busy-_Busy.mp3?rlkey=9mqe26uu2chvtr6tm7j8r7qft&st=k8qgt4h9" type="audio/mpeg" length="649005"/>
+</item>
+<item>
+<title>Wasted Religious Activity</title>
+<description>Wasted Religious Activity</description>
+<itunes:summary>Wasted Religious Activity</itunes:summary>
+<pubDate>Sun, 22 Jun 2025 03:00:00 -0753</pubDate>
+<guid isPermaLink="false">episode_1051_2025</guid>
+<enclosure url="https://dl.dropboxusercontent.com/scl/fi/pubx8xfkgiev54iu2grky/Tozer_-_June_22_-_Wasted_Religious_Activity.mp3?rlkey=27x1lffnw6fim7k62wrzsms0g&st=94klx25x" type="audio/mpeg" length="780717"/>
+</item>
+<item>
+<title>Wonder and Pressure Bar</title>
+<description>Wonder and Pressure Bar</description>
+<itunes:summary>Wonder and Pressure Bar</itunes:summary>
+<pubDate>Sat, 21 Jun 2025 03:00:00 -0753</pubDate>
+<guid isPermaLink="false">episode_1050_2025</guid>
+<enclosure url="https://dl.dropboxusercontent.com/scl/fi/tkkvoe5odg3boyx5o6hgl/Tozer_-_June_21_-_Wonder_and_Pressure_Bar.mp3?rlkey=eejelcd056lf35dgmqw15kcvy&st=0tyvuhm9" type="audio/mpeg" length="652845"/>
+</item>
+<item>
+<title>We See God Too Small</title>
+<description>We See God Too Small</description>
+<itunes:summary>We See God Too Small</itunes:summary>
+<pubDate>Fri, 20 Jun 2025 03:00:00 -0753</pubDate>
+<guid isPermaLink="false">episode_1049_2025</guid>
+<enclosure url="https://dl.dropboxusercontent.com/scl/fi/2kyufq26sv7gahbyaeuiz/Tozer_-_June_20_-_We_See_God_Too_Small.mp3?rlkey=faqvzy2ke92qrnuv4p0njbwzv&st=letozf78" type="audio/mpeg" length="702573"/>
+</item>
+<item>
+<title>Worship with a Stitch</title>
+<description>Worship with a Stitch</description>
+<itunes:summary>Worship with a Stitch</itunes:summary>
+<pubDate>Thu, 19 Jun 2025 03:00:00 -0753</pubDate>
+<guid isPermaLink="false">episode_1048_2025</guid>
+<enclosure url="https://dl.dropboxusercontent.com/scl/fi/yk1db8nxbn53o4zl4m29f/Tozer_-_June_19_-_Worship_with_a_Stitch.mp3?rlkey=s51s5byibfnwmgrr4b4todyl5&st=1cy8pdxm" type="audio/mpeg" length="715533"/>
+</item>
+<item>
+<title>Gods Presence on Monday</title>
+<description>Gods Presence on Monday</description>
+<itunes:summary>Gods Presence on Monday</itunes:summary>
+<pubDate>Wed, 18 Jun 2025 03:00:00 -0753</pubDate>
+<guid isPermaLink="false">episode_1047_2025</guid>
+<enclosure url="https://dl.dropboxusercontent.com/scl/fi/s8ty1rti4cnbo9n1rwavh/Tozer_-_June_18_-_God-s_Presence_on_Monday.mp3?rlkey=831rivt3allfbm9ahstzd3x6k&st=qgoj2jbg" type="audio/mpeg" length="714957"/>
+</item>
+<item>
+<title>Discharging Our Obligations</title>
+<description>Discharging Our Obligations</description>
+<itunes:summary>Discharging Our Obligations</itunes:summary>
+<pubDate>Tue, 17 Jun 2025 03:00:00 -0753</pubDate>
+<guid isPermaLink="false">episode_1046_2025</guid>
+<enclosure url="https://dl.dropboxusercontent.com/scl/fi/e4rpw98exvggvd0bwtyra/Tozer_-_June_17_-_Discharging_Our_Obligations.mp3?rlkey=ttan8s5mhywcl9x47k80pwsav&st=02p3l38x" type="audio/mpeg" length="700749"/>
+</item>
+<item>
+<title>Worship Seven Days a Week</title>
+<description>Worship Seven Days a Week</description>
+<itunes:summary>Worship Seven Days a Week</itunes:summary>
+<pubDate>Mon, 16 Jun 2025 03:00:00 -0753</pubDate>
+<guid isPermaLink="false">episode_1045_2025</guid>
+<enclosure url="https://dl.dropboxusercontent.com/scl/fi/0plwpl0oaol9gvr8nuwqm/Tozer_-_June_16_-_Worship_Seven_Days_a_Week.mp3?rlkey=vdz80kw2p08k4c2n3np71yb3o&st=w9437855" type="audio/mpeg" length="663597"/>
+</item>
+<item>
+<title>What God Is to You</title>
+<description>What God Is to You</description>
+<itunes:summary>What God Is to You</itunes:summary>
+<pubDate>Sun, 15 Jun 2025 03:00:00 -0753</pubDate>
+<guid isPermaLink="false">episode_1044_2025</guid>
+<enclosure url="https://dl.dropboxusercontent.com/scl/fi/n7m7ajaj8djezu0ix1ec4/Tozer_-_June_15_-_What_God_Is_To_You.mp3?rlkey=e1kjahq0lfxbpgcqw8qj6acqm&st=dslnz8ib" type="audio/mpeg" length="717549"/>
+</item>
+<item>
+<title>GodÕs Inward Necessity</title>
+<description>GodÕs Inward Necessity</description>
+<itunes:summary>GodÕs Inward Necessity</itunes:summary>
+<pubDate>Sat, 14 Jun 2025 03:00:00 -0753</pubDate>
+<guid isPermaLink="false">episode_1043_2025</guid>
+<enclosure url="https://dl.dropboxusercontent.com/scl/fi/888r86o7rflqq0m4h681w/Tozer_-_June_14_-_God-s_Inward_Necessity.mp3?rlkey=cldfz2itukxs59wuo940jigeb&st=ylb7uxik" type="audio/mpeg" length="791757"/>
+</item>
+<item>
+<title>Honor Your Purpose</title>
+<description>Honor Your Purpose</description>
+<itunes:summary>Honor Your Purpose</itunes:summary>
+<pubDate>Fri, 13 Jun 2025 03:00:00 -0753</pubDate>
+<guid isPermaLink="false">episode_1042_2025</guid>
+<enclosure url="https://dl.dropboxusercontent.com/scl/fi/yiwqxeuh3ydmrlolnpoid/Tozer_-_June_13_-_Honor_Your_Purpose.mp3?rlkey=146f24v5tx7pre5lau81xkde5&st=76dhtu1e" type="audio/mpeg" length="787917"/>
+</item>
+<item>
+<title>God Gave Man a Harp</title>
+<description>God Gave Man a Harp</description>
+<itunes:summary>God Gave Man a Harp</itunes:summary>
+<pubDate>Thu, 12 Jun 2025 03:00:00 -0753</pubDate>
+<guid isPermaLink="false">episode_1041_2025</guid>
+<enclosure url="https://dl.dropboxusercontent.com/scl/fi/zbxqxvs0prj7e64jc5t8h/Tozer_-_June_12_-_God_Gave_Man_a_Harp.mp3?rlkey=9w2f4nlsgw3zpxaf0xhrjvr8k&st=5on1qh5a" type="audio/mpeg" length="759213"/>
+</item>
+<item>
+<title>Created to Worship</title>
+<description>Created to Worship</description>
+<itunes:summary>Created to Worship</itunes:summary>
+<pubDate>Wed, 11 Jun 2025 03:00:00 -0753</pubDate>
+<guid isPermaLink="false">episode_1040_2025</guid>
+<enclosure url="https://dl.dropboxusercontent.com/scl/fi/j2dxbetknnvjor0dowcm7/Tozer_-_June_11_-_Created_to_Worship.mp3?rlkey=3psxtzs0zh50jihzppap1vj1c&st=kvbrqcsi" type="audio/mpeg" length="694797"/>
+</item>
+<item>
+<title>Our Reason for Existence</title>
+<description>Our Reason for Existence</description>
+<itunes:summary>Our Reason for Existence</itunes:summary>
+<pubDate>Tue, 10 Jun 2025 03:00:00 -0753</pubDate>
+<guid isPermaLink="false">episode_1039_2025</guid>
+<enclosure url="https://dl.dropboxusercontent.com/scl/fi/qkrpflkbfts05r8zcnse2/Tozer_-_June_10_-_Our_Reason_for_Existence.mp3?rlkey=4p7eo7rnidzwpd9rbpx2klqav&st=h8uxhohf" type="audio/mpeg" length="729741"/>
+</item>
+<item>
+<title>Worshipers from Rebels</title>
+<description>Worshipers from Rebels</description>
+<itunes:summary>Worshipers from Rebels</itunes:summary>
+<pubDate>Mon, 09 Jun 2025 03:00:00 -0753</pubDate>
+<guid isPermaLink="false">episode_1038_2025</guid>
+<enclosure url="https://dl.dropboxusercontent.com/scl/fi/5iyq1xdmoehba5vujoeqc/Tozer_-_June_9_-_Worshipers_from_Rebels.mp3?rlkey=i4lky8tbzs2cogq1grqku81ol&st=k524g7jl" type="audio/mpeg" length="704205"/>
+</item>
+<item>
+<title>Why They Act Like Idiots</title>
+<description>Why They Act Like Idiots</description>
+<itunes:summary>Why They Act Like Idiots</itunes:summary>
+<pubDate>Sun, 08 Jun 2025 03:00:00 -0753</pubDate>
+<guid isPermaLink="false">episode_1037_2025</guid>
+<enclosure url="https://dl.dropboxusercontent.com/scl/fi/ygqq0gm1zvav2lv3bqeck/Tozer_-_June_8_-_Why_They_Act_Like_Idiots.mp3?rlkey=l2et7qe6zx8jo10e9q7wqme22&st=g915uhl2" type="audio/mpeg" length="894477"/>
+</item>
+<item>
+<title>Standing Silent Before God</title>
+<description>Standing Silent Before God</description>
+<itunes:summary>Standing Silent Before God</itunes:summary>
+<pubDate>Sat, 07 Jun 2025 03:00:00 -0753</pubDate>
+<guid isPermaLink="false">episode_1036_2025</guid>
+<enclosure url="https://dl.dropboxusercontent.com/scl/fi/9kd15ukgdncavdy8k5thz/Tozer_-_June_7_-_Standing_Silent_Before_God.mp3?rlkey=9y073rdl8t3y6insiqg8ss313&st=riqvjlf6" type="audio/mpeg" length="684525"/>
+</item>
+<item>
+<title>Reverential Fear of God</title>
+<description>Reverential Fear of God</description>
+<itunes:summary>Reverential Fear of God</itunes:summary>
+<pubDate>Fri, 06 Jun 2025 03:00:00 -0753</pubDate>
+<guid isPermaLink="false">episode_1035_2025</guid>
+<enclosure url="https://dl.dropboxusercontent.com/scl/fi/t23ps2xn1stm5upqp04sk/Tozer_-_June_6_-_Reverential_Fear_of_God.mp3?rlkey=dhe5wqja33wevgbs8aldhs2l0&st=ng9arka6" type="audio/mpeg" length="680493"/>
+</item>
+<item>
+<title>Astonished Reverence</title>
+<description>Astonished Reverence</description>
+<itunes:summary>Astonished Reverence</itunes:summary>
+<pubDate>Thu, 05 Jun 2025 03:00:00 -0753</pubDate>
+<guid isPermaLink="false">episode_1034_2025</guid>
+<enclosure url="https://dl.dropboxusercontent.com/scl/fi/z73oryvwf70gibsfp48ud/Tozer_-_June_5_-_Astonished_Reverence.mp3?rlkey=26clpliruep9nzlv71lq7g55m&st=stabd9d5" type="audio/mpeg" length="763053"/>
+</item>
+<item>
+<title>Beyond Thanksgiving</title>
+<description>Beyond Thanksgiving</description>
+<itunes:summary>Beyond Thanksgiving</itunes:summary>
+<pubDate>Wed, 04 Jun 2025 03:00:00 -0753</pubDate>
+<guid isPermaLink="false">episode_1033_2025</guid>
+<enclosure url="https://dl.dropboxusercontent.com/scl/fi/ghwnn3qi60aglhnp2lf6g/Tozer_-_June_4_-_Beyond_Thanksgiving.mp3?rlkey=98mh72xsi8o6q17wplyoyek4v&st=34pgeh1i" type="audio/mpeg" length="837165"/>
+</item>
+<item>
+<title>God Listens</title>
+<description>God Listens</description>
+<itunes:summary>God Listens</itunes:summary>
+<pubDate>Tue, 03 Jun 2025 03:00:00 -0753</pubDate>
+<guid isPermaLink="false">episode_1032_2025</guid>
+<enclosure url="https://dl.dropboxusercontent.com/scl/fi/8l21cqqree3cueoo13df8/Tozer_-_June_3_-_God_Listens.mp3?rlkey=0r3xffdtq40vyrm6kswdt9k47&st=ih8y1i5w" type="audio/mpeg" length="749613"/>
+</item>
+<item>
+<title>The Normal Employment of Moral Beings</title>
+<description>The Normal Employment of Moral Beings</description>
+<itunes:summary>The Normal Employment of Moral Beings</itunes:summary>
+<pubDate>Mon, 02 Jun 2025 03:00:00 -0753</pubDate>
+<guid isPermaLink="false">episode_1031_2025</guid>
+<enclosure url="https://dl.dropboxusercontent.com/scl/fi/pcp1ud9gutpuf212qnfrq/Tozer_-_June_2_-_The_Normal_Employment_of_Moral_Beings.mp3?rlkey=6465cg9w7wssqjwmh4e6x3mv1&st=y055coqu" type="audio/mpeg" length="726669"/>
+</item>
+<item>
+<title>Gods Awesomeness</title>
+<description>Gods Awesomeness</description>
+<itunes:summary>Gods Awesomeness</itunes:summary>
+<pubDate>Sun, 01 Jun 2025 03:00:00 -0753</pubDate>
+<guid isPermaLink="false">episode_1030_2025</guid>
+<enclosure url="https://dl.dropboxusercontent.com/scl/fi/p991zxwl3vouwhgs66sn7/Tozer_-_June_1_-_God-s_Awesomeness.mp3?rlkey=i82pc5ecipj2em1hwtm7nrnvq&st=q5jhk3wp" type="audio/mpeg" length="814509"/>
+</item>
+<item>
+<title>May 31</title>
+<description>May 31</description>
+<itunes:summary>May 31</itunes:summary>
+<pubDate>Sat, 31 May 2025 03:30:00 -0753</pubDate>
+<guid isPermaLink="false">episode_986_2025</guid>
+<enclosure url="https://dl.dropboxusercontent.com/scl/fi/qp5c9lq2sdgfbvopytlzg/May_31_-_All_in_One_Sermon.mp3?rlkey=nsmtua4pvy5kj9ktytp4aeip3&st=nvzjdm1f" type="audio/mpeg" length="709965"/>
+</item>
+<item>
+<title>May 30</title>
+<description>May 30</description>
+<itunes:summary>May 30</itunes:summary>
+<pubDate>Fri, 30 May 2025 03:30:00 -0753</pubDate>
+<guid isPermaLink="false">episode_985_2025</guid>
+<enclosure url="https://dl.dropboxusercontent.com/scl/fi/lkxsb31hm60dm0wky65t9/May_30_-_Off-Color_Humor.mp3?rlkey=aliw9oeu1cth9yf9n49742zqu&st=e5euajrz" type="audio/mpeg" length="635661"/>
+</item>
+<item>
+<title>May 29</title>
+<description>May 29</description>
+<itunes:summary>May 29</itunes:summary>
+<pubDate>Thu, 29 May 2025 03:30:00 -0753</pubDate>
+<guid isPermaLink="false">episode_984_2025</guid>
+<enclosure url="https://dl.dropboxusercontent.com/scl/fi/ei5mqozx39w1mdqwk7vju/May_29_-_Too_Much_Originality.mp3?rlkey=eih73hmpjhiat1wos311oe6q2&st=8rpikp7h" type="audio/mpeg" length="574605"/>
+</item>
+<item>
+<title>May 28</title>
+<description>May 28</description>
+<itunes:summary>May 28</itunes:summary>
+<pubDate>Wed, 28 May 2025 03:30:00 -0753</pubDate>
+<guid isPermaLink="false">episode_983_2025</guid>
+<enclosure url="https://dl.dropboxusercontent.com/scl/fi/ccwwn07u97xp2amwo5ffv/May_28_-_Preach_the_Word.mp3?rlkey=znejjdlhem8rvq6js1b085qry&st=qpo992vh" type="audio/mpeg" length="558285"/>
+</item>
+<item>
+<title>May 27</title>
+<description>May 27</description>
+<itunes:summary>May 27</itunes:summary>
+<pubDate>Tue, 27 May 2025 03:30:00 -0753</pubDate>
+<guid isPermaLink="false">episode_982_2025</guid>
+<enclosure url="https://dl.dropboxusercontent.com/scl/fi/fvdd53ys6qkkwszmlcavc/May_27_-_Master_Your_Medium.mp3?rlkey=734cacuyv74evde5un6z1y9zd&st=pcgerwe9" type="audio/mpeg" length="599853"/>
+</item>
+<item>
+<title>May 26</title>
+<description>May 26</description>
+<itunes:summary>May 26</itunes:summary>
+<pubDate>Mon, 26 May 2025 03:30:00 -0753</pubDate>
+<guid isPermaLink="false">episode_981_2025</guid>
+<enclosure url="https://dl.dropboxusercontent.com/scl/fi/rp6y5zxaxvkzy98hm3m00/May_26_-_Imperfect_Interpreters.mp3?rlkey=mpk78mdhsh32c2t4g692tkg5g&st=npey20jr" type="audio/mpeg" length="593901"/>
+</item>
+<item>
+<title>May 25</title>
+<description>May 25</description>
+<itunes:summary>May 25</itunes:summary>
+<pubDate>Sun, 25 May 2025 03:30:00 -0753</pubDate>
+<guid isPermaLink="false">episode_980_2025</guid>
+<enclosure url="https://dl.dropboxusercontent.com/scl/fi/zvft5fbepg8arprle9mwp/May_25_-_Preach_the_Person_of_God.mp3?rlkey=mdv0dqxjyokxb3d2qx6vfwcm8&st=l3i1q7s8" type="audio/mpeg" length="601869"/>
+</item>
+<item>
+<title>May 24</title>
+<description>May 24</description>
+<itunes:summary>May 24</itunes:summary>
+<pubDate>Sat, 24 May 2025 03:30:00 -0753</pubDate>
+<guid isPermaLink="false">episode_979_2025</guid>
+<enclosure url="https://dl.dropboxusercontent.com/scl/fi/mf2slrorf5lldoczmn3lo/Tozer_-_May_24_-_Use_Your_Head.mp3?rlkey=9vqvf62iu0ffg3fz3o5epe99e&st=6ztdm8lg" type="audio/mpeg" length="524397"/>
+</item>
+<item>
+<title>May 23</title>
+<description>May 23</description>
+<itunes:summary>May 23</itunes:summary>
+<pubDate>Fri, 23 May 2025 03:30:00 -0753</pubDate>
+<guid isPermaLink="false">episode_978_2025</guid>
+<enclosure url="https://dl.dropboxusercontent.com/scl/fi/wdde5dzy1co6cg1ptitxk/Tozer_-_May_23_-_Morally_Wrong_Teaching.mp3?rlkey=2kw3ejns3ctd1pg77gxzcumsj&st=fzdqlig7" type="audio/mpeg" length="536685"/>
+</item>
+<item>
+<title>May 22</title>
+<description>May 22</description>
+<itunes:summary>May 22</itunes:summary>
+<pubDate>Thu, 22 May 2025 03:30:00 -0753</pubDate>
+<guid isPermaLink="false">episode_977_2025</guid>
+<enclosure url="https://dl.dropboxusercontent.com/scl/fi/7ucw4wt5qv8r91j7x870v/Tozer_-_May_22_-_Nibbling_at_the_Truth.mp3?rlkey=fgjg12j7opxczn7hr28j6iood&st=3v2fc4rs" type="audio/mpeg" length="524397"/>
+</item>
+<item>
+<title>May 21</title>
+<description>May 21</description>
+<itunes:summary>May 21</itunes:summary>
+<pubDate>Wed, 21 May 2025 03:30:00 -0753</pubDate>
+<guid isPermaLink="false">episode_976_2025</guid>
+<enclosure url="https://dl.dropboxusercontent.com/scl/fi/h4rne3tqwmgs8278gw5sa/Tozer_-_May_21_-_Making_an_Accommodation.mp3?rlkey=l2a3ilhsyhzxjezn9wxt83t70&st=5faaq0qa" type="audio/mpeg" length="585453"/>
+</item>
+<item>
+<title>May 20</title>
+<description>May 20</description>
+<itunes:summary>May 20</itunes:summary>
+<pubDate>Tue, 20 May 2025 03:30:00 -0753</pubDate>
+<guid isPermaLink="false">episode_975_2025</guid>
+<enclosure url="https://dl.dropboxusercontent.com/scl/fi/zwzbnfiyfbk0twrgvvebj/Tozer_-_May_20_-_Too_Timid_to_Tell_the_Truth.mp3?rlkey=58g0xal5rwl7rtuodreunfl10&st=4sweo05p" type="audio/mpeg" length="653037"/>
+</item>
+<item>
+<title>May 19</title>
+<description>May 19</description>
+<itunes:summary>May 19</itunes:summary>
+<pubDate>Mon, 19 May 2025 03:30:00 -0753</pubDate>
+<guid isPermaLink="false">episode_974_2025</guid>
+<enclosure url="https://dl.dropboxusercontent.com/scl/fi/xe0u1y510hrt2t84bmpge/Tozer_-_May_19_-_A_Hireling-_No_True_Shepherd.mp3?rlkey=4ish3j4siwa2xu6s2omwvp3zo&st=je3dzxo4" type="audio/mpeg" length="693069"/>
+</item>
+<item>
+<title>May 18</title>
+<description>May 18</description>
+<itunes:summary>May 18</itunes:summary>
+<pubDate>Sun, 18 May 2025 03:30:00 -0753</pubDate>
+<guid isPermaLink="false">episode_973_2025</guid>
+<enclosure url="https://dl.dropboxusercontent.com/scl/fi/uelptpkitwy6jsejm7jcz/Tozer_-_May_18_-_Truth_Divorced_from_Life.mp3?rlkey=gslqfmgztf3dxsz7qngm4henp&st=li1u87dg" type="audio/mpeg" length="711597"/>
+</item>
+<item>
+<title>May 17</title>
+<description>May 17</description>
+<itunes:summary>May 17</itunes:summary>
+<pubDate>Sat, 17 May 2025 03:30:00 -0753</pubDate>
+<guid isPermaLink="false">episode_972_2025</guid>
+<enclosure url="https://dl.dropboxusercontent.com/scl/fi/k8p44hm98hao5zh9vjuey/Tozer_-_May_17_-_Old-Fashioned_Horse_Sense.mp3?rlkey=0zjzr633s9wj2e1b2y6g53fw4&st=24l73eqc" type="audio/mpeg" length="710349"/>
+</item>
+<item>
+<title>May 16</title>
+<description>May 16</description>
+<itunes:summary>May 16</itunes:summary>
+<pubDate>Fri, 16 May 2025 03:30:00 -0753</pubDate>
+<guid isPermaLink="false">episode_971_2025</guid>
+<enclosure url="https://dl.dropboxusercontent.com/scl/fi/iypxnvjy1ovslthngoh0b/Tozer_-_May_16_-_Preach_to_Make_Them_Sweat.mp3?rlkey=5ldr87yuxlssna0wje9tn993l&st=kceftq4r" type="audio/mpeg" length="581421"/>
+</item>
+<item>
+<title>May 15</title>
+<description>May 15</description>
+<itunes:summary>May 15</itunes:summary>
+<pubDate>Thu, 15 May 2025 03:30:00 -0753</pubDate>
+<guid isPermaLink="false">episode_970_2025</guid>
+<enclosure url="https://dl.dropboxusercontent.com/scl/fi/37i4fh3x0zknhumjhgbxo/Tozer_-_May_15_-_The_Authority_of_God.mp3?rlkey=xiicyvxrqj0ib018ajs8fi31l&st=elnu94c0" type="audio/mpeg" length="753549"/>
+</item>
+<item>
+<title>May 14</title>
+<description>May 14</description>
+<itunes:summary>May 14</itunes:summary>
+<pubDate>Wed, 14 May 2025 03:30:00 -0753</pubDate>
+<guid isPermaLink="false">episode_969_2025</guid>
+<enclosure url="https://dl.dropboxusercontent.com/scl/fi/4a7fpjd2stezu9ii0j0ys/Tozer_-_May_14_-_A_Voice_Instead_of_an_Echo.mp3?rlkey=v5r7ryo8eyx2h0lldk21ngzbm&st=37er8ofx" type="audio/mpeg" length="650253"/>
+</item>
+<item>
+<title>May 13</title>
+<description>May 13</description>
+<itunes:summary>May 13</itunes:summary>
+<pubDate>Tue, 13 May 2025 03:30:00 -0753</pubDate>
+<guid isPermaLink="false">episode_968_2025</guid>
+<enclosure url="https://dl.dropboxusercontent.com/scl/fi/1rifgy0tzn6ywz7hnip5w/Tozer_-_May_12_-_Prophet-_Not_Orator.mp3?rlkey=wb8fncoexqgs7mrb0ckiohx65&st=bgi50bxj" type="audio/mpeg" length="610029"/>
+</item>
+<item>
+<title>May 12</title>
+<description>May 12</description>
+<itunes:summary>May 12</itunes:summary>
+<pubDate>Mon, 12 May 2025 03:30:00 -0753</pubDate>
+<guid isPermaLink="false">episode_967_2025</guid>
+<enclosure url="https://dl.dropboxusercontent.com/scl/fi/4i69h23f0odq83a9w09mk/Tozer_-_May_12_-_Eloquence.mp3?rlkey=k1m5lc3j3j21zxj761497igyn&st=3wgzdwii" type="audio/mpeg" length="620205"/>
+</item>
+<item>
+<title>May 11</title>
+<description>May 11</description>
+<itunes:summary>May 11</itunes:summary>
+<pubDate>Sun, 11 May 2025 03:30:00 -0753</pubDate>
+<guid isPermaLink="false">episode_966_2025</guid>
+<enclosure url="https://dl.dropboxusercontent.com/scl/fi/7u87fiw0morujxgh5816k/Tozer_-_May_11_-_The_Message_Must_Be_Alive.mp3?rlkey=k47ddk5zr91xprfvj3m57gpch&st=apne5yph" type="audio/mpeg" length="694221"/>
+</item>
+<item>
+<title>May 10</title>
+<description>May 10</description>
+<itunes:summary>May 10</itunes:summary>
+<pubDate>Sat, 10 May 2025 03:30:00 -0753</pubDate>
+<guid isPermaLink="false">episode_965_2025</guid>
+<enclosure url="https://dl.dropboxusercontent.com/scl/fi/k8fcu05heicgy636uq7gk/Tozer_-_May_10_-_Deadly_Rationalism.mp3?rlkey=2mm6mdapb547x4d5zr3r9f85p&st=jk3ro63e" type="audio/mpeg" length="714189"/>
+</item>
+<item>
+<title>May 9</title>
+<description>May 9</description>
+<itunes:summary>May 9</itunes:summary>
+<pubDate>Fri, 09 May 2025 03:30:00 -0753</pubDate>
+<guid isPermaLink="false">episode_964_2025</guid>
+<enclosure url="https://dl.dropboxusercontent.com/scl/fi/1sihjagzgmy4v0dgloswn/Tozer_-_May_9_-_A_Shell_Here_and_a_Shell_There.mp3?rlkey=elvqo7esqc6egw2tcq3305zvd&st=rl8pgugs" type="audio/mpeg" length="705165"/>
+</item>
+<item>
+<title>May 8</title>
+<description>May 8</description>
+<itunes:summary>May 8</itunes:summary>
+<pubDate>Thu, 08 May 2025 03:30:00 -0753</pubDate>
+<guid isPermaLink="false">episode_963_2025</guid>
+<enclosure url="https://dl.dropboxusercontent.com/scl/fi/om0ujvr7db60dl3ul0g3r/Tozer_-_May_8_-_John_3_16.mp3?rlkey=r4138mftpimym4xpmusdfl1ab&st=49g5g6v3" type="audio/mpeg" length="743085"/>
+</item>
+<item>
+<title>May 7</title>
+<description>May 7</description>
+<itunes:summary>May 7</itunes:summary>
+<pubDate>Wed, 07 May 2025 03:30:00 -0753</pubDate>
+<guid isPermaLink="false">episode_962_2025</guid>
+<enclosure url="https://dl.dropboxusercontent.com/scl/fi/uh3w11qqgvrrygbjzvrrm/Tozer_-_May_7_-_A_Sense_of_Inadequacy.mp3?rlkey=j1scklu1hrf51h3wn3ckee3hl&st=xf0ni4c3" type="audio/mpeg" length="749325"/>
+</item>
+<item>
+<title>May 6</title>
+<description>May 6</description>
+<itunes:summary>May 6</itunes:summary>
+<pubDate>Tue, 06 May 2025 03:30:00 -0753</pubDate>
+<guid isPermaLink="false">episode_961_2025</guid>
+<enclosure url="https://dl.dropboxusercontent.com/scl/fi/jbep80pcz3ze4n5u7inx1/Tozer_-_May_6_-_A_Major_Preaching_Challenge.mp3?rlkey=cmqjjd44vsve4y50wrrirlqhn&st=zomm31t2" type="audio/mpeg" length="725805"/>
+</item>
+<item>
+<title>May 5</title>
+<description>May 5</description>
+<itunes:summary>May 5</itunes:summary>
+<pubDate>Mon, 05 May 2025 03:30:00 -0753</pubDate>
+<guid isPermaLink="false">episode_960_2025</guid>
+<enclosure url="https://dl.dropboxusercontent.com/scl/fi/ljg1kwc38188nvlwk1wz0/Tozer_-_May_5_-_Great_Preachers.mp3?rlkey=x5zciriybm5lv41agva8xe91f&st=6bmlulp2" type="audio/mpeg" length="640845"/>
+</item>
+<item>
+<title>May 4</title>
+<description>May 4</description>
+<itunes:summary>May 4</itunes:summary>
+<pubDate>Sun, 04 May 2025 03:30:00 -0753</pubDate>
+<guid isPermaLink="false">episode_959_2025</guid>
+<enclosure url="https://dl.dropboxusercontent.com/scl/fi/h0f7jewgo1bucyxftekqa/Tozer_-_May_4_-_A_Genuine_Gift.mp3?rlkey=yetkk76j7kezft6c1r5npd011&st=561lscnx" type="audio/mpeg" length="715149"/>
+</item>
+<item>
+<title>May 3</title>
+<description>May 3</description>
+<itunes:summary>May 3</itunes:summary>
+<pubDate>Sat, 03 May 2025 03:30:00 -0753</pubDate>
+<guid isPermaLink="false">episode_958_2025</guid>
+<enclosure url="https://dl.dropboxusercontent.com/scl/fi/zeu1w6marxb39touj3s9a/Tozer_-_May_3_-_Starving_at_the_Father-s_Table.mp3?rlkey=a3e6pho50w88tnqqhxphv9sjh&st=2a3e8sim" type="audio/mpeg" length="740877"/>
+</item>
+<item>
+<title>May 2</title>
+<description>May 2</description>
+<itunes:summary>May 2</itunes:summary>
+<pubDate>Fri, 02 May 2025 03:30:00 -0753</pubDate>
+<guid isPermaLink="false">episode_957_2025</guid>
+<enclosure url="https://dl.dropboxusercontent.com/scl/fi/72ifhnnrdv7udn4c5q52j/Tozer_-_May_2_-_Where_I-m_Going_to_Graze.mp3?rlkey=hnm27hq6ml52bj13ochxa9d5i&st=ayxudhjv" type="audio/mpeg" length="658029"/>
+</item>
+<item>
+<title>May 1</title>
+<description>May 1</description>
+<itunes:summary>May 1</itunes:summary>
+<pubDate>Thu, 01 May 2025 03:30:00 -0753</pubDate>
+<guid isPermaLink="false">episode_956_2025</guid>
+<enclosure url="https://dl.dropboxusercontent.com/scl/fi/b196xrxojiyrqopkuqc5h/Tozer_-_May_1_-_Listen_to_God.mp3?rlkey=bp8vo06tqyqz2a4sofjilolkc&st=sjdik7zu" type="audio/mpeg" length="694413"/>
+</item>
+<item>
+<title>April 30 - Don’t Let Me Live Wrong</title>
+<description>April 30 - Don’t Let Me Live Wrong</description>
+<itunes:summary>April 30 - Don’t Let Me Live Wrong</itunes:summary>
+<pubDate>Wed, 30 Apr 2025 03:49:00 -0753</pubDate>
+<guid isPermaLink="false">episode_703_2025</guid>
+<enclosure url="https://dl.dropboxusercontent.com/scl/fi/89eeaxhxdbpg4n63231eh/April_30_-_Dont_Let_Me_Live_Wrong.mp3?rlkey=bthezisueq53j7uab35kow2z1&st=hdbqgnk3" type="audio/mpeg" length="2618541"/>
+</item>
+<item>
+<title>April 29 - Prayer Changes the Man</title>
+<description>April 29 - Prayer Changes the Man</description>
+<itunes:summary>April 29 - Prayer Changes the Man</itunes:summary>
+<pubDate>Tue, 29 Apr 2025 03:49:00 -0753</pubDate>
+<guid isPermaLink="false">episode_702_2025</guid>
+<enclosure url="https://dl.dropboxusercontent.com/scl/fi/4ddny2az9v6vlrboklfi4/April_29_-_Prayer_Changes_the_Man.mp3?rlkey=1vxlmsu2wyv61p9lyd20u30yp&st=8ui9kv32" type="audio/mpeg" length="2741037"/>
+</item>
+<item>
+<title>April 28 - The Whole Life of Prayer</title>
+<description>April 28 - The Whole Life of Prayer</description>
+<itunes:summary>April 28 - The Whole Life of Prayer</itunes:summary>
+<pubDate>Mon, 28 Apr 2025 03:48:00 -0753</pubDate>
+<guid isPermaLink="false">episode_701_2025</guid>
+<enclosure url="https://dl.dropboxusercontent.com/scl/fi/efpwi2lyqndx6wfs3ztiq/April_28_-_The_Whole_Life_of_Prayer.mp3?rlkey=m8imty5k13l2lqwb71q2r9qj9&st=fzpxzbbv" type="audio/mpeg" length="2176557"/>
+</item>
+<item>
+<title>April 27 - Unanswered Prayer</title>
+<description>April 27 - Unanswered Prayer</description>
+<itunes:summary>April 27 - Unanswered Prayer</itunes:summary>
+<pubDate>Sun, 27 Apr 2025 03:44:00 -0753</pubDate>
+<guid isPermaLink="false">episode_700_2025</guid>
+<enclosure url="https://dl.dropboxusercontent.com/scl/fi/ckzcl0lqetjudc7799c7n/April_27_-_Unanswered_Prayer.mp3?rlkey=rz6bzzgodv969j0gf2vu62rff&st=wpfubh97" type="audio/mpeg" length="2602413"/>
+</item>
+<item>
+<title>April 26 - The Utilitarian Christ</title>
+<description>April 26 - The Utilitarian Christ</description>
+<itunes:summary>April 26 - The Utilitarian Christ</itunes:summary>
+<pubDate>Sat, 26 Apr 2025 03:40:00 -0753</pubDate>
+<guid isPermaLink="false">episode_699_2025</guid>
+<enclosure url="https://dl.dropboxusercontent.com/scl/fi/hskw5z23l4bhbrhc474dr/April_26_-_The_Utilitarian_Christ.mp3?rlkey=prlyui0v3hf7crh1zx1qqlk6z&st=nnee0nfr" type="audio/mpeg" length="2424237"/>
+</item>
+<item>
+<title>April 25 - Don't Let Me Live Wrong</title>
+<description>April 25 - Don't Let Me Live Wrong</description>
+<itunes:summary>April 25 - Don't Let Me Live Wrong</itunes:summary>
+<pubDate>Fri, 25 Apr 2025 03:38:00 -0753</pubDate>
+<guid isPermaLink="false">episode_698_2025</guid>
+<enclosure url="https://dl.dropboxusercontent.com/scl/fi/y9h2l7qfkqzgakgu4eveo/April_25_-_Dont_Let_Me_Live_Wrong.mp3?rlkey=hckzxfch9i4l06nejnj2i0kyu&st=c9xbv7og" type="audio/mpeg" length="2529069"/>
+</item>
+<item>
+<title>April 24 - Confidence in Him</title>
+<description>April 24 - Confidence in Him</description>
+<itunes:summary>April 24 - Confidence in Him</itunes:summary>
+<pubDate>Thu, 24 Apr 2025 03:36:00 -0753</pubDate>
+<guid isPermaLink="false">episode_697_2025</guid>
+<enclosure url="https://dl.dropboxusercontent.com/scl/fi/mwkzmpzk847u3xs064y43/April_24_-_Confidence_in_Him.mp3?rlkey=ry4zk7hr5k7zm9ivm1j6t13p5&st=fytxsn89" type="audio/mpeg" length="2329773"/>
+</item>
+<item>
+<title>April 23 - Who Do We Think God Is?</title>
+<description>April 23 - Who Do We Think God Is?</description>
+<itunes:summary>April 23 - Who Do We Think God Is?</itunes:summary>
+<pubDate>Wed, 23 Apr 2025 03:34:00 -0753</pubDate>
+<guid isPermaLink="false">episode_696_2025</guid>
+<enclosure url="https://dl.dropboxusercontent.com/scl/fi/5f8t5nw8zxea76mh7y3r9/April_23_-_Who_Do_We_Think_God_Is.mp3?rlkey=s51i2s73iqanh4lln9t25emoe&st=frvnpux3" type="audio/mpeg" length="2540205"/>
+</item>
+<item>
+<title>April 22 - Pray Without Ceasing</title>
+<description>April 22 - Pray Without Ceasing</description>
+<itunes:summary>April 22 - Pray Without Ceasing</itunes:summary>
+<pubDate>Tue, 22 Apr 2025 03:32:00 -0753</pubDate>
+<guid isPermaLink="false">episode_695_2025</guid>
+<enclosure url="https://dl.dropboxusercontent.com/scl/fi/u8mfale830gj4m13tuh00/April_22_-_Pray_Without_Ceasing.mp3?rlkey=4t6uk5b1helrlg7f1bb9h4pvh&st=af6uey4s" type="audio/mpeg" length="2389677"/>
+</item>
+<item>
+<title>April 21 - The Prayer of Faith</title>
+<description>April 21 - The Prayer of Faith</description>
+<itunes:summary>April 21 - The Prayer of Faith</itunes:summary>
+<pubDate>Mon, 21 Apr 2025 03:30:00 -0753</pubDate>
+<guid isPermaLink="false">episode_694_2025</guid>
+<enclosure url="https://dl.dropboxusercontent.com/scl/fi/qajfya8ls173jgem5xrxe/April_21_-_The_Prayer_of_Faith.mp3?rlkey=ce2ckmxct549gtsotp0h9ytna&st=ibyqkk9r" type="audio/mpeg" length="2463405"/>
+</item>
+<item>
+<title>April 20 - Pray Till You Pray</title>
+<description>April 20 - Pray Till You Pray</description>
+<itunes:summary>April 20 - Pray Till You Pray</itunes:summary>
+<pubDate>Sun, 20 Apr 2025 03:29:00 -0753</pubDate>
+<guid isPermaLink="false">episode_693_2025</guid>
+<enclosure url="https://dl.dropboxusercontent.com/scl/fi/0tyf6paq93xjv4kt5d430/April_20_-_Pray_Till_You_Pray.mp3?rlkey=1ec8boibfwd2fneeacfkohacy&st=8j203m0n" type="audio/mpeg" length="2516013"/>
+</item>
+<item>
+<title>April 19 - Faith Grows with Use</title>
+<description>April 19 - Faith Grows with Use</description>
+<itunes:summary>April 19 - Faith Grows with Use</itunes:summary>
+<pubDate>Sat, 19 Apr 2025 03:27:00 -0753</pubDate>
+<guid isPermaLink="false">episode_692_2025</guid>
+<enclosure url="https://dl.dropboxusercontent.com/scl/fi/najyvi520h3agojromklc/April_19_-_Faith_Grows_with_Use.mp3?rlkey=pvbic0c1jyfg624syjs2689gw&st=538e8e3t" type="audio/mpeg" length="2633133"/>
+</item>
+<item>
+<title>April 18 - Whole Life Prayer</title>
+<description>April 18 - Whole Life Prayer</description>
+<itunes:summary>April 18 - Whole Life Prayer</itunes:summary>
+<pubDate>Fri, 18 Apr 2025 03:24:00 -0753</pubDate>
+<guid isPermaLink="false">episode_691_2025</guid>
+<enclosure url="https://dl.dropboxusercontent.com/scl/fi/dpdbeakjplizd440c84st/April_18_-_Whole_Life_Prayer.mp3?rlkey=juppb8im5qe6hggtk579yolj2&st=18tmkeag" type="audio/mpeg" length="2201133"/>
+</item>
+<item>
+<title>April 17 - Two Conditions Must Be Met</title>
+<description>April 17 - Two Conditions Must Be Met </description>
+<itunes:summary>April 17 - Two Conditions Must Be Met </itunes:summary>
+<pubDate>Thu, 17 Apr 2025 03:22:00 -0753</pubDate>
+<guid isPermaLink="false">episode_690_2025</guid>
+<enclosure url="https://dl.dropboxusercontent.com/scl/fi/rovxfzz0s3wlmepdez4yh/April_17_-_Two_Conditions_Must_Be_Met.mp3?rlkey=o57j0djkja11pk0cepkbftd5t&st=zzzlez0p" type="audio/mpeg" length="2521389"/>
+</item>
+<item>
+<title>April 16 - Confidence in Him</title>
+<description>April 16 - Confidence in Him</description>
+<itunes:summary>April 16 - Confidence in Him</itunes:summary>
+<pubDate>Wed, 16 Apr 2025 03:19:00 -0753</pubDate>
+<guid isPermaLink="false">episode_689_2025</guid>
+<enclosure url="https://dl.dropboxusercontent.com/scl/fi/gcbb4juc7eh9f6vgg1qr2/April_16_-_Confidence_in_Him.mp3?rlkey=lcz3vvq3zhnwez5q6hb4qnpkx&st=ptp672fw" type="audio/mpeg" length="2372781"/>
+</item>
+<item>
+<title>April 15 - Teach Me to Listen</title>
+<description>April 15 - Teach Me to Listen</description>
+<itunes:summary>April 15 - Teach Me to Listen</itunes:summary>
+<pubDate>Tue, 15 Apr 2025 03:17:00 -0753</pubDate>
+<guid isPermaLink="false">episode_688_2025</guid>
+<enclosure url="https://dl.dropboxusercontent.com/scl/fi/i6wtxgzti0e79dp5i9bqr/April_15_-_Teach_Me_to_Listen.mp3?rlkey=k7f7qx0yvewutvcynfio9bb9z&st=b4ggqses" type="audio/mpeg" length="1980717"/>
+</item>
+<item>
+<title>April 14 - If God Answers Prayer</title>
+<description>April 14 - If God Answers Prayer</description>
+<itunes:summary>April 14 - If God Answers Prayer</itunes:summary>
+<pubDate>Mon, 14 Apr 2025 03:14:00 -0753</pubDate>
+<guid isPermaLink="false">episode_687_2025</guid>
+<enclosure url="https://dl.dropboxusercontent.com/scl/fi/9lwu5nn0d2fg15omkcivd/April_14_-_If_God_Answers_Prayer.mp3?rlkey=dlpe9ty2fvj8bqdlsgyibj4ju&st=vdnfoz7j" type="audio/mpeg" length="2348589"/>
+</item>
+<item>
+<title>April 13 - The Top Side of Our Souls</title>
+<description>April 13 - The Top Side of Our Souls</description>
+<itunes:summary>April 13 - The Top Side of Our Souls</itunes:summary>
+<pubDate>Sun, 13 Apr 2025 03:11:00 -0753</pubDate>
+<guid isPermaLink="false">episode_686_2025</guid>
+<enclosure url="https://dl.dropboxusercontent.com/scl/fi/cyqoro20q0s1w65n0h6rz/April_13_-_The_Top_Side_of_Our_Souls.mp3?rlkey=k2ztuirx17u2hhoumhwry8ik1&st=6dyckh7t" type="audio/mpeg" length="2550573"/>
+</item>
+<item>
+<title>April 12 - Much Every Way</title>
+<description>April 12 - Much Every Way</description>
+<itunes:summary>April 12 - Much Every Way</itunes:summary>
+<pubDate>Sat, 12 Apr 2025 03:08:00 -0753</pubDate>
+<guid isPermaLink="false">episode_685_2025</guid>
+<enclosure url="https://dl.dropboxusercontent.com/scl/fi/rtqt7thyy15553mwjxwlf/April_12_-_Much_Every_Way.mp3?rlkey=oyivny9hb4006ixpywua61sxi&st=8w8uinfn" type="audio/mpeg" length="2594349"/>
+</item>
+<item>
+<title>April 11 - Men Who Do Not Pray</title>
+<description>April 11 - Men Who Do Not Pray</description>
+<itunes:summary>April 11 - Men Who Do Not Pray</itunes:summary>
+<pubDate>Fri, 11 Apr 2025 03:05:00 -0753</pubDate>
+<guid isPermaLink="false">episode_684_2025</guid>
+<enclosure url="https://dl.dropboxusercontent.com/scl/fi/u1zyles1vj6gcbb4f87xz/April_11_-_Men_Who_Do_Not_Pray.mp3?rlkey=65tmde1hyn7ei2lsf3pv7y9af&st=2jze03a0" type="audio/mpeg" length="2518701"/>
+</item>
+<item>
+<title>April 10 - Our First Responsibility</title>
+<description>April 10 - Our First Responsibility</description>
+<itunes:summary>April 10 - Our First Responsibility</itunes:summary>
+<pubDate>Thu, 10 Apr 2025 03:03:00 -0753</pubDate>
+<guid isPermaLink="false">episode_683_2025</guid>
+<enclosure url="https://dl.dropboxusercontent.com/scl/fi/gkg6g41l3o5z63ihkewgi/April_10_-_Our_First_Responsibility.mp3?rlkey=66r0ua3wbtv3t5f5vijl4chdl&st=mcmqc4md" type="audio/mpeg" length="1978797"/>
+</item>
+<item>
+<title>April 9 - Oh!</title>
+<description>April 9 - Oh!</description>
+<itunes:summary>April 9 - Oh!</itunes:summary>
+<pubDate>Wed, 09 Apr 2025 03:00:00 -0753</pubDate>
+<guid isPermaLink="false">episode_682_2025</guid>
+<enclosure url="https://dl.dropboxusercontent.com/scl/fi/0rge9my12dllw2mcvyhrz/April_9_-_Oh.mp3?rlkey=it01irybgg7ud14tq7qpjd1g6&st=0tto4uz8" type="audio/mpeg" length="2233773"/>
+</item>
+<item>
+<title>April 8 - A Closed Mouth and Silent Heart</title>
+<description>April 8 - A Closed Mouth and Silent Heart</description>
+<itunes:summary>April 8 - A Closed Mouth and Silent Heart</itunes:summary>
+<pubDate>Tue, 08 Apr 2025 02:59:00 -0753</pubDate>
+<guid isPermaLink="false">episode_681_2025</guid>
+<enclosure url="https://dl.dropboxusercontent.com/scl/fi/6c879qszykgpqt1612v9w/April_8_-_A_Closed_Mouth_and_Silent_Heart.mp3?rlkey=5me8zl8u5ax3i93dl49sa0y65&st=z7gubguh" type="audio/mpeg" length="2781357"/>
+</item>
+<item>
+<title>April 7 - Faith Grows with Use</title>
+<description>April 7 - Faith Grows with Use</description>
+<itunes:summary>April 7 - Faith Grows with Use</itunes:summary>
+<pubDate>Mon, 07 Apr 2025 02:53:00 -0753</pubDate>
+<guid isPermaLink="false">episode_680_2025</guid>
+<enclosure url="https://dl.dropboxusercontent.com/scl/fi/oiv9q1gjn5qg1quwb1em3/April_7_-_Faith_Grows_with_Use-1.mp3?rlkey=oxpvb1ve8x6taqnijtawzfekw&st=89i7a5es" type="audio/mpeg" length="2587437"/>
+</item>
+<item>
+<title>April 6 - Pray Till You Pray</title>
+<description>April 6 - Pray Till You Pray</description>
+<itunes:summary>April 6 - Pray Till You Pray</itunes:summary>
+<pubDate>Sun, 06 Apr 2025 02:49:00 -0753</pubDate>
+<guid isPermaLink="false">episode_679_2025</guid>
+<enclosure url="https://dl.dropboxusercontent.com/scl/fi/noyd0iciu6imi18sl9jcn/April_6_-_Pray_Till_You_Pray.mp3?rlkey=1aqqvt2a79ttw0fidkcbdl689&st=gfxu7dat" type="audio/mpeg" length="2498733"/>
+</item>
+<item>
+<title>April 5 - The File-Card Mentality</title>
+<description>April 5 - The File-Card Mentality</description>
+<itunes:summary>April 5 - The File-Card Mentality</itunes:summary>
+<pubDate>Sat, 05 Apr 2025 02:45:00 -0753</pubDate>
+<guid isPermaLink="false">episode_678_2025</guid>
+<enclosure url="https://dl.dropboxusercontent.com/scl/fi/7e0wtqlmbqfevpfc3q177/April_5_-_The_File-Card_Mentality.mp3?rlkey=ngqmqy7up2ypg9ajwkvsa389r&st=p7ibaeo0" type="audio/mpeg" length="2560941"/>
+</item>
+<item>
+<title>April 4 Armed_with_Courage</title>
+<description>April_4_-_Armed_with_Courage</description>
+<itunes:summary>April_4_-_Armed_with_Courage</itunes:summary>
+<pubDate>Fri, 04 Apr 2025 02:42:00 -0753</pubDate>
+<guid isPermaLink="false">episode_677_2025</guid>
+<enclosure url="https://dl.dropboxusercontent.com/scl/fi/ez76q767fgy76y42o21qy/April_4_-_Armed_with_Courage-1.mp3?rlkey=et4orwml1hv2zcm32fcr0q6in&st=lgpz1mfa" type="audio/mpeg" length="2565933"/>
+</item>
+<item>
+<title>April 3 - Take Time to Listen</title>
+<description>April 3 - Take Time to Listen</description>
+<itunes:summary>April 3 - Take Time to Listen</itunes:summary>
+<pubDate>Thu, 03 Apr 2025 02:39:00 -0753</pubDate>
+<guid isPermaLink="false">episode_676_2025</guid>
+<enclosure url="https://dl.dropboxusercontent.com/scl/fi/spvwlbqebhc7l3siqv5pz/Tozer_-_April_3_-_Take_Time_to_Listen-1.mp3?rlkey=zie3gs7ywd2df05s8f6c1kyoy&st=jyuoi4lx" type="audio/mpeg" length="2475693"/>
+</item>
+<item>
+<title>April 2 - Not Asking for Anything</title>
+<description>April 2 - Not Asking for Anything</description>
+<itunes:summary>April 2 - Not Asking for Anything</itunes:summary>
+<pubDate>Wed, 02 Apr 2025 02:36:00 -0753</pubDate>
+<guid isPermaLink="false">episode_675_2025</guid>
+<enclosure url="https://dl.dropboxusercontent.com/scl/fi/0ccngq7bcrd9zocig1547/Tozer_-_April_2_-_Not_Asking_for_Anything.mp3?rlkey=85c1ap9ti1vnd2gamigxkg81g&st=1chvils5" type="audio/mpeg" length="2905005"/>
+</item>
+<item>
+<title>April 1 - Be Patient</title>
+<description>April 1 - Be Patient</description>
+<itunes:summary>April 1 - Be Patient</itunes:summary>
+<pubDate>Tue, 01 Apr 2025 02:33:00 -0753</pubDate>
+<guid isPermaLink="false">episode_674_2025</guid>
+<enclosure url="https://dl.dropboxusercontent.com/scl/fi/vyau0eu1e0z20ng15g2hm/Tozer_-_April_1_-_Be_Patient.mp3?rlkey=2ckf0xs0olys2n097347ls7zz&st=m1z9vub7" type="audio/mpeg" length="2943789"/>
+</item>
+<item>
+<title>March 31 – Please Pray for Me</title>
+<description>March 31 – Please Pray for Me</description>
+<itunes:summary>March 31 – Please Pray for Me</itunes:summary>
+<pubDate>Mon, 31 Mar 2025 03:30:00 -0753</pubDate>
+<guid isPermaLink="false">episode_386_2025</guid>
+<enclosure url="https://dl.dropboxusercontent.com/scl/fi/f50l4s8wjg11n632xpp5z/March_31st_-_Please_Pray_for_Me.mp3?rlkey=05xwq83varolz8hod6ct3fggj&st=3nsxjbbu" type="audio/mpeg" length="3896160"/>
+</item>
+<item>
+<title>March 30 – Humble Service</title>
+<description>March 30 – Humble Service</description>
+<itunes:summary>March 30 – Humble Service</itunes:summary>
+<pubDate>Sun, 30 Mar 2025 03:30:00 -0753</pubDate>
+<guid isPermaLink="false">episode_385_2025</guid>
+<enclosure url="https://dl.dropboxusercontent.com/scl/fi/ez67rbcthhhwyrwumazm2/March_30th_-_Humble_Service.mp3?rlkey=hboou361ugj4fkktt0n1bu0xe&st=byvdf6e6" type="audio/mpeg" length="4810080"/>
+</item>
+<item>
+<title>March 29 – What a Great Responsibility!</title>
+<description>March 29 – What a Great Responsibility!</description>
+<itunes:summary>March 29 – What a Great Responsibility!</itunes:summary>
+<pubDate>Sat, 29 Mar 2025 03:30:00 -0753</pubDate>
+<guid isPermaLink="false">episode_384_2025</guid>
+<enclosure url="https://dl.dropboxusercontent.com/scl/fi/luvcauiwjj2pyp3md3q0w/March_29th_-_What_a_Great_Responsibility.mp3?rlkey=jlvkknvj0z66jt2wxwn01mcz0&st=ekkkm0he" type="audio/mpeg" length="4310400"/>
+</item>
+<item>
+<title>March 28 – Just a Huckster</title>
+<description>March 28 – Just a Huckster</description>
+<itunes:summary>March 28 – Just a Huckster</itunes:summary>
+<pubDate>Fri, 28 Mar 2025 03:30:00 -0753</pubDate>
+<guid isPermaLink="false">episode_383_2025</guid>
+<enclosure url="https://dl.dropboxusercontent.com/scl/fi/b3q1j3xsp7tcvdah6blly/March_28th_-_Just_a_Huckster.mp3?rlkey=0t5i588drx73zw6g6omxswi6y&st=vnd8eh9r" type="audio/mpeg" length="4503840"/>
+</item>
+<item>
+<title>March 27 – Some New Mystery Bagged</title>
+<description>March 27 – Some New Mystery Bagged</description>
+<itunes:summary>March 27 – Some New Mystery Bagged</itunes:summary>
+<pubDate>Thu, 27 Mar 2025 03:30:00 -0753</pubDate>
+<guid isPermaLink="false">episode_382_2025</guid>
+<enclosure url="https://dl.dropboxusercontent.com/scl/fi/vg73ibik1ne67eo7qg4s0/March_27th_-_Some_New_Mystery_Bagged.mp3?rlkey=fm7rebur8qlnxfdo0rcp9d228&st=y16wkwke" type="audio/mpeg" length="5418285"/>
+</item>
+<item>
+<title>March 26 – Public Reading of Scripture</title>
+<description>March 26 – Public Reading of Scripture</description>
+<itunes:summary>March 26 – Public Reading of Scripture</itunes:summary>
+<pubDate>Wed, 26 Mar 2025 03:30:00 -0753</pubDate>
+<guid isPermaLink="false">episode_381_2025</guid>
+<enclosure url="https://dl.dropboxusercontent.com/scl/fi/9akidiwgrdp53zpeohxf2/March_26th_-_Public_Reading_of_Scripture.mp3?rlkey=ag13y733t46utgfnpl7otaupd&st=3iykcef9" type="audio/mpeg" length="4968480"/>
+</item>
+<item>
+<title>March 25 – Read or Get Out of the Ministry</title>
+<description>March 25 – Read or Get Out of the Ministry</description>
+<itunes:summary>March 25 – Read or Get Out of the Ministry</itunes:summary>
+<pubDate>Tue, 25 Mar 2025 03:30:00 -0753</pubDate>
+<guid isPermaLink="false">episode_380_2025</guid>
+<enclosure url="https://dl.dropboxusercontent.com/scl/fi/9qr8vemynxhngw8me8lxx/March_25th_-_Read_or_Get_Out_of_the_Ministry.mp3?rlkey=csgasbf79wbd05cudzpbf6uh2&st=lmywxail" type="audio/mpeg" length="4451520"/>
+</item>
+<item>
+<title>March 24 – Be Widely Read</title>
+<description>March 24 – Be Widely Read</description>
+<itunes:summary>March 24 – Be Widely Read</itunes:summary>
+<pubDate>Mon, 24 Mar 2025 03:30:00 -0753</pubDate>
+<guid isPermaLink="false">episode_379_2025</guid>
+<enclosure url="https://dl.dropboxusercontent.com/scl/fi/en6vbktmhdttbtddryxbo/March_24th_-_Be_Widely_Read.mp3?rlkey=jkxbopad3qmvob4gm7yd8dh80&st=82oytlqj" type="audio/mpeg" length="4272480"/>
+</item>
+<item>
+<title>March 23 – How Much I Could Have Done</title>
+<description>March 23 – How Much I Could Have Done</description>
+<itunes:summary>March 23 – How Much I Could Have Done</itunes:summary>
+<pubDate>Sun, 23 Mar 2025 03:30:00 -0753</pubDate>
+<guid isPermaLink="false">episode_378_2025</guid>
+<enclosure url="https://dl.dropboxusercontent.com/scl/fi/pguj377l4c5y9zcp5jmiz/March_23rd_-_How_Much_I_Could_Have_Done.mp3?rlkey=qi7rwshquogom18n5qmjx99we&st=wj9h6lwj" type="audio/mpeg" length="4610880"/>
+</item>
+<item>
+<title>March 22 – We Languish for Men</title>
+<description>March 22 – We Languish for Men</description>
+<itunes:summary>March 22 – We Languish for Men</itunes:summary>
+<pubDate>Sat, 22 Mar 2025 03:30:00 -0753</pubDate>
+<guid isPermaLink="false">episode_377_2025</guid>
+<enclosure url="https://dl.dropboxusercontent.com/scl/fi/qrhcr0jjnabxc48qqjz2j/March_22nd_-_We_Languish_for_Men.mp3?rlkey=olv4yjoedxhvdnh2sr4cmy4z4&st=4ndwqnhc" type="audio/mpeg" length="4899360"/>
+</item>
+<item>
+<title>March 21 – A New Type of Preacher</title>
+<description>March 21 – A New Type of Preacher</description>
+<itunes:summary>March 21 – A New Type of Preacher</itunes:summary>
+<pubDate>Fri, 21 Mar 2025 03:30:00 -0753</pubDate>
+<guid isPermaLink="false">episode_376_2025</guid>
+<enclosure url="https://dl.dropboxusercontent.com/scl/fi/ebrhqcxqwbvwfywbvgqax/March_21st_-_A_New_Type_of_Preacher.mp3?rlkey=cugw5bo6awspaz47k88pi6lbf&st=0y5yrjd8" type="audio/mpeg" length="5038560"/>
+</item>
+<item>
+<title>March 20 – Prophetic Preachers</title>
+<description>March 20 – Prophetic Preachers</description>
+<itunes:summary>March 20 – Prophetic Preachers</itunes:summary>
+<pubDate>Thu, 20 Mar 2025 03:30:00 -0753</pubDate>
+<guid isPermaLink="false">episode_375_2025</guid>
+<enclosure url="https://dl.dropboxusercontent.com/scl/fi/m43us0epjg6f2fck6p1ed/March_20th_-_Prophetic_Preachers.mp3?rlkey=zm6ig9u9io53gi5axte8jid8e&st=kgs8lcnp" type="audio/mpeg" length="4945920"/>
+</item>
+<item>
+<title>March 19 – Where Are the Prophets?</title>
+<description>March 19 – Where Are the Prophets?</description>
+<itunes:summary>March 19 – Where Are the Prophets?</itunes:summary>
+<pubDate>Wed, 19 Mar 2025 03:30:00 -0753</pubDate>
+<guid isPermaLink="false">episode_374_2025</guid>
+<enclosure url="https://dl.dropboxusercontent.com/scl/fi/jdm3dnt7zr078819zc982/March_19th_-_Where_Are_the_Prophets.mp3?rlkey=5022gj00kxlzcb12n68cduw70&st=2u6ahq6d" type="audio/mpeg" length="4932480"/>
+</item>
+<item>
+<title>March 18 – Spiritual Leadership of Anointed Men</title>
+<description>March 18 – Spiritual Leadership of Anointed Men</description>
+<itunes:summary>March 18 – Spiritual Leadership of Anointed Men</itunes:summary>
+<pubDate>Tue, 18 Mar 2025 03:30:00 -0753</pubDate>
+<guid isPermaLink="false">episode_373_2025</guid>
+<enclosure url="https://dl.dropboxusercontent.com/scl/fi/1aniwzcuupqirbns64jve/March_18th_-_Spiritual_Leadership_of_Anointed_Men.mp3?rlkey=2r5172u7e2e0nl8wxey53xizt&st=ydyy9epv" type="audio/mpeg" length="5575725"/>
+</item>
+<item>
+<title>March 17 – Discerning Leadership</title>
+<description>March 17 – Discerning Leadership</description>
+<itunes:summary>March 17 – Discerning Leadership</itunes:summary>
+<pubDate>Mon, 17 Mar 2025 03:30:00 -0753</pubDate>
+<guid isPermaLink="false">episode_372_2025</guid>
+<enclosure url="https://dl.dropboxusercontent.com/scl/fi/7jx0aci3b9y9grsrangga/Tozer_March_17th_Discerning_Leadership.mp3?rlkey=vbif3ozcsk9owxzqkz852y351&st=mi9gzn4d" type="audio/mpeg" length="3444480"/>
+</item>
+<item>
+<title>March 16 – Spiritual Discernment</title>
+<description>March 16 – Spiritual Discernment</description>
+<itunes:summary>March 16 – Spiritual Discernment</itunes:summary>
+<pubDate>Sun, 16 Mar 2025 03:30:00 -0753</pubDate>
+<guid isPermaLink="false">episode_371_2025</guid>
+<enclosure url="https://dl.dropboxusercontent.com/scl/fi/fwe344d9xtl5z8y2ezieb/Tozer_March_16th_Spiritual_Discernment.mp3?rlkey=dcxbxji8y5b1mpy0lmlmwuwkq&st=bvgq9174" type="audio/mpeg" length="3149280"/>
+</item>
+<item>
+<title>March 15 – God Is Not a Railway Porter</title>
+<description>March 15 – God Is Not a Railway Porter</description>
+<itunes:summary>March 15 – God Is Not a Railway Porter</itunes:summary>
+<pubDate>Sat, 15 Mar 2025 03:30:00 -0753</pubDate>
+<guid isPermaLink="false">episode_370_2025</guid>
+<enclosure url="https://dl.dropboxusercontent.com/scl/fi/nkpndplpbspk2t6ln979g/Tozer_March_15th_God_Is_Not_a_Railway_Porter.mp3?rlkey=gtumr0c1212psnbyljey91uzt&st=pux0aqkq" type="audio/mpeg" length="3408960"/>
+</item>
+<item>
+<title>March 14 – Sheep Are Led</title>
+<description>March 14 – Sheep Are Led</description>
+<itunes:summary>March 14 – Sheep Are Led</itunes:summary>
+<pubDate>Fri, 14 Mar 2025 03:30:00 -0753</pubDate>
+<guid isPermaLink="false">episode_369_2025</guid>
+<enclosure url="https://dl.dropboxusercontent.com/scl/fi/hpq5er8mo2ytv0zlmp2d9/Tozer_March_14th_Sheep_Are_Led.mp3?rlkey=qgipdg7wcyqjz1fo2kgrtn2mg&st=yesonq3h" type="audio/mpeg" length="3501120"/>
+</item>
+<item>
+<title>March 13 – Supernatural Energies</title>
+<description>March 13 – Supernatural Energies</description>
+<itunes:summary>March 13 – Supernatural Energies</itunes:summary>
+<pubDate>Thu, 13 Mar 2025 03:30:00 -0753</pubDate>
+<guid isPermaLink="false">episode_368_2025</guid>
+<enclosure url="https://dl.dropboxusercontent.com/scl/fi/myikatfdcgn99x57mrzuo/Tozer_March_13th_Supernatural_Energies.mp3?rlkey=wm8xraajrn5r5m6kn47or5ou1&st=cokh8ofg" type="audio/mpeg" length="3601440"/>
+</item>
+<item>
+<title>March 12 – Bowing to the Givers</title>
+<description>March 12 – Bowing to the Givers</description>
+<itunes:summary>March 12 – Bowing to the Givers</itunes:summary>
+<pubDate>Wed, 12 Mar 2025 03:30:00 -0753</pubDate>
+<guid isPermaLink="false">episode_367_2025</guid>
+<enclosure url="https://dl.dropboxusercontent.com/scl/fi/mlukb4zyr0vqf8k7vse0h/Tozer_March_12th_Bowing_to_the_Givers.mp3?rlkey=q8hfdnmrypqyt9f3832ijoujw&st=sfynthyc" type="audio/mpeg" length="3395520"/>
+</item>
+<item>
+<title>March 11 – The Economic Squeeze</title>
+<description>March 11 – The Economic Squeeze</description>
+<itunes:summary>March 11 – The Economic Squeeze</itunes:summary>
+<pubDate>Tue, 11 Mar 2025 03:30:00 -0753</pubDate>
+<guid isPermaLink="false">episode_366_2025</guid>
+<enclosure url="https://dl.dropboxusercontent.com/scl/fi/afsj4y9m7kot491g6r8ac/Tozer_March_11th_The_Economic_Squeeze.mp3?rlkey=l7w4m17pcs4kudimavbbek7ok&st=xgxw5mz9" type="audio/mpeg" length="3823680"/>
+</item>
+<item>
+<title>March 10 – Fencing with Masters</title>
+<description>March 10 – Fencing with Masters</description>
+<itunes:summary>March 10 – Fencing with Masters</itunes:summary>
+<pubDate>Mon, 10 Mar 2025 03:30:00 -0753</pubDate>
+<guid isPermaLink="false">episode_365_2025</guid>
+<enclosure url="https://dl.dropboxusercontent.com/scl/fi/1v1hr7pan2e2nkuxsvtcq/Tozer_March_10th_Fencing_with_Masters.mp3?rlkey=c8simac46a43ub9pvvjspm00a&st=9tgliaeh" type="audio/mpeg" length="3869280"/>
+</item>
+<item>
+<title>March 9 – I Know I'll Be in Trouble</title>
+<description>March 9 – I Know I'll Be in Trouble</description>
+<itunes:summary>March 9 – I Know I'll Be in Trouble</itunes:summary>
+<pubDate>Sun, 09 Mar 2025 03:30:00 -0753</pubDate>
+<guid isPermaLink="false">episode_364_2025</guid>
+<enclosure url="https://dl.dropboxusercontent.com/scl/fi/ftpv0ta5e9hnml1z0bssi/Tozer_March_9th_I_Know_Ill_Be_in_Trouble.mp3?rlkey=ql6llvwzlbb9fgeg2cvbarp8m&st=m298v3hw" type="audio/mpeg" length="3968160"/>
+</item>
+<item>
+<title>March 8 – A Shaky Foundation</title>
+<description>March 8 – A Shaky Foundation</description>
+<itunes:summary>March 8 – A Shaky Foundation</itunes:summary>
+<pubDate>Sat, 08 Mar 2025 03:30:00 -0753</pubDate>
+<guid isPermaLink="false">episode_363_2025</guid>
+<enclosure url="https://dl.dropboxusercontent.com/scl/fi/218y2rc8r6gcd3o7aw4g5/Tozer_March_8th_A_Shaky_Foundation.mp3?rlkey=atl7j81y3koujuhiclhsq3wl1&st=c64x8j0c" type="audio/mpeg" length="3898560"/>
+</item>
+</channel>
+</rss>

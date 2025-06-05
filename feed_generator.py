@@ -8,6 +8,7 @@ import logging
 from concurrent.futures import ThreadPoolExecutor
 from functools import lru_cache
 from flask import request
+from models import Episode
 
 logger = logging.getLogger(__name__)
 
@@ -121,7 +122,10 @@ def generate_rss_feed(feed):
 
     try:
         logger.info(f"Starting RSS feed generation for: {feed.name}")
-        logger.debug(f"Initial episode count: {len(feed.episodes)}")
+        # Get episodes with optimized query (ordered by release date for RSS)
+        from models import Episode
+        episodes = feed.episodes.order_by(Episode.release_date.desc()).all()
+        logger.debug(f"Initial episode count: {len(episodes)}")
 
         rss = ET.Element('rss', version='2.0')
         rss.set('xmlns:itunes', 'http://www.itunes.com/dtds/podcast-1.0.dtd')
@@ -176,7 +180,7 @@ def generate_rss_feed(feed):
         updated_episodes = []
         three_months_ago = current_time - timedelta(days=90)
 
-        for ep in feed.episodes:
+        for ep in episodes:
             try:
                 ep_release_date = ep.release_date.replace(tzinfo=TIMEZONE) if ep.release_date.tzinfo is None else ep.release_date
 

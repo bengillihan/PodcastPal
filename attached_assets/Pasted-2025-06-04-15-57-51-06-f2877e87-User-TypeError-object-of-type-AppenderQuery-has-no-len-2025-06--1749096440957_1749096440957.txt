@@ -1,0 +1,132 @@
+2025-06-04 15:57:51.06
+f2877e87
+User
+TypeError: object of type 'AppenderQuery' has no len()
+2025-06-04 15:57:51.06
+f2877e87
+User
+ERROR:routes:Error generating RSS feed: object of type 'AppenderQuery' has no len()
+2025-06-04 15:57:51.08
+f2877e87
+User
+INFO:werkzeug:127.0.0.1 - - [04/Jun/2025 22:57:51] "GET /feed/daily-drucker/rss HTTP/1.1" 500 -
+2025-06-04 16:08:06.42
+f2877e87
+User
+INFO:feed_generator:Starting RSS feed generation for: Other CCFW/Awana
+2025-06-04 16:08:06.42
+f2877e87
+User
+ERROR:feed_generator:Critical error generating RSS feed: object of type 'AppenderQuery' has no len()
+2025-06-04 16:08:06.42
+f2877e87
+User
+Traceback (most recent call last):
+2025-06-04 16:08:06.42
+f2877e87
+User
+File "/home/runner/workspace/feed_generator.py", line 124, in generate_rss_feed
+2025-06-04 16:08:06.42
+f2877e87
+User
+logger.debug(f"Initial episode count: {len(feed.episodes)}")
+2025-06-04 16:08:06.42
+f2877e87
+User
+^^^^^^^^^^^^^^^^^^
+2025-06-04 16:08:06.42
+f2877e87
+User
+TypeError: object of type 'AppenderQuery' has no len()
+2025-06-04 16:08:06.42
+f2877e87
+User
+ERROR:routes:Error generating RSS feed: object of type 'AppenderQuery' has no len()
+2025-06-04 16:08:06.44
+f2877e87
+User
+INFO:werkzeug:127.0.0.1 - - [04/Jun/2025 23:08:06] "GET /feed/other-ccfw-awana/rss HTTP/1.1" 500 -
+2025-06-04 16:56:44.35
+f2877e87
+User
+INFO:feed_generator:Starting RSS feed generation for: New Testament Chapters
+2025-06-04 16:56:44.35
+f2877e87
+User
+ERROR:feed_generator:Critical error generating RSS feed: object of type 'AppenderQuery' has no len()
+2025-06-04 16:56:44.35
+f2877e87
+User
+Traceback (most recent call last):
+2025-06-04 16:56:44.35
+f2877e87
+User
+File "/home/runner/workspace/feed_generator.py", line 124, in generate_rss_feed
+2025-06-04 16:56:44.35
+f2877e87
+User
+logger.debug(f"Initial episode count: {len(feed.episodes)}")
+2025-06-04 16:56:44.35
+f2877e87
+User
+^^^^^^^^^^^^^^^^^^
+2025-06-04 16:56:44.35
+f2877e87
+User
+TypeError: object of type 'AppenderQuery' has no len()
+2025-06-04 16:56:44.35
+f2877e87
+User
+ERROR:routes:Error generating RSS feed: object of type 'AppenderQuery' has no len()
+2025-06-04 16:56:44.37
+f2877e87
+User
+INFO:werkzeug:127.0.0.1 - - [04/Jun/2025 23:56:44] "GET /feed/new-testament-chapters-xkc04a/rss HTTP/1.1" 500 -
+2025-06-04 16:57:22.87
+f2877e87
+User
+INFO:feed_generator:Starting RSS feed generation for: Other Summaries
+2025-06-04 16:57:22.87
+f2877e87
+User
+ERROR:feed_generator:Critical error generating RSS feed: object of type 'AppenderQuery' has no len()
+2025-06-04 16:57:22.87
+f2877e87
+User
+Traceback (most recent call last):
+2025-06-04 16:57:22.87
+f2877e87
+User
+File "/home/runner/workspace/feed_generator.py", line 124, in generate_rss_feed
+2025-06-04 16:57:22.87
+f2877e87
+User
+logger.debug(f"Initial episode count: {len(feed.episodes)}")
+2025-06-04 16:57:22.87
+f2877e87
+User
+^^^^^^^^^^^^^^^^^^
+2025-06-04 16:57:22.87
+f2877e87
+User
+TypeError: object of type 'AppenderQuery' has no len()
+2025-06-04 16:57:22.87
+f2877e87
+User
+ERROR:routes:Error generating RSS feed: object of type 'AppenderQuery' has no len()
+2025-06-04 16:57:22.90
+f2877e87
+User
+INFO:werkzeug:127.0.0.1 - - [04/Jun/2025 23:57:22] "GET /feed/other-summaries/rss HTTP/1.1" 500 -
+2025-06-04 16:57:27.19
+f2877e87
+User
+INFO:feed_generator:Starting RSS feed generation for: Hymns and Songs
+2025-06-04 16:57:27.19
+f2877e87
+User
+ERROR:feed_generator:Critical error generating RSS feed: object of type 'AppenderQuery' has no len()
+2025-06-04 16:57:27.19
+f2877e87
+User
+Traceback (most recent call last):

@@ -8,6 +8,7 @@ from datetime import datetime
 from slugify import slugify
 from utils import convert_url_to_dropbox_direct
 from cache_manager import cache_result, CacheManager, RSSCacheManager
+from extended_cache import long_term_cache, UltraLongCache
 import logging
 import csv
 from io import StringIO
@@ -23,6 +24,7 @@ def index():
 
 @app.route('/dashboard')
 @login_required
+@long_term_cache(hours=2)  # Cache dashboard for 2 hours per user
 def dashboard():
     from connection_manager import ConnectionManager
     
@@ -144,7 +146,7 @@ def new_episode(feed_id):
     return render_template('episode_form.html', feed=feed)
 
 @app.route('/feed/<string:url_slug>/rss')
-@cache_result(ttl_minutes=60)  # Cache RSS responses for 1 hour
+@cache_result(ttl_minutes=360)  # Cache RSS responses for 6 hours
 def rss_feed(url_slug):
     from connection_manager import ConnectionManager
     

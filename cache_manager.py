@@ -19,9 +19,9 @@ class CacheManager:
     def get(cls, key, default=None):
         """Get cached value if not expired"""
         if key in cls._cache and key in cls._cache_timestamps:
-            # Check if cache is still valid (5 minutes default)
+            # Check if cache is still valid (30 minutes default)
             cache_time = cls._cache_timestamps[key]
-            if datetime.now() - cache_time < timedelta(minutes=5):
+            if datetime.now() - cache_time < timedelta(minutes=30):
                 return cls._cache[key]
             else:
                 # Remove expired cache
@@ -30,7 +30,7 @@ class CacheManager:
         return default
     
     @classmethod
-    def set(cls, key, value, ttl_minutes=5):
+    def set(cls, key, value, ttl_minutes=30):
         """Set cached value with TTL"""
         cls._cache[key] = value
         cls._cache_timestamps[key] = datetime.now()
@@ -92,8 +92,8 @@ class RSSCacheManager:
         """Get cached RSS feed content"""
         if feed_id in cls._rss_cache and feed_id in cls._rss_timestamps:
             cache_time = cls._rss_timestamps[feed_id]
-            # RSS feeds cached for 1 hour
-            if datetime.now() - cache_time < timedelta(hours=1):
+            # RSS feeds cached for 6 hours (much longer)
+            if datetime.now() - cache_time < timedelta(hours=6):
                 return cls._rss_cache[feed_id]
             else:
                 cls._rss_cache.pop(feed_id, None)

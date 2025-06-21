@@ -24,7 +24,7 @@ app = Flask(__name__)
 app.secret_key = os.environ.get("FLASK_SECRET_KEY", "dev_key")
 app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL")
 app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
-    "pool_recycle": 3600,    # Increase to 1 hour to reduce connection overhead
+    "pool_recycle": 7200,    # Increase to 2 hours to reduce connection overhead
     "pool_pre_ping": True,   # Verify connections before use
     "pool_size": 2,          # Further reduce pool size for low-traffic app
     "max_overflow": 3,       # Reduce overflow connections 

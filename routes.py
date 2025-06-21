@@ -7,6 +7,7 @@ from feed_generator import generate_rss_feed, _feed_cache, TIMEZONE, get_next_re
 from datetime import datetime
 from slugify import slugify
 from utils import convert_url_to_dropbox_direct
+from cache_manager import cache_result, CacheManager, RSSCacheManager
 import logging
 import csv
 from io import StringIO
@@ -23,31 +24,39 @@ def index():
 @app.route('/dashboard')
 @login_required
 def dashboard():
+    from connection_manager import ConnectionManager
+    
     page = request.args.get('page', 1, type=int)
     per_page = 10  # Number of feeds per page
     
-    # Get feeds with pagination first
-    pagination = Feed.query.filter_by(user_id=current_user.id) \
-                     .order_by(Feed.created_at.desc()) \
-                     .paginate(page=page, per_page=per_page, error_out=False)
-    
-    feeds = pagination.items
-    
-    # Get episode counts for only the feeds on this page (reduces database load)
-    if feeds:
-        feed_ids = [feed.id for feed in feeds]
-        episode_counts = db.session.query(
+    # Use efficient session context manager
+    with ConnectionManager.efficient_session():
+        # Single optimized query with subquery for episode counts
+        from sqlalchemy import select, func as sql_func
+        
+        # Create subquery for episode counts
+        episode_count_subquery = db.session.query(
             Episode.feed_id,
-            func.count(Episode.id).label('count')
-        ).filter(Episode.feed_id.in_(feed_ids)) \
-         .group_by(Episode.feed_id).all()
+            sql_func.count(Episode.id).label('episode_count')
+        ).group_by(Episode.feed_id).subquery()
         
-        # Create a mapping of feed_id to episode count
-        count_map = {feed_id: count for feed_id, count in episode_counts}
+        # Main query with left join to get feeds and their episode counts
+        feeds_query = db.session.query(Feed, episode_count_subquery.c.episode_count) \
+            .outerjoin(episode_count_subquery, Feed.id == episode_count_subquery.c.feed_id) \
+            .filter(Feed.user_id == current_user.id) \
+            .order_by(Feed.created_at.desc())
         
-        # Attach episode counts to feeds
-        for feed in feeds:
-            feed.episode_count = count_map.get(feed.id, 0)
+        # Apply pagination
+        pagination = feeds_query.paginate(page=page, per_page=per_page, error_out=False)
+        
+        # Extract feeds and attach episode counts
+        feeds = []
+        for feed, episode_count in pagination.items:
+            feed.episode_count = episode_count or 0
+            feeds.append(feed)
+        
+        # Update pagination.items to contain just feeds
+        pagination.items = feeds
     
     return render_template('dashboard.html', feeds=feeds, pagination=pagination)
 
@@ -162,6 +171,7 @@ def edit_feed(feed_id):
             feed.image_url = image_url if image_url else None
 
             # Clear the cache when feed is updated
+            RSSCacheManager.invalidate_feed(feed_id)
             if feed_id in _feed_cache:
                 del _feed_cache[feed_id]
                 logger.info(f"Cleared RSS feed cache for feed_id: {feed_id}")
@@ -225,6 +235,7 @@ def delete_episode(feed_id, episode_id):
         db.session.delete(episode)
         
         # Clear RSS cache for this feed
+        RSSCacheManager.invalidate_feed(feed_id)
         if feed_id in _feed_cache:
             del _feed_cache[feed_id]
             logger.info(f"Cleared RSS feed cache for feed_id: {feed_id}")
@@ -241,19 +252,22 @@ def delete_episode(feed_id, episode_id):
 @app.route('/feed/<int:feed_id>')
 @login_required
 def feed_details(feed_id):
-    # Single query to get feed and verify ownership
-    feed = Feed.query.filter_by(id=feed_id, user_id=current_user.id).first_or_404()
+    from connection_manager import ConnectionManager
+    
+    with ConnectionManager.efficient_session():
+        # Single query to get feed and verify ownership
+        feed = Feed.query.filter_by(id=feed_id, user_id=current_user.id).first_or_404()
+            
+        # Add pagination for episodes
+        page = request.args.get('page', 1, type=int)
+        per_page = 15  # Number of episodes per page
         
-    # Add pagination for episodes
-    page = request.args.get('page', 1, type=int)
-    per_page = 15  # Number of episodes per page
-    
-    # Get episodes with pagination - using single query with all needed data
-    episodes_pagination = Episode.query.filter_by(feed_id=feed_id) \
-                               .order_by(Episode.release_date.desc()) \
-                               .paginate(page=page, per_page=per_page, error_out=False)
-    
-    episodes = episodes_pagination.items
+        # Get episodes with pagination - using single query with all needed data
+        episodes_pagination = Episode.query.filter_by(feed_id=feed_id) \
+                                   .order_by(Episode.release_date.desc()) \
+                                   .paginate(page=page, per_page=per_page, error_out=False)
+        
+        episodes = episodes_pagination.items
     
     return render_template('feed_details.html', 
                          feed=feed, 
@@ -275,6 +289,7 @@ def delete_feed(feed_id):
         Episode.query.filter_by(feed_id=feed.id).delete()
         
         # Clear RSS cache before deleting feed
+        RSSCacheManager.invalidate_feed(feed_id)
         if feed_id in _feed_cache:
             del _feed_cache[feed_id]
             logger.info(f"Cleared RSS feed cache for feed_id: {feed_id}")

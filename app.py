@@ -24,13 +24,13 @@ app = Flask(__name__)
 app.secret_key = os.environ.get("FLASK_SECRET_KEY", "dev_key")
 app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL")
 app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
-    "pool_recycle": 1800,    # Recycle connections every 30 minutes (was 5 min)
+    "pool_recycle": 3600,    # Increase to 1 hour to reduce connection overhead
     "pool_pre_ping": True,   # Verify connections before use
-    "pool_size": 3,          # Reduce default connection pool size
-    "max_overflow": 5,       # Reduce overflow connections 
-    "pool_timeout": 20,      # Reduce timeout to fail faster
+    "pool_size": 2,          # Further reduce pool size for low-traffic app
+    "max_overflow": 3,       # Reduce overflow connections 
+    "pool_timeout": 30,      # Increase timeout to avoid rapid reconnections
     "connect_args": {
-        "connect_timeout": 10,      # Connection timeout
+        "connect_timeout": 15,      # Slightly longer connection timeout
         "application_name": "PodcastPal"  # Help identify app in DB logs
     }
 }
@@ -55,3 +55,37 @@ with app.app_context():
         return User.query.get(int(user_id))
 
     import routes
+    
+    # Add connection cleanup middleware
+    @app.teardown_appcontext
+    def cleanup_db_connections(error):
+        """Clean up database connections after each request"""
+        db.session.remove()
+        
+    # Setup periodic maintenance (Flask 2.2+ compatible)
+    def setup_maintenance():
+        """Setup periodic database maintenance"""
+        from query_optimizer import MaintenanceQueries
+        import threading
+        import time
+        
+        def maintenance_worker():
+            """Background maintenance worker"""
+            while True:
+                time.sleep(3600)  # Run every hour
+                try:
+                    with app.app_context():
+                        MaintenanceQueries.analyze_tables()
+                except Exception as e:
+                    logger.error(f"Maintenance error: {e}")
+        
+        # Start maintenance in background thread
+        maintenance_thread = threading.Thread(target=maintenance_worker, daemon=True)
+        maintenance_thread.start()
+    
+    # Initialize maintenance on startup
+    setup_maintenance()
+    
+    # Start periodic cleanup
+    from session_manager import periodic_cleanup
+    periodic_cleanup()

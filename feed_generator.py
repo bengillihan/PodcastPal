@@ -128,13 +128,17 @@ def generate_rss_feed(feed):
 
 def _generate_rss_content(feed, force=False):
     """Internal function to generate RSS content"""
+    from query_optimizer import QueryOptimizer
+    from connection_manager import ConnectionManager
 
     try:
         logger.info(f"Starting RSS feed generation for: {feed.name}")
-        # Get episodes - we'll filter recurring episodes in the processing loop
-        # to ensure proper date calculations for episodes that repeat annually
-        episodes = feed.episodes.order_by(Episode.release_date.desc()).all()
-        logger.debug(f"Total episodes to process: {len(episodes)}")
+        
+        # Use optimized query to limit database load
+        with ConnectionManager.efficient_session():
+            # Limit episodes to most recent 50 to reduce processing time
+            episodes_data = QueryOptimizer.optimize_rss_query(feed.id)
+            logger.debug(f"Total episodes to process: {len(episodes_data)}")
 
         rss = ET.Element('rss', version='2.0')
         rss.set('xmlns:itunes', 'http://www.itunes.com/dtds/podcast-1.0.dtd')
@@ -189,13 +193,19 @@ def _generate_rss_content(feed, force=False):
         three_months_ago = current_time - timedelta(days=90)
         updated_episodes = []
 
+        # Convert raw data to episode-like objects for processing
+        from collections import namedtuple
+        EpisodeData = namedtuple('EpisodeData', ['id', 'title', 'description', 'audio_url', 'release_date', 'is_recurring'])
+        
+        episodes = [EpisodeData(*row) for row in episodes_data]
+        
         for ep in episodes:
             try:
                 ep_release_date = ep.release_date.replace(tzinfo=TIMEZONE) if ep.release_date.tzinfo is None else ep.release_date
 
                 # For recurring episodes, only include if the original date is within 3 months
                 # Don't advance dates into the future - only show episodes from today backwards
-                if hasattr(ep, 'is_recurring') and ep.is_recurring:
+                if ep.is_recurring:
                     # Calculate the most recent occurrence that's NOT in the future
                     while ep_release_date < current_time - timedelta(days=365):
                         try:

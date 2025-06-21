@@ -24,7 +24,7 @@ class Feed(db.Model):
     website_url = db.Column(db.String(500))  # New field for optional website URL
     url_slug = db.Column(db.String(200), unique=True, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    episodes = db.relationship('Episode', backref='feed', lazy='dynamic')  # Use dynamic loading for better performance
+    episodes = db.relationship('Episode', backref='feed', lazy='dynamic', cascade='all, delete-orphan')  # Use dynamic loading and cascade deletes
     
     __table_args__ = (
         db.Index('ix_feed_user_id', 'user_id'),

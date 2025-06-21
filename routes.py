@@ -144,10 +144,32 @@ def new_episode(feed_id):
     return render_template('episode_form.html', feed=feed)
 
 @app.route('/feed/<string:url_slug>/rss')
+@cache_result(ttl_minutes=60)  # Cache RSS responses for 1 hour
 def rss_feed(url_slug):
+    from connection_manager import ConnectionManager
+    
     try:
-        feed = Feed.query.filter_by(url_slug=url_slug).first_or_404()
-        return generate_rss_feed(feed), {'Content-Type': 'application/xml'}
+        with ConnectionManager.efficient_session():
+            # Single query to get feed by slug
+            feed = Feed.query.filter_by(url_slug=url_slug).first_or_404()
+            
+            # Log request for analytics (batched)
+            DropboxTraffic.log_request()
+            
+            # Check RSS cache first
+            cached_xml = RSSCacheManager.get_feed_cache(feed.id)
+            if cached_xml:
+                xml_content = cached_xml
+            else:
+                xml_content = generate_rss_feed(feed)
+                RSSCacheManager.set_feed_cache(feed.id, xml_content)
+        
+        response = app.response_class(
+            xml_content,
+            mimetype='application/rss+xml'
+        )
+        
+        return response
     except Exception as e:
         logger.error(f"Error generating RSS feed: {str(e)}")
         abort(500)

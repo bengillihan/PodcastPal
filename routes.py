@@ -146,7 +146,7 @@ def new_episode(feed_id):
     return render_template('episode_form.html', feed=feed)
 
 @app.route('/feed/<string:url_slug>/rss')
-@cache_result(ttl_minutes=360)  # Cache RSS responses for 6 hours
+@cache_result(ttl_minutes=60)  # Cache RSS responses for 1 hour with Supabase
 def rss_feed(url_slug):
     from connection_manager import ConnectionManager
     

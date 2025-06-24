@@ -36,24 +36,26 @@ PodcastPal is a Flask-based web application that allows users to create and mana
 ### RSS Feed Generation
 - Dynamic XML RSS feed generation compliant with podcast standards
 - iTunes namespace support for podcast-specific metadata
-- Feed caching mechanism with scheduled refresh times (3 AM PT daily)
+- Feed caching mechanism with scheduled refresh times (every 2 hours)
 - Support for recurring episodes that automatically reappear annually
+- Faster content updates with 1-hour cache TTL on Supabase
 
 ### Media URL Processing
 - Automatic conversion of Dropbox sharing URLs to direct download URLs
 - Google Drive sharing URL conversion to direct download format
 - URL validation and formatting utilities
 
-### Database Optimization (Enhanced - June 21, 2025)
-- **Connection Pool Optimization**: Reduced pool size to 2 connections, increased recycle time to 1 hour
-- **Advanced Caching**: Multi-layer caching system for RSS feeds (6-hour TTL), query results (30-minute TTL), and persistent file caching (24-hour TTL)
-- **Session Management**: Efficient session contexts with automatic cleanup and timeout controls
-- **Query Optimization**: Bulk operations, single-query joins, and limited result sets for RSS generation
-- **Background Maintenance**: Automated ANALYZE operations and connection cleanup every hour
-- **Connection Lifecycle**: Automatic cleanup after each request with idle connection termination
+### Database Architecture (Updated - June 24, 2025)
+- **Database**: Migrated from Replit to Supabase PostgreSQL 17.4
+- **Connection Pool**: Optimized for Supabase with 2 connections, 2-hour recycle time
+- **Caching Strategy**: Faster refresh with RSS feeds (1-hour TTL), query results (30-minute TTL)
+- **Refresh Schedule**: Every 2 hours (12 times daily) for frequent content updates
+- **Session Management**: Efficient session contexts with automatic cleanup
+- **Query Optimization**: Bulk operations, single-query joins, and limited result sets
+- **Performance**: No database compute cost concerns with Supabase infrastructure
 - **Lazy loading relationships to prevent N+1 queries
 - Database indexes on frequently queried columns
-- Batch commit decorators for transaction optimization
+- Background maintenance and connection cleanup
 
 ## Data Flow
 

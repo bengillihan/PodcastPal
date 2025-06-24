@@ -6,6 +6,7 @@ from contextlib import contextmanager
 from functools import wraps
 from app import db
 from flask import g
+from sqlalchemy import text
 import time
 
 logger = logging.getLogger(__name__)
@@ -30,8 +31,8 @@ class ConnectionManager:
         session = db.session
         try:
             # Enable query optimizations at session level
-            session.execute("SET SESSION statement_timeout = '30s'")  # Prevent long-running queries
-            session.execute("SET SESSION idle_in_transaction_session_timeout = '60s'")  # Close idle transactions
+            session.execute(text("SET SESSION statement_timeout = '30s'"))  # Prevent long-running queries
+            session.execute(text("SET SESSION idle_in_transaction_session_timeout = '60s'"))  # Close idle transactions
             yield session
             session.commit()
         except Exception as e:

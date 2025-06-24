@@ -70,7 +70,8 @@ class MaintenanceQueries:
     def analyze_tables():
         """Run ANALYZE on tables to update statistics"""
         try:
-            db.session.execute(text("ANALYZE user_table"))
+            # Use correct table names (SQLAlchemy creates 'user' not 'user_table')
+            db.session.execute(text('ANALYZE "user"'))
             db.session.execute(text("ANALYZE feed"))
             db.session.execute(text("ANALYZE episode"))
             db.session.commit()
@@ -88,7 +89,7 @@ class MaintenanceQueries:
             
             # Run maintenance commands
             with db.engine.connect().execution_options(autocommit=True) as conn:
-                conn.execute(text("VACUUM ANALYZE user_table"))
+                conn.execute(text('VACUUM ANALYZE "user"'))
                 conn.execute(text("VACUUM ANALYZE feed"))
                 conn.execute(text("VACUUM ANALYZE episode"))
             

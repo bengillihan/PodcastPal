@@ -3,8 +3,9 @@ Session management utilities to optimize database connections
 """
 import logging
 from contextlib import contextmanager
-from app import db
+from app import db, app
 from sqlalchemy.exc import DisconnectionError, OperationalError
+from sqlalchemy import text
 import time
 
 logger = logging.getLogger(__name__)
@@ -21,9 +22,9 @@ class SessionManager:
         
         try:
             # Configure session for optimal performance
-            session.execute("SET SESSION statement_timeout = '30s'")
-            session.execute("SET SESSION lock_timeout = '10s'")
-            session.execute("SET SESSION idle_in_transaction_session_timeout = '60s'")
+            session.execute(text("SET SESSION statement_timeout = '30s'"))
+            session.execute(text("SET SESSION lock_timeout = '10s'"))
+            session.execute(text("SET SESSION idle_in_transaction_session_timeout = '60s'"))
             
             yield session
             session.commit()
@@ -53,13 +54,14 @@ class SessionManager:
     def cleanup_connections():
         """Cleanup idle database connections"""
         try:
-            # Remove session to return connection to pool
-            db.session.remove()
-            
-            # Dispose connections that have been idle too long
-            db.engine.dispose()
-            
-            logger.debug("Database connections cleaned up")
+            with app.app_context():
+                # Remove session to return connection to pool
+                db.session.remove()
+                
+                # Dispose connections that have been idle too long
+                db.engine.dispose()
+                
+                logger.debug("Database connections cleaned up")
             
         except Exception as e:
             logger.error(f"Error cleaning up connections: {e}")
@@ -74,7 +76,8 @@ def periodic_cleanup():
         while True:
             time.sleep(1800)  # Every 30 minutes
             try:
-                SessionManager.cleanup_connections()
+                with app.app_context():
+                    SessionManager.cleanup_connections()
             except Exception as e:
                 logger.error(f"Periodic cleanup error: {e}")
     

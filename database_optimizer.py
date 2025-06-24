@@ -5,6 +5,7 @@ import logging
 from functools import wraps
 from app import db
 from flask import g
+from sqlalchemy import text
 
 logger = logging.getLogger(__name__)
 
@@ -80,8 +81,8 @@ class OptimizedDBSession:
     """Context manager for database sessions with optimization"""
     
     def __enter__(self):
-        # Enable query optimizations
-        db.session.execute("SET SESSION query_cache_type = ON")
+        # Enable query optimizations (skip this for PostgreSQL as it doesn't have query_cache_type)
+        # db.session.execute(text("SET SESSION query_cache_type = ON"))  # MySQL only
         return db.session
     
     def __exit__(self, exc_type, exc_val, exc_tb):

@@ -15,20 +15,9 @@ logger = logging.getLogger(__name__)
 _feed_cache = {}
 TIMEZONE = pytz.timezone('America/Los_Angeles')  # Pacific Time
 
-# Define refresh times (every 2 hours for frequent updates with Supabase)
+# Define refresh times (daily refresh to minimize autoscale requests)
 REFRESH_TIMES = [
-    (0, 0),   # 12:00 AM PT
-    (2, 0),   # 2:00 AM PT
-    (4, 0),   # 4:00 AM PT
-    (6, 0),   # 6:00 AM PT
-    (8, 0),   # 8:00 AM PT
-    (10, 0),  # 10:00 AM PT
-    (12, 0),  # 12:00 PM PT
-    (14, 0),  # 2:00 PM PT
-    (16, 0),  # 4:00 PM PT
-    (18, 0),  # 6:00 PM PT
-    (20, 0),  # 8:00 PM PT
-    (22, 0),  # 10:00 PM PT
+    (3, 0),   # 3:00 AM PT - single daily refresh during low traffic
 ]
 
 def get_next_refresh_time(current_time):

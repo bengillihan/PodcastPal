@@ -92,8 +92,8 @@ class RSSCacheManager:
         """Get cached RSS feed content"""
         if feed_id in cls._rss_cache and feed_id in cls._rss_timestamps:
             cache_time = cls._rss_timestamps[feed_id]
-            # RSS feeds cached for 1 hour with Supabase
-            if datetime.now() - cache_time < timedelta(hours=1):
+            # RSS feeds cached for 24 hours to minimize compute requests
+            if datetime.now() - cache_time < timedelta(hours=24):
                 return cls._rss_cache[feed_id]
             else:
                 cls._rss_cache.pop(feed_id, None)

@@ -36,9 +36,9 @@ PodcastPal is a Flask-based web application that allows users to create and mana
 ### RSS Feed Generation
 - Dynamic XML RSS feed generation compliant with podcast standards
 - iTunes namespace support for podcast-specific metadata
-- Feed caching mechanism with scheduled refresh times (every 2 hours)
+- Feed caching mechanism with scheduled refresh times (daily at 3 AM PT)
 - Support for recurring episodes that automatically reappear annually
-- Faster content updates with 1-hour cache TTL on Supabase
+- 24-hour cache TTL to minimize autoscale deployment requests
 
 ### Media URL Processing
 - Automatic conversion of Dropbox sharing URLs to direct download URLs
@@ -48,8 +48,8 @@ PodcastPal is a Flask-based web application that allows users to create and mana
 ### Database Architecture (Updated - June 24, 2025)
 - **Database**: Migrated from Replit to Supabase PostgreSQL 17.4
 - **Connection Pool**: Optimized for Supabase with 2 connections, 2-hour recycle time
-- **Caching Strategy**: Faster refresh with RSS feeds (1-hour TTL), query results (30-minute TTL)
-- **Refresh Schedule**: Every 2 hours (12 times daily) for frequent content updates
+- **Caching Strategy**: Long-term caching with RSS feeds (24-hour TTL) to minimize autoscale requests
+- **Refresh Schedule**: Once daily (3 AM PT) to minimize deployment compute costs
 - **Session Management**: Efficient session contexts with automatic cleanup
 - **Query Optimization**: Bulk operations, single-query joins, and limited result sets
 - **Performance**: No database compute cost concerns with Supabase infrastructure

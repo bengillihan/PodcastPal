@@ -1,0 +1,146 @@
+2025-06-24 06:39:34.83
+98e1eced
+User
+2025-06-24 06:39:34.83
+98e1eced
+User
+This typically means that you attempted to use functionality that needed
+2025-06-24 06:39:34.83
+98e1eced
+User
+the current application. To solve this, set up an application context
+2025-06-24 06:39:34.83
+98e1eced
+User
+with app.app_context(). See the documentation for more information.
+2025-06-24 06:39:36.49
+98e1eced
+User
+ERROR:session_manager:Error cleaning up connections: Working outside of application context.
+2025-06-24 06:39:36.49
+98e1eced
+User
+2025-06-24 06:39:36.49
+98e1eced
+User
+This typically means that you attempted to use functionality that needed
+2025-06-24 06:39:36.49
+98e1eced
+User
+the current application. To solve this, set up an application context
+2025-06-24 06:39:36.49
+98e1eced
+User
+with app.app_context(). See the documentation for more information.
+2025-06-24 07:09:35.03
+98e1eced
+User
+ERROR:session_manager:Error cleaning up connections: Working outside of application context.
+2025-06-24 07:09:35.03
+98e1eced
+User
+2025-06-24 07:09:35.03
+98e1eced
+User
+This typically means that you attempted to use functionality that needed
+2025-06-24 07:09:35.03
+98e1eced
+User
+the current application. To solve this, set up an application context
+2025-06-24 07:09:35.03
+98e1eced
+User
+with app.app_context(). See the documentation for more information.
+2025-06-24 07:09:36.83
+98e1eced
+User
+ERROR:session_manager:Error cleaning up connections: Working outside of application context.
+2025-06-24 07:09:36.83
+98e1eced
+User
+2025-06-24 07:09:36.83
+98e1eced
+User
+This typically means that you attempted to use functionality that needed
+2025-06-24 07:09:36.83
+98e1eced
+User
+the current application. To solve this, set up an application context
+2025-06-24 07:09:36.83
+98e1eced
+User
+with app.app_context(). See the documentation for more information.
+2025-06-24 07:09:38.43
+98e1eced
+User
+ERROR:query_optimizer:Error analyzing tables: (psycopg2.errors.UndefinedTable) relation "user_table" does not exist
+2025-06-24 07:09:38.43
+98e1eced
+User
+2025-06-24 07:09:38.43
+98e1eced
+User
+[SQL: ANALYZE user_table]
+2025-06-24 07:09:38.43
+98e1eced
+User
+(Background on this error at: https://sqlalche.me/e/20/f405)
+2025-06-24 07:09:38.93
+98e1eced
+User
+ERROR:query_optimizer:Error analyzing tables: (psycopg2.errors.UndefinedTable) relation "user_table" does not exist
+2025-06-24 07:09:38.93
+98e1eced
+User
+2025-06-24 07:09:38.93
+98e1eced
+User
+[SQL: ANALYZE user_table]
+2025-06-24 07:09:38.93
+98e1eced
+User
+(Background on this error at: https://sqlalche.me/e/20/f405)
+2025-06-24 07:15:25.22
+98e1eced
+User
+INFO:werkzeug:127.0.0.1 - - [24/Jun/2025 14:15:25] "GET /feed/12/episode/new HTTP/1.1" 200 -
+2025-06-24 07:15:25.35
+98e1eced
+User
+INFO:werkzeug:127.0.0.1 - - [24/Jun/2025 14:15:25] "GET /static/css/custom.css HTTP/1.1" 304 -
+2025-06-24 07:15:26.50
+98e1eced
+User
+INFO:werkzeug:127.0.0.1 - - [24/Jun/2025 14:15:26] "GET /static/favicon.svg HTTP/1.1" 304 -
+2025-06-24 07:23:14.66
+98e1eced
+User
+INFO:werkzeug:127.0.0.1 - - [24/Jun/2025 14:23:14] "GET / HTTP/1.1" 200 -
+2025-06-24 07:23:14.83
+98e1eced
+User
+INFO:werkzeug:127.0.0.1 - - [24/Jun/2025 14:23:14] "GET /static/css/custom.css HTTP/1.1" 304 -
+2025-06-24 07:23:18.21
+98e1eced
+User
+ERROR:connection_manager:Database session error: Textual SQL expression 'SET SESSION statement_tim...' should be explicitly declared as text('SET SESSION statement_tim...')
+2025-06-24 07:23:18.25
+98e1eced
+User
+INFO:werkzeug:127.0.0.1 - - [24/Jun/2025 14:23:18] "GET /dashboard HTTP/1.1" 500 -
+2025-06-24 07:23:18.25
+98e1eced
+User
+Traceback (most recent call last):
+2025-06-24 07:23:18.25
+98e1eced
+User
+File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/flask/app.py", line 1536, in __call__
+2025-06-24 07:23:18.25
+98e1eced
+User
+return self.wsgi_app(environ, start_response)
+2025-06-24 07:23:18.25
+98e1eced
+User
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

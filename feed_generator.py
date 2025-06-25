@@ -205,29 +205,7 @@ def _generate_rss_content(feed, force=False):
             try:
                 ep_release_date = ep.release_date.replace(tzinfo=TIMEZONE) if ep.release_date.tzinfo is None else ep.release_date
 
-                # For recurring episodes, find occurrence within the 90-day window
-                if ep.is_recurring:
-                    # Try to find a recurring occurrence that falls within our 90-day window
-                    original_date = ep_release_date
-                    found_valid_date = False
-                    
-                    # Check multiple years to find an occurrence in our window
-                    for year_offset in range(10):  # Check up to 10 years
-                        try:
-                            test_date = original_date.replace(year=original_date.year - year_offset)
-                        except ValueError:
-                            test_date = original_date.replace(month=2, day=28, year=original_date.year - year_offset)
-                        
-                        if test_date >= lookback_date and test_date <= current_time:
-                            ep_release_date = test_date
-                            found_valid_date = True
-                            break
-                    
-                    # If no valid occurrence found in 90-day window, skip this episode
-                    if not found_valid_date:
-                        continue
-                    
-                # Include episodes within 90 days (use consistent window for all episodes)
+                # Simple 90-day filter - include episodes from last 90 days to today
                 if ep_release_date >= lookback_date and ep_release_date <= current_time:
                     # Create a new episode object with the updated release_date since namedtuple is immutable
                     updated_ep = EpisodeData(

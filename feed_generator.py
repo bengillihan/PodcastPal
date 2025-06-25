@@ -190,7 +190,7 @@ def _generate_rss_content(feed, force=False):
         atom_link.set('type', 'application/rss+xml')
 
         current_time = datetime.now(TIMEZONE)
-        # Include all episodes regardless of date for podcast feeds
+        ninety_days_ago = current_time - timedelta(days=90)
         updated_episodes = []
 
         # Convert raw data to episode-like objects for processing
@@ -203,15 +203,21 @@ def _generate_rss_content(feed, force=False):
             try:
                 ep_release_date = ep.release_date.replace(tzinfo=TIMEZONE) if ep.release_date.tzinfo is None else ep.release_date
 
-                # For recurring episodes, include all episodes regardless of future dates
-                # This allows podcast feeds to show scheduled episodes
+                # For recurring episodes, calculate the most recent occurrence within the 90-day window
                 if ep.is_recurring:
-                    # For recurring episodes, use the original date as-is
-                    # Podcast apps can handle future-dated episodes appropriately
-                    pass
+                    # Calculate the most recent occurrence that's not in the future
+                    while ep_release_date < current_time - timedelta(days=365):
+                        try:
+                            ep_release_date = ep_release_date.replace(year=ep_release_date.year + 1)
+                        except ValueError:
+                            ep_release_date = ep_release_date.replace(month=2, day=28, year=ep_release_date.year + 1)
+                    
+                    # If the adjusted date is still in the future, skip this episode
+                    if ep_release_date > current_time:
+                        continue
 
-                # Include all episodes for podcast feeds (both past and future scheduled episodes)
-                if True:  # Always include episodes
+                # Include episodes within 90 days (both past and future scheduled episodes)
+                if ep_release_date >= ninety_days_ago:
                     # Create a new episode object with the updated release_date since namedtuple is immutable
                     updated_ep = EpisodeData(
                         ep.id,
@@ -234,7 +240,7 @@ def _generate_rss_content(feed, force=False):
             sorted_episodes = sorted_episodes[:100]
             logger.info(f"Limited to 100 most recent episodes for bandwidth optimization")
 
-        logger.info(f"Processing {len(sorted_episodes)} episodes for feed '{feed.name}'")
+        logger.info(f"Processing {len(sorted_episodes)} episodes for feed '{feed.name}' (from last 90 days)")
 
         episode_sizes = dict(fetch_file_size_concurrent(sorted_episodes))
 

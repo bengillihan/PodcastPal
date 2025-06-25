@@ -190,7 +190,9 @@ def _generate_rss_content(feed, force=False):
         atom_link.set('type', 'application/rss+xml')
 
         current_time = datetime.now(TIMEZONE)
-        ninety_days_ago = current_time - timedelta(days=90)
+        # Extend to 200 days to ensure we capture December episodes from last year
+        lookback_days = 200  
+        lookback_date = current_time - timedelta(days=lookback_days)
         updated_episodes = []
 
         # Convert raw data to episode-like objects for processing
@@ -216,7 +218,7 @@ def _generate_rss_content(feed, force=False):
                         except ValueError:
                             adjusted_date = test_date.replace(month=2, day=28, year=test_date.year - year_offset)
                         
-                        if adjusted_date >= ninety_days_ago and adjusted_date <= current_time:
+                        if adjusted_date >= lookback_date and adjusted_date <= current_time:
                             ep_release_date = adjusted_date
                             found_in_range = True
                             break
@@ -225,8 +227,8 @@ def _generate_rss_content(feed, force=False):
                     if not found_in_range:
                         continue
 
-                # Include episodes within 90 days
-                if ep_release_date >= ninety_days_ago and ep_release_date <= current_time:
+                # Include episodes within the lookback period
+                if ep_release_date >= lookback_date and ep_release_date <= current_time:
                     # Create a new episode object with the updated release_date since namedtuple is immutable
                     updated_ep = EpisodeData(
                         ep.id,
@@ -249,7 +251,7 @@ def _generate_rss_content(feed, force=False):
             sorted_episodes = sorted_episodes[:100]
             logger.info(f"Limited to 100 most recent episodes for bandwidth optimization")
 
-        logger.info(f"Processing {len(sorted_episodes)} episodes for feed '{feed.name}' (from last 90 days)")
+        logger.info(f"Processing {len(sorted_episodes)} episodes for feed '{feed.name}' (from last {lookback_days} days)")
 
         episode_sizes = dict(fetch_file_size_concurrent(sorted_episodes))
 

@@ -203,24 +203,25 @@ def _generate_rss_content(feed, force=False):
             try:
                 ep_release_date = ep.release_date.replace(tzinfo=TIMEZONE) if ep.release_date.tzinfo is None else ep.release_date
 
-                # For recurring episodes, only include if the original date is within 3 months
-                # Don't advance dates into the future - only show episodes from today backwards
+                # For recurring episodes, include all episodes regardless of future dates
+                # This allows podcast feeds to show scheduled episodes
                 if ep.is_recurring:
-                    # Calculate the most recent occurrence that's NOT in the future
-                    while ep_release_date < current_time - timedelta(days=365):
-                        try:
-                            ep_release_date = ep_release_date.replace(year=ep_release_date.year + 1)
-                        except ValueError:
-                            ep_release_date = ep_release_date.replace(month=2, day=28, year=ep_release_date.year + 1)
-                    
-                    # If the adjusted date is still in the future, skip this episode
-                    if ep_release_date > current_time:
-                        continue
+                    # For recurring episodes, use the original date as-is
+                    # Podcast apps can handle future-dated episodes appropriately
+                    pass
 
                 # Include all episodes for podcast feeds (both past and future scheduled episodes)
                 if True:  # Always include episodes
-                    ep.release_date = ep_release_date
-                    updated_episodes.append(ep)
+                    # Create a new episode object with the updated release_date since namedtuple is immutable
+                    updated_ep = EpisodeData(
+                        ep.id,
+                        ep.title,
+                        ep.description,
+                        ep.audio_url,
+                        ep_release_date,
+                        ep.is_recurring
+                    )
+                    updated_episodes.append(updated_ep)
 
             except AttributeError as attr_err:
                 logger.error(f"Invalid episode data for {getattr(ep, 'title', 'Unknown')}: {attr_err}")

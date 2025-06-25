@@ -190,8 +190,8 @@ def _generate_rss_content(feed, force=False):
         atom_link.set('type', 'application/rss+xml')
 
         current_time = datetime.now(TIMEZONE)
-        # Extend to 200 days to ensure we capture December episodes from last year
-        lookback_days = 200  
+        # 90-day window for episodes as requested
+        lookback_days = 90  
         lookback_date = current_time - timedelta(days=lookback_days)
         updated_episodes = []
 
@@ -205,29 +205,29 @@ def _generate_rss_content(feed, force=False):
             try:
                 ep_release_date = ep.release_date.replace(tzinfo=TIMEZONE) if ep.release_date.tzinfo is None else ep.release_date
 
-                # For recurring episodes, find the most recent occurrence within the 90-day window
+                # For recurring episodes, find occurrence within the 90-day window
                 if ep.is_recurring:
-                    # Start with the original date and work backwards to find a date in our window
-                    test_date = ep_release_date
-                    found_in_range = False
+                    # Try to find a recurring occurrence that falls within our 90-day window
+                    original_date = ep_release_date
+                    found_valid_date = False
                     
-                    # Try up to 5 years back to find an occurrence in our 90-day window
-                    for year_offset in range(5):
+                    # Check multiple years to find an occurrence in our window
+                    for year_offset in range(10):  # Check up to 10 years
                         try:
-                            adjusted_date = test_date.replace(year=test_date.year - year_offset)
+                            test_date = original_date.replace(year=original_date.year - year_offset)
                         except ValueError:
-                            adjusted_date = test_date.replace(month=2, day=28, year=test_date.year - year_offset)
+                            test_date = original_date.replace(month=2, day=28, year=original_date.year - year_offset)
                         
-                        if adjusted_date >= lookback_date and adjusted_date <= current_time:
-                            ep_release_date = adjusted_date
-                            found_in_range = True
+                        if test_date >= lookback_date and test_date <= current_time:
+                            ep_release_date = test_date
+                            found_valid_date = True
                             break
                     
-                    # If no occurrence found in 90-day window, skip this episode
-                    if not found_in_range:
+                    # If no valid occurrence found in 90-day window, skip this episode
+                    if not found_valid_date:
                         continue
-
-                # Include episodes within the lookback period
+                    
+                # Include episodes within 90 days (use consistent window for all episodes)
                 if ep_release_date >= lookback_date and ep_release_date <= current_time:
                     # Create a new episode object with the updated release_date since namedtuple is immutable
                     updated_ep = EpisodeData(

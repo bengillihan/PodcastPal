@@ -128,14 +128,13 @@ PodcastPal is a Flask-based web application that allows users to create and mana
 ```
 Changelog:
 - June 21, 2025: Initial setup
-- June 21, 2025: Implemented comprehensive database optimization to reduce compute hours:
-  * Reduced connection pool from 3 to 2 connections
-  * Increased connection recycle time from 30min to 1 hour
-  * Extended multi-layer caching system (RSS: 6hr, queries: 30min, persistent: 24hr)
-  * Implemented efficient session management with automatic cleanup
-  * Added background maintenance worker for database optimization
-  * Optimized RSS feed generation with result limiting and bulk operations
-  * Added connection monitoring and idle connection termination
+- June 21, 2025: Implemented comprehensive database optimization to reduce compute hours
+- June 24, 2025: Migrated database from Replit to Supabase PostgreSQL 17.4
+- June 25, 2025: Fixed RSS feed episode display issue:
+  * Resolved namedtuple immutability error preventing episode display
+  * Implemented proper recurring episode date calculation for 90-day window
+  * RSS feeds now correctly show episodes from today and last 90 days
+  * Maintained cost-effective caching (24-hour TTL, daily refresh at 3 AM PT)
 ```
 
 ## User Preferences

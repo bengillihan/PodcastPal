@@ -42,12 +42,14 @@ class QueryOptimizer:
     
     @staticmethod
     def optimize_rss_query(feed_id):
-        """Optimized query for RSS feed generation"""
-        # Use raw SQL for better performance on large episode sets
+        """Optimized query for RSS feed generation - 90-day window"""
+        # Use raw SQL to get episodes from last 90 days only
         query = text("""
             SELECT id, title, description, audio_url, release_date, is_recurring
             FROM episode 
             WHERE feed_id = :feed_id 
+            AND release_date >= NOW() - INTERVAL '90 days'
+            AND release_date <= NOW()
             ORDER BY release_date DESC
             LIMIT 100
         """)

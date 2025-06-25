@@ -205,8 +205,8 @@ def _generate_rss_content(feed, force=False):
             try:
                 ep_release_date = ep.release_date.replace(tzinfo=TIMEZONE) if ep.release_date.tzinfo is None else ep.release_date
 
-                # Simple 90-day filter - include episodes from last 90 days to today
-                if ep_release_date >= lookback_date and ep_release_date <= current_time:
+                # Episodes are already filtered by the database query, so include all
+                if True:
                     # Create a new episode object with the updated release_date since namedtuple is immutable
                     updated_ep = EpisodeData(
                         ep.id,

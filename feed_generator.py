@@ -190,7 +190,7 @@ def _generate_rss_content(feed, force=False):
         atom_link.set('type', 'application/rss+xml')
 
         current_time = datetime.now(TIMEZONE)
-        three_months_ago = current_time - timedelta(days=90)
+        # Include all episodes regardless of date for podcast feeds
         updated_episodes = []
 
         # Convert raw data to episode-like objects for processing
@@ -217,8 +217,8 @@ def _generate_rss_content(feed, force=False):
                     if ep_release_date > current_time:
                         continue
 
-                # Only include episodes from today backwards and within last 3 months
-                if ep_release_date <= current_time and ep_release_date >= three_months_ago:
+                # Include all episodes for podcast feeds (both past and future scheduled episodes)
+                if True:  # Always include episodes
                     ep.release_date = ep_release_date
                     updated_episodes.append(ep)
 
@@ -233,7 +233,7 @@ def _generate_rss_content(feed, force=False):
             sorted_episodes = sorted_episodes[:100]
             logger.info(f"Limited to 100 most recent episodes for bandwidth optimization")
 
-        logger.info(f"Processing {len(sorted_episodes)} episodes for feed '{feed.name}' (from last 3 months)")
+        logger.info(f"Processing {len(sorted_episodes)} episodes for feed '{feed.name}'")
 
         episode_sizes = dict(fetch_file_size_concurrent(sorted_episodes))
 

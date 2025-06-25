@@ -203,21 +203,30 @@ def _generate_rss_content(feed, force=False):
             try:
                 ep_release_date = ep.release_date.replace(tzinfo=TIMEZONE) if ep.release_date.tzinfo is None else ep.release_date
 
-                # For recurring episodes, calculate the most recent occurrence within the 90-day window
+                # For recurring episodes, find the most recent occurrence within the 90-day window
                 if ep.is_recurring:
-                    # Calculate the most recent occurrence that's not in the future
-                    while ep_release_date < current_time - timedelta(days=365):
-                        try:
-                            ep_release_date = ep_release_date.replace(year=ep_release_date.year + 1)
-                        except ValueError:
-                            ep_release_date = ep_release_date.replace(month=2, day=28, year=ep_release_date.year + 1)
+                    # Start with the original date and work backwards to find a date in our window
+                    test_date = ep_release_date
+                    found_in_range = False
                     
-                    # If the adjusted date is still in the future, skip this episode
-                    if ep_release_date > current_time:
+                    # Try up to 5 years back to find an occurrence in our 90-day window
+                    for year_offset in range(5):
+                        try:
+                            adjusted_date = test_date.replace(year=test_date.year - year_offset)
+                        except ValueError:
+                            adjusted_date = test_date.replace(month=2, day=28, year=test_date.year - year_offset)
+                        
+                        if adjusted_date >= ninety_days_ago and adjusted_date <= current_time:
+                            ep_release_date = adjusted_date
+                            found_in_range = True
+                            break
+                    
+                    # If no occurrence found in 90-day window, skip this episode
+                    if not found_in_range:
                         continue
 
-                # Include episodes within 90 days (both past and future scheduled episodes)
-                if ep_release_date >= ninety_days_ago:
+                # Include episodes within 90 days
+                if ep_release_date >= ninety_days_ago and ep_release_date <= current_time:
                     # Create a new episode object with the updated release_date since namedtuple is immutable
                     updated_ep = EpisodeData(
                         ep.id,

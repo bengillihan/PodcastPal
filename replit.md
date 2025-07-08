@@ -135,6 +135,11 @@ Changelog:
   * Implemented proper recurring episode date calculation for 90-day window
   * RSS feeds now correctly show episodes from today and last 90 days
   * Maintained cost-effective caching (24-hour TTL, daily refresh at 3 AM PT)
+- July 8, 2025: Fixed database connection conflicts:
+  * Eliminated conflicting PG* environment variables (PGDATABASE, PGHOST, etc.)
+  * Ensured exclusive use of Supabase via DATABASE_URL in both dev and production
+  * Production RSS feeds now correctly serve 67 episodes from Supabase
+  * All database operations (reads/writes) confirmed to use Supabase PostgreSQL 17.4
 ```
 
 ## User Preferences

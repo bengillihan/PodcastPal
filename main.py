@@ -1,9 +1,17 @@
+import os
 from app import app
 import atexit
 import logging
 from models import DropboxTraffic
 
 logger = logging.getLogger(__name__)
+
+# Clear conflicting PostgreSQL environment variables to ensure Supabase is used
+pg_vars_to_clear = ['PGDATABASE', 'PGHOST', 'PGPORT', 'PGUSER', 'PGPASSWORD']
+for var in pg_vars_to_clear:
+    if var in os.environ:
+        del os.environ[var]
+        logger.info(f"Cleared conflicting environment variable: {var}")
 
 # Register function to commit any remaining batched traffic data on shutdown
 @atexit.register

@@ -25,7 +25,7 @@ author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "unset PGDATABASE PGHOST PGPORT PGUSER PGPASSWORD && python main.py"
+args = "python main.py"
 waitForPort = 5000
 
 [[ports]]

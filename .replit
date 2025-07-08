@@ -23,15 +23,9 @@ args = "Flask Server"
 name = "Flask Server"
 author = "agent"
 
-[workflows.workflow.metadata]
-agentRequireRestartOnSave = false
-
-[[workflows.workflow.tasks]]
-task = "packager.installForAll"
-
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "python main.py"
+args = "unset PGDATABASE PGHOST PGPORT PGUSER PGPASSWORD && python main.py"
 waitForPort = 5000
 
 [[ports]]

@@ -45,14 +45,15 @@ PodcastPal is a Flask-based web application that allows users to create and mana
 - Google Drive sharing URL conversion to direct download format
 - URL validation and formatting utilities
 
-### Database Architecture (Updated - June 24, 2025)
-- **Database**: Migrated from Replit to Supabase PostgreSQL 17.4
+### Database Architecture (Updated - July 28, 2025)
+- **Database**: Supabase PostgreSQL 17.4 (fully cloud-hosted, no local storage used)
 - **Connection Pool**: Optimized for Supabase with 2 connections, 2-hour recycle time
 - **Caching Strategy**: Long-term caching with RSS feeds (24-hour TTL) to minimize autoscale requests
 - **Refresh Schedule**: Once daily (3 AM PT) to minimize deployment compute costs
 - **Session Management**: Efficient session contexts with automatic cleanup
 - **Query Optimization**: Bulk operations, single-query joins, and limited result sets
 - **Performance**: No database compute cost concerns with Supabase infrastructure
+- **Storage Optimization**: All local database export files removed (July 28, 2025)
 - **Lazy loading relationships to prevent N+1 queries
 - Database indexes on frequently queried columns
 - Background maintenance and connection cleanup

@@ -88,9 +88,6 @@ def get_file_size(url):
         response = urllib.request.urlopen(url)
         size = response.headers.get('Content-Length')
         if size:
-            from models import DropboxTraffic
-            logger.info(f"Logging traffic for URL: {url} with size: {size} bytes")
-            DropboxTraffic.log_request(int(size))
             return size
         logger.warning(f"No Content-Length header found for URL: {url}")
         return "0"

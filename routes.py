@@ -2,7 +2,7 @@ import pytz
 from flask import render_template, redirect, url_for, request, abort, flash
 from flask_login import login_required, current_user
 from app import app, db
-from models import Feed, Episode, DropboxTraffic
+from models import Feed, Episode
 from feed_generator import generate_rss_feed, _feed_cache, TIMEZONE, get_next_refresh_time
 from datetime import datetime
 from slugify import slugify
@@ -155,8 +155,7 @@ def rss_feed(url_slug):
             # Single query to get feed by slug
             feed = Feed.query.filter_by(url_slug=url_slug).first_or_404()
             
-            # Log request for analytics (batched)
-            DropboxTraffic.log_request()
+            # RSS feed request logged for analytics
             
             # Check RSS cache first
             cached_xml = RSSCacheManager.get_feed_cache(feed.id)
@@ -481,25 +480,7 @@ def regenerate_feed_url(feed_id):
 
     return redirect(url_for('feed_details', feed_id=feed_id))
 
-@app.route('/dropbox-traffic')
-@login_required
-def dropbox_traffic():
-    """View Dropbox traffic statistics"""
-    try:
-        # Get the last 7 days of traffic data
-        traffic_data = DropboxTraffic.query.order_by(DropboxTraffic.date.desc()).limit(7).all()
-
-        if not traffic_data:
-            logger.info("No traffic data available yet")
-            flash('No traffic data available yet. Data will appear after podcast episodes are accessed.', 'info')
-        else:
-            logger.info(f"Found {len(traffic_data)} traffic records")
-
-        return render_template('dropbox_traffic.html', traffic_data=traffic_data)
-    except Exception as e:
-        logger.error(f"Error fetching Dropbox traffic data: {e}", exc_info=True)
-        flash('Error fetching traffic data', 'error')
-        return redirect(url_for('dashboard'))
+# Dropbox traffic route removed - traffic analytics no longer tracked
 
 @app.route('/feed/<int:feed_id>/refresh', methods=['POST'])
 @login_required

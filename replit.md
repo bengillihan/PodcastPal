@@ -31,7 +31,7 @@ PodcastPal is a Flask-based web application that allows users to create and mana
 - **User**: Stores Google OAuth user information and relationships
 - **Feed**: Podcast feed metadata with unique URL slugs and user ownership
 - **Episode**: Individual episode data with recurring episode support
-- **DropboxTraffic**: Traffic analytics for Dropbox media hosting
+
 
 ### RSS Feed Generation
 - Dynamic XML RSS feed generation compliant with podcast standards
@@ -140,6 +140,11 @@ Changelog:
   * Ensured exclusive use of Supabase via DATABASE_URL in both dev and production
   * Production RSS feeds now correctly serve 67 episodes from Supabase
   * All database operations (reads/writes) confirmed to use Supabase PostgreSQL 17.4
+- July 28, 2025: Removed DropboxTraffic database table and analytics:
+  * Completely removed DropboxTraffic model from models.py
+  * Cleaned up all imports and references in routes.py, main.py, feed_generator.py
+  * Removed /dropbox-traffic route and traffic logging functionality
+  * Simplified RSS feed generation by removing traffic analytics overhead
 ```
 
 ## User Preferences

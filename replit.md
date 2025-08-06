@@ -146,6 +146,12 @@ Changelog:
   * Cleaned up all imports and references in routes.py, main.py, feed_generator.py
   * Removed /dropbox-traffic route and traffic logging functionality
   * Simplified RSS feed generation by removing traffic analytics overhead
+- August 6, 2025: Fixed database connection conflicts and consolidated data:
+  * Identified production app connecting to multiple databases (Supabase + Neon)
+  * Successfully migrated all August 2025 episodes to Supabase (31 episodes)
+  * Updated workflow configuration to eliminate PG environment variable conflicts
+  * All 213 episodes now stored exclusively in Supabase PostgreSQL
+  * Feed #8 "Daily Drucker" episodes: July (31) + August (31) + earlier episodes (151)
 ```
 
 ## User Preferences

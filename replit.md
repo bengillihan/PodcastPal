@@ -150,12 +150,14 @@ Changelog:
   * Identified production app connecting to multiple databases (Supabase + Neon)
   * Successfully migrated all missing episodes to Supabase:
     - Feed #8 "Daily Drucker": Added 31 August episodes (now 213 total)
-    - Feed #10 "Daily Tozer": Added 37 July-August episodes (now 188 total)
-    - Feed #12 "Bible Biographies": Added 6 missing episodes (now 23 total)
+    - Feed #10 "Daily Tozer": Added 37 July-August episodes + 25 additional August episodes (now 213 total)
+    - Feed #12 "Bible Biographies": Added 6 missing episodes + 6 additional episodes (now 29 total)
   * Updated workflow configuration to eliminate PG environment variable conflicts
+  * Removed all references to Neon database to prevent dual connections
   * All podcast episodes now stored exclusively in Supabase PostgreSQL
   * Production RSS feeds will now consistently serve from single database source
-  * Total migrated episodes: 74 episodes across 3 podcast feeds
+  * Total migrated episodes: 105 episodes across 3 podcast feeds
+  * Database consolidation complete - single Supabase source confirmed
 ```
 
 ## User Preferences

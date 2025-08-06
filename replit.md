@@ -148,10 +148,12 @@ Changelog:
   * Simplified RSS feed generation by removing traffic analytics overhead
 - August 6, 2025: Fixed database connection conflicts and consolidated data:
   * Identified production app connecting to multiple databases (Supabase + Neon)
-  * Successfully migrated all August 2025 episodes to Supabase (31 episodes)
+  * Successfully migrated all missing episodes to Supabase:
+    - Feed #8 "Daily Drucker": Added 31 August episodes (now 213 total)
+    - Feed #10 "Daily Tozer": Added 37 July-August episodes (now 188 total)
   * Updated workflow configuration to eliminate PG environment variable conflicts
-  * All 213 episodes now stored exclusively in Supabase PostgreSQL
-  * Feed #8 "Daily Drucker" episodes: July (31) + August (31) + earlier episodes (151)
+  * All podcast episodes now stored exclusively in Supabase PostgreSQL
+  * Production RSS feeds will now consistently serve from single database source
 ```
 
 ## User Preferences

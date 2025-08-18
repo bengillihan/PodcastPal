@@ -158,6 +158,13 @@ Changelog:
   * Production RSS feeds will now consistently serve from single database source
   * Total migrated episodes: 105 episodes across 3 podcast feeds
   * Database consolidation complete - single Supabase source confirmed
+- August 18, 2025: Added daily database ping service to prevent Supabase inactivity:
+  * Created automated ping system that runs every 24 hours in background thread
+  * Performs lightweight database queries to maintain active connection
+  * Logs ping history in database_pings table with 30-day retention
+  * Added /ping-status monitoring endpoint to check service health
+  * Prevents Supabase from pausing database due to inactivity
+  * Service starts automatically on application launch
 ```
 
 ## User Preferences

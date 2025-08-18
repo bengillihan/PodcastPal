@@ -571,3 +571,29 @@ def search_episodes():
     
     # If no query, just show the empty search page
     return render_template('search.html', query='', results=[])
+
+@app.route('/ping-status')
+def ping_status():
+    """Simple monitoring route to check database ping status"""
+    from database_ping import database_pinger
+    from flask import jsonify
+    
+    try:
+        status = database_pinger.get_last_ping_status()
+        if status:
+            return jsonify({
+                'status': 'active',
+                'last_ping': status['last_ping'].isoformat() if status['last_ping'] else None,
+                'ping_result': status['status'],
+                'message': 'Database ping service is running'
+            })
+        else:
+            return jsonify({
+                'status': 'running',
+                'message': 'Database ping service is active (no ping history yet)'
+            })
+    except Exception as e:
+        return jsonify({
+            'status': 'error',
+            'message': f'Could not check ping status: {str(e)}'
+        }), 500

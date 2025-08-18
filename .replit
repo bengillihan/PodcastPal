@@ -23,9 +23,12 @@ args = "Flask Server"
 name = "Flask Server"
 author = "agent"
 
+[workflows.workflow.metadata]
+outputType = "webview"
+
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "unset PGDATABASE PGHOST PGPORT PGUSER PGPASSWORD && python main.py"
+args = "./start_server.sh"
 waitForPort = 5000
 
 [[ports]]

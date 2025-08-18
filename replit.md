@@ -165,6 +165,12 @@ Changelog:
   * Added /ping-status monitoring endpoint to check service health
   * Prevents Supabase from pausing database due to inactivity
   * Service starts automatically on application launch
+- August 18, 2025: Fixed database security warnings and Row Level Security (RLS):
+  * Enabled Row Level Security on database_pings table to resolve Supabase security advisor warnings
+  * Created appropriate RLS policy allowing service role access to ping data
+  * All public database tables now have proper RLS protection enabled
+  * Eliminated "RLS Disabled in Public" security warnings from Supabase dashboard
+  * Enhanced database security posture with proper PostgREST access controls
 ```
 
 ## User Preferences

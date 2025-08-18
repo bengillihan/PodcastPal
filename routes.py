@@ -48,8 +48,25 @@ def dashboard():
             .filter(Feed.user_id == current_user.id) \
             .order_by(Feed.created_at.desc())
         
-        # Apply pagination
-        pagination = feeds_query.paginate(page=page, per_page=per_page, error_out=False)
+        # Apply pagination by executing the query first
+        total = feeds_query.count()
+        offset = (page - 1) * per_page
+        results = feeds_query.offset(offset).limit(per_page).all()
+        
+        # Create a simple pagination object manually
+        class SimplePagination:
+            def __init__(self, items, page, per_page, total):
+                self.items = items
+                self.page = page
+                self.per_page = per_page
+                self.total = total
+                self.pages = (total + per_page - 1) // per_page
+                self.has_prev = page > 1
+                self.has_next = page < self.pages
+                self.prev_num = page - 1 if self.has_prev else None
+                self.next_num = page + 1 if self.has_next else None
+        
+        pagination = SimplePagination(results, page, per_page, total)
         
         # Extract feeds and attach episode counts
         feeds = []
@@ -365,7 +382,7 @@ def upload_episodes_csv(feed_id):
         flash('No file selected', 'error')
         return redirect(url_for('feed_details', feed_id=feed_id))
 
-    if not file.filename.endswith('.csv'):
+    if not file.filename or not file.filename.endswith('.csv'):
         flash('Please upload a CSV file', 'error')
         return redirect(url_for('feed_details', feed_id=feed_id))
 

@@ -19,9 +19,8 @@ class DatabaseOptimizer:
         def wrapper(*args, **kwargs):
             try:
                 result = func(*args, **kwargs)
-                # Only commit if no other transaction is active
-                if not db.session.in_transaction():
-                    db.session.commit()
+                # Commit the transaction
+                db.session.commit()
                 return result
             except Exception as e:
                 db.session.rollback()

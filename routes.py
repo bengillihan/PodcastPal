@@ -614,3 +614,19 @@ def ping_status():
             'status': 'error',
             'message': f'Could not check ping status: {str(e)}'
         }), 500
+
+@app.route('/manual-ping')
+@login_required
+def manual_ping():
+    """Manually trigger a database ping to keep Supabase active"""
+    from database_ping import database_pinger
+    
+    try:
+        database_pinger._perform_ping()
+        flash('Database pinged successfully! Supabase will stay active.', 'success')
+        logger.info(f"Manual database ping triggered by user {current_user.id}")
+    except Exception as e:
+        logger.error(f"Manual ping failed: {str(e)}")
+        flash(f'Ping failed: {str(e)}', 'error')
+    
+    return redirect(request.referrer or url_for('dashboard'))

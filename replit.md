@@ -171,6 +171,13 @@ Changelog:
   * All public database tables now have proper RLS protection enabled
   * Eliminated "RLS Disabled in Public" security warnings from Supabase dashboard
   * Enhanced database security posture with proper PostgREST access controls
+- November 3, 2025: Fixed recurring annual podcast date update functionality:
+  * Updated database query to include recurring episodes regardless of original release date
+  * Implemented automatic year adjustment for recurring episodes in RSS feed generation
+  * Recurring episodes now correctly update to current/previous year based on date
+  * Added robust leap day (Feb 29) handling to prevent crashes on non-leap years
+  * Recurring episodes properly filtered within 90-day lookback window after date adjustment
+  * Verified RSS feeds show recurring episodes with updated dates (e.g., Oct 15, 2024 → Oct 15, 2025)
 ```
 
 ## User Preferences

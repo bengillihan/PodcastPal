@@ -202,8 +202,39 @@ def _generate_rss_content(feed, force=False):
             try:
                 ep_release_date = ep.release_date.replace(tzinfo=TIMEZONE) if ep.release_date.tzinfo is None else ep.release_date
 
-                # Episodes are already filtered by the database query, so include all
-                if True:
+                # For recurring episodes, update the year to make them appear annually
+                if ep.is_recurring:
+                    try:
+                        # Calculate the date in the current year
+                        current_year_date = ep_release_date.replace(year=current_time.year)
+                        
+                        # If that date is in the future, use last year's date instead
+                        if current_year_date > current_time:
+                            ep_release_date = ep_release_date.replace(year=current_time.year - 1)
+                            logger.debug(f"Recurring episode '{ep.title}' updated to previous year: {ep_release_date}")
+                        else:
+                            ep_release_date = current_year_date
+                            logger.debug(f"Recurring episode '{ep.title}' updated to current year: {ep_release_date}")
+                    except ValueError:
+                        # Handle leap day (Feb 29) on non-leap years - move to Feb 28
+                        if ep_release_date.month == 2 and ep_release_date.day == 29:
+                            try:
+                                # Try current year with Feb 28
+                                current_year_date = ep_release_date.replace(year=current_time.year, day=28)
+                                if current_year_date > current_time:
+                                    ep_release_date = ep_release_date.replace(year=current_time.year - 1, day=28)
+                                    logger.debug(f"Recurring leap day episode '{ep.title}' moved to Feb 28 of previous year: {ep_release_date}")
+                                else:
+                                    ep_release_date = current_year_date
+                                    logger.debug(f"Recurring leap day episode '{ep.title}' moved to Feb 28 of current year: {ep_release_date}")
+                            except ValueError:
+                                # Fallback: keep original date if all adjustments fail
+                                logger.warning(f"Could not adjust recurring episode '{ep.title}' date, using original: {ep_release_date}")
+                        else:
+                            logger.warning(f"Unexpected date error for recurring episode '{ep.title}', using original: {ep_release_date}")
+                
+                # Only include episodes within the lookback window
+                if ep_release_date >= lookback_date and ep_release_date <= current_time:
                     # Create a new episode object with the updated release_date since namedtuple is immutable
                     updated_ep = EpisodeData(
                         ep.id,
@@ -214,6 +245,8 @@ def _generate_rss_content(feed, force=False):
                         ep.is_recurring
                     )
                     updated_episodes.append(updated_ep)
+                else:
+                    logger.debug(f"Episode '{ep.title}' excluded - outside {lookback_days}-day window")
 
             except AttributeError as attr_err:
                 logger.error(f"Invalid episode data for {getattr(ep, 'title', 'Unknown')}: {attr_err}")

@@ -178,6 +178,12 @@ Changelog:
   * Added robust leap day (Feb 29) handling to prevent crashes on non-leap years
   * Recurring episodes properly filtered within 90-day lookback window after date adjustment
   * Verified RSS feeds show recurring episodes with updated dates (e.g., Oct 15, 2024 → Oct 15, 2025)
+- November 3, 2025: Replaced database ping service with RSS access tracking:
+  * Added last_rss_access timestamp column to Feed table
+  * RSS feed endpoint now updates timestamp on every access
+  * Removed daily database ping service (no longer needed)
+  * Supabase activity maintained by real podcast app traffic instead of artificial pings
+  * More efficient and provides useful analytics on feed access patterns
 ```
 
 ## User Preferences

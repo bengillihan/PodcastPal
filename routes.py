@@ -172,7 +172,9 @@ def rss_feed(url_slug):
             # Single query to get feed by slug
             feed = Feed.query.filter_by(url_slug=url_slug).first_or_404()
             
-            # RSS feed request logged for analytics
+            # Update last RSS access timestamp to show activity in Supabase
+            feed.last_rss_access = datetime.now(TIMEZONE)
+            db.session.commit()
             
             # Check RSS cache first
             cached_xml = RSSCacheManager.get_feed_cache(feed.id)

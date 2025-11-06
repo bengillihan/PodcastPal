@@ -184,6 +184,13 @@ Changelog:
   * Removed daily database ping service (no longer needed)
   * Supabase activity maintained by real podcast app traffic instead of artificial pings
   * More efficient and provides useful analytics on feed access patterns
+- November 6, 2025: Added configurable episode retention periods for podcast feeds:
+  * Added retention_period field to Feed model (default: 90 days)
+  * Implemented automatic database migration that runs on app startup
+  * Created dropdown in feed creation/edit forms with retention options: 30, 60, 90, 180 (6 months), 365 (12 months) days
+  * Updated RSS feed generator to honor each feed's retention period setting
+  * Recurring episodes continue to appear regardless of retention period
+  * Migration is idempotent and safe to run on existing databases
 ```
 
 ## User Preferences

@@ -222,7 +222,7 @@ def edit_feed(feed_id):
                 logger.info(f"Cleared RSS feed cache for feed_id: {feed_id}")
 
             db.session.commit()
-            logger.info(f"Updated feed: {feed.name} with image: {feed.image_url}")
+            logger.info(f"Updated feed: {feed.name} with image: {feed.image_url}, retention_period: {feed.retention_period}")
             flash('Feed updated successfully!', 'success')
             return redirect(url_for('dashboard'))
         except Exception as e:

@@ -187,8 +187,8 @@ def _generate_rss_content(feed, force=False):
         atom_link.set('type', 'application/rss+xml')
 
         current_time = datetime.now(TIMEZONE)
-        # 90-day window for episodes as requested
-        lookback_days = 90  
+        # Use feed's retention period (in days)
+        lookback_days = feed.retention_period if hasattr(feed, 'retention_period') and feed.retention_period else 90
         lookback_date = current_time - timedelta(days=lookback_days)
         updated_episodes = []
 

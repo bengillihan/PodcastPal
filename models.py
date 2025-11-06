@@ -25,6 +25,7 @@ class Feed(db.Model):
     url_slug = db.Column(db.String(200), unique=True, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     last_rss_access = db.Column(db.DateTime, nullable=True)
+    retention_period = db.Column(db.Integer, default=90)
     episodes = db.relationship('Episode', backref='feed', lazy='dynamic', cascade='all, delete-orphan')  # Use dynamic loading and cascade deletes
     
     __table_args__ = (

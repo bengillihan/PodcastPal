@@ -46,6 +46,31 @@ login_manager.login_view = "google_auth.login"
 with app.app_context():
     from models import User, Feed, Episode
     db.create_all()
+    
+    # Run database migrations
+    def run_migrations():
+        """Run database migrations for schema updates"""
+        try:
+            # Add retention_period column if it doesn't exist
+            db.session.execute(db.text("""
+                DO $$
+                BEGIN
+                    IF NOT EXISTS (
+                        SELECT 1 FROM information_schema.columns 
+                        WHERE table_name = 'feed' AND column_name = 'retention_period'
+                    ) THEN
+                        ALTER TABLE feed ADD COLUMN retention_period INTEGER DEFAULT 90;
+                        RAISE NOTICE 'Added retention_period column to feed table';
+                    END IF;
+                END $$;
+            """))
+            db.session.commit()
+            logger.info("Database migrations completed successfully")
+        except Exception as e:
+            logger.error(f"Error running migrations: {e}")
+            db.session.rollback()
+    
+    run_migrations()
 
     from google_auth import google_auth
     app.register_blueprint(google_auth)

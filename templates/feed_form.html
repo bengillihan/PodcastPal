@@ -27,6 +27,19 @@
                     Supported formats: JPG, JPEG, PNG, GIF
                 </div>
             </div>
+            <div class="mb-3">
+                <label for="retention_period" class="form-label">Episode Retention Period</label>
+                <select class="form-select" id="retention_period" name="retention_period" required>
+                    <option value="30" {% if feed and feed.retention_period == 30 %}selected{% endif %}>30 days</option>
+                    <option value="60" {% if feed and feed.retention_period == 60 %}selected{% endif %}>60 days</option>
+                    <option value="90" {% if (feed and feed.retention_period == 90) or not feed %}selected{% endif %}>90 days (default)</option>
+                    <option value="180" {% if feed and feed.retention_period == 180 %}selected{% endif %}>6 months (180 days)</option>
+                    <option value="365" {% if feed and feed.retention_period == 365 %}selected{% endif %}>12 months (365 days)</option>
+                </select>
+                <div class="form-text">
+                    How long episodes will remain in the RSS feed after their release date. Recurring episodes always appear.
+                </div>
+            </div>
             <div class="d-flex justify-content-between">
                 <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">Cancel</a>
                 <button type="submit" class="btn btn-primary">{% if feed %}Update{% else %}Create{% endif %} Feed</button>

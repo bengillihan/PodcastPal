@@ -87,6 +87,7 @@ def new_feed():
             name = request.form['name']
             description = request.form['description']
             image_url = request.form.get('image_url', '').strip()
+            retention_period = int(request.form.get('retention_period', 90))
 
             # Convert Dropbox URL if present
             if image_url:
@@ -106,6 +107,7 @@ def new_feed():
                 description=description,
                 image_url=image_url if image_url else None,
                 url_slug=url_slug,
+                retention_period=retention_period,
                 user_id=current_user.id
             )
             db.session.add(feed)
@@ -206,6 +208,7 @@ def edit_feed(feed_id):
             feed.name = request.form['name']
             feed.description = request.form['description']
             image_url = request.form.get('image_url', '').strip()
+            feed.retention_period = int(request.form.get('retention_period', 90))
 
             if image_url:
                 image_url = convert_url_to_dropbox_direct(image_url)

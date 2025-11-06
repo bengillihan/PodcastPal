@@ -51,6 +51,20 @@ with app.app_context():
     def run_migrations():
         """Run database migrations for schema updates"""
         try:
+            # Add last_rss_access column if it doesn't exist
+            db.session.execute(db.text("""
+                DO $$
+                BEGIN
+                    IF NOT EXISTS (
+                        SELECT 1 FROM information_schema.columns 
+                        WHERE table_name = 'feed' AND column_name = 'last_rss_access'
+                    ) THEN
+                        ALTER TABLE feed ADD COLUMN last_rss_access TIMESTAMP;
+                        RAISE NOTICE 'Added last_rss_access column to feed table';
+                    END IF;
+                END $$;
+            """))
+            
             # Add retention_period column if it doesn't exist
             db.session.execute(db.text("""
                 DO $$

@@ -119,6 +119,9 @@ def callback():
             code=code
         )
 
+        if not token_url.startswith("https://"):
+            token_url = token_url.replace("http://", "https://", 1)
+
         token_response = requests.post(
             token_url,
             headers=headers,
@@ -136,6 +139,8 @@ def callback():
         # Get user info
         userinfo_endpoint = google_provider_cfg["userinfo_endpoint"]
         uri, headers, body = client.add_token(userinfo_endpoint)
+        if not uri.startswith("https://"):
+            uri = uri.replace("http://", "https://", 1)
         userinfo_response = requests.get(uri, headers=headers, data=body, timeout=10)
 
         if not userinfo_response.ok:

@@ -14,7 +14,7 @@ dependencies = [
     "psycopg2-binary>=2.9.10",
     "python-slugify>=8.0.4",
     "pytz>=2025.1",
-    "requests>=2.32.3",
+    "requests==2.32.4",
     "slugify>=0.0.1",
     "sqlalchemy>=2.0.37",
     "text-unidecode>=1.3",

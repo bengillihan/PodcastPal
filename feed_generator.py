@@ -4,6 +4,7 @@ from xml.etree import ElementTree as ET
 from utils import convert_url_to_dropbox_direct
 import urllib.request
 import urllib.error
+import urllib.parse
 import logging
 from concurrent.futures import ThreadPoolExecutor
 from functools import lru_cache
@@ -82,9 +83,29 @@ def cache_feed(feed_id, content):
     _feed_cache[feed_id] = (current_time, content)
     logger.info(f"Updated RSS feed cache for feed_id: {feed_id} at {current_time}")
 
+ALLOWED_HOSTS = [
+    'dl.dropboxusercontent.com',
+    'www.dropbox.com',
+    'dropbox.com',
+    'drive.google.com',
+]
+
+def _is_url_allowed(url):
+    """Validate that a URL points to an allowed host to prevent SSRF attacks"""
+    try:
+        parsed = urllib.parse.urlparse(url)
+        if parsed.scheme not in ('http', 'https'):
+            return False
+        return parsed.hostname in ALLOWED_HOSTS
+    except Exception:
+        return False
+
 def get_file_size(url):
     """Get file size in bytes from URL"""
     try:
+        if not _is_url_allowed(url):
+            logger.warning(f"Blocked request to disallowed URL: {url}")
+            return "0"
         response = urllib.request.urlopen(url)
         size = response.headers.get('Content-Length')
         if size:

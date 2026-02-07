@@ -2,7 +2,7 @@
 Extended caching system for maximum database compute reduction
 """
 import logging
-import pickle
+import json
 import os
 from datetime import datetime, timedelta
 from functools import wraps
@@ -25,7 +25,7 @@ class PersistentCache:
         """Get file path for cache key"""
         cls._ensure_cache_dir()
         safe_key = key.replace('/', '_').replace(':', '_')
-        return os.path.join(cls.CACHE_DIR, f"{safe_key}.cache")
+        return os.path.join(cls.CACHE_DIR, f"{safe_key}.json")
     
     @classmethod
     def get(cls, key, max_age_hours=24):
@@ -42,9 +42,8 @@ class PersistentCache:
                 os.remove(cache_path)
                 return None
             
-            # Load cached data
-            with open(cache_path, 'rb') as f:
-                return pickle.load(f)
+            with open(cache_path, 'r') as f:
+                return json.load(f)
                 
         except Exception as e:
             logger.error(f"Error reading persistent cache: {e}")
@@ -56,8 +55,8 @@ class PersistentCache:
         try:
             cache_path = cls._get_cache_path(key)
             
-            with open(cache_path, 'wb') as f:
-                pickle.dump(value, f)
+            with open(cache_path, 'w') as f:
+                json.dump(value, f)
                 
             logger.debug(f"Saved to persistent cache: {key}")
             

@@ -22,7 +22,9 @@ def get_oauth_credentials():
     """Get OAuth credentials based on environment"""
     try:
         # Check if we're in production or development
-        is_production = 'replit.app' in request.host
+        is_production = ('replit.app' in request.host
+                         or 'railway.app' in request.host
+                         or 'bengillihan.com' in request.host)
 
         if is_production:
             client_id = os.environ.get("GOOGLE_OAUTH_PROD_CLIENT_ID")

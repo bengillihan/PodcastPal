@@ -34,7 +34,22 @@ app = Flask(__name__)
 
 # Configuration
 app.secret_key = os.environ.get("FLASK_SECRET_KEY", "dev_key")
-app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL")
+
+def _encode_database_url(url):
+    """Properly URL-encode the password in a database connection string"""
+    if not url:
+        return url
+    from urllib.parse import urlparse, quote, urlunparse
+    parsed = urlparse(url)
+    if parsed.password:
+        encoded_password = quote(parsed.password, safe='')
+        netloc = f"{parsed.username}:{encoded_password}@{parsed.hostname}"
+        if parsed.port:
+            netloc += f":{parsed.port}"
+        url = urlunparse((parsed.scheme, netloc, parsed.path, parsed.params, parsed.query, parsed.fragment))
+    return url
+
+app.config["SQLALCHEMY_DATABASE_URI"] = _encode_database_url(os.environ.get("DATABASE_URL"))
 app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
     "pool_pre_ping": True,
     "poolclass": NullPool,

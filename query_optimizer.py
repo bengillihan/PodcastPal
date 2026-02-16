@@ -42,18 +42,18 @@ class QueryOptimizer:
     
     @staticmethod
     def optimize_rss_query(feed_id):
-        """Optimized query for RSS feed generation - 90-day window plus recurring episodes"""
-        # Get episodes from last 90 days OR recurring episodes (which will have dates adjusted later)
+        """Optimized query for RSS feed generation - recurring episodes plus recent non-recurring"""
         query = text("""
-            SELECT id, title, description, audio_url, release_date, is_recurring
-            FROM episode 
-            WHERE feed_id = :feed_id 
-            AND (
-                (release_date >= NOW() - INTERVAL '90 days' AND release_date <= NOW())
-                OR is_recurring = true
-            )
-            ORDER BY release_date DESC
-            LIMIT 100
+            (SELECT id, title, description, audio_url, release_date, is_recurring
+             FROM episode 
+             WHERE feed_id = :feed_id AND is_recurring = true)
+            UNION ALL
+            (SELECT id, title, description, audio_url, release_date, is_recurring
+             FROM episode 
+             WHERE feed_id = :feed_id AND is_recurring = false
+             AND release_date >= NOW() - INTERVAL '90 days' AND release_date <= NOW()
+             ORDER BY release_date DESC
+             LIMIT 100)
         """)
         
         result = db.session.execute(query, {'feed_id': feed_id})

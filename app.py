@@ -1,3 +1,14 @@
+import socket
+
+def force_ipv4():
+    old_getaddrinfo = socket.getaddrinfo
+    def new_getaddrinfo(*args, **kwargs):
+        responses = old_getaddrinfo(*args, **kwargs)
+        return [response for response in responses if response[0] == socket.AF_INET]
+    socket.getaddrinfo = new_getaddrinfo
+
+force_ipv4()
+
 import os
 import logging
 import pytz
@@ -5,6 +16,7 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from sqlalchemy.orm import DeclarativeBase
+from sqlalchemy.pool import NullPool
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
@@ -24,14 +36,11 @@ app = Flask(__name__)
 app.secret_key = os.environ.get("FLASK_SECRET_KEY", "dev_key")
 app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL")
 app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
-    "pool_recycle": 7200,    # Increase to 2 hours to reduce connection overhead
-    "pool_pre_ping": True,   # Verify connections before use
-    "pool_size": 2,          # Further reduce pool size for low-traffic app
-    "max_overflow": 3,       # Reduce overflow connections 
-    "pool_timeout": 30,      # Increase timeout to avoid rapid reconnections
+    "pool_pre_ping": True,
+    "poolclass": NullPool,
     "connect_args": {
-        "connect_timeout": 15,      # Slightly longer connection timeout
-        "application_name": "PodcastPal"  # Help identify app in DB logs
+        "connect_timeout": 15,
+        "application_name": "PodcastPal"
     }
 }
 app.config['TIMEZONE'] = TIMEZONE

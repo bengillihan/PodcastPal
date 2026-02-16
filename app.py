@@ -35,21 +35,20 @@ app = Flask(__name__)
 # Configuration
 app.secret_key = os.environ.get("FLASK_SECRET_KEY", "dev_key")
 
-def _encode_database_url(url):
-    """Properly URL-encode the password in a database connection string"""
-    if not url:
-        return url
-    from urllib.parse import urlparse, quote, urlunparse
-    parsed = urlparse(url)
-    if parsed.password:
-        encoded_password = quote(parsed.password, safe='')
-        netloc = f"{parsed.username}:{encoded_password}@{parsed.hostname}"
-        if parsed.port:
-            netloc += f":{parsed.port}"
-        url = urlunparse((parsed.scheme, netloc, parsed.path, parsed.params, parsed.query, parsed.fragment))
-    return url
+def _build_database_url():
+    """Build database URL, handling special characters in password"""
+    from urllib.parse import quote
+    db_password = os.environ.get("SUPABASE_DB_PASSWORD")
+    if db_password:
+        db_user = os.environ.get("SUPABASE_DB_USER", "postgres.ivvjtyetycfaykavkymm")
+        db_host = os.environ.get("SUPABASE_DB_HOST", "aws-0-us-west-1.pooler.supabase.com")
+        db_port = os.environ.get("SUPABASE_DB_PORT", "6543")
+        db_name = os.environ.get("SUPABASE_DB_NAME", "postgres")
+        encoded_password = quote(db_password, safe='')
+        return f"postgresql://{db_user}:{encoded_password}@{db_host}:{db_port}/{db_name}"
+    return os.environ.get("DATABASE_URL")
 
-app.config["SQLALCHEMY_DATABASE_URI"] = _encode_database_url(os.environ.get("DATABASE_URL"))
+app.config["SQLALCHEMY_DATABASE_URI"] = _build_database_url()
 app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
     "pool_pre_ping": True,
     "poolclass": NullPool,

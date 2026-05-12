@@ -8,7 +8,6 @@ from datetime import datetime
 from slugify import slugify
 from utils import convert_url_to_dropbox_direct
 from cache_manager import cache_result, CacheManager, RSSCacheManager
-from extended_cache import long_term_cache, UltraLongCache
 from query_optimizer import QueryOptimizer
 import logging
 import csv

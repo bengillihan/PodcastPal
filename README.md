@@ -73,7 +73,6 @@ routes.py               All HTTP route handlers
 feed_generator.py       RSS XML generation; recurring episode year-shifting; Dropbox file-size fetching
 query_optimizer.py      SQL for RSS queries (respects per-feed retention); LRU-cached count helpers
 cache_manager.py        Thread-safe in-memory caches: CacheManager and RSSCacheManager
-extended_cache.py       File-based persistent cache (PersistentCache) and UltraLongCache
 connection_manager.py   DB session context manager with 30s statement timeout and idle-transaction guard
 session_manager.py      Background thread — disposes idle DB connections every 30 min
 google_auth.py          Google OAuth blueprint (login, callback, logout)

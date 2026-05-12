@@ -115,6 +115,24 @@ with app.app_context():
                 END $$;
             """))
 
+            # One-time migration: set all_recurring=TRUE for all feeds except
+            # "other summaries" and "other ccfw/awan" feeds, but only if no
+            # feed has been set to TRUE yet (guards against re-applying).
+            db.session.execute(db.text("""
+                DO $$
+                BEGIN
+                    IF NOT EXISTS (SELECT 1 FROM feed WHERE all_recurring = TRUE)
+                       AND EXISTS (SELECT 1 FROM feed) THEN
+                        UPDATE feed
+                        SET all_recurring = TRUE
+                        WHERE LOWER(name) NOT LIKE '%other summaries%'
+                          AND LOWER(name) NOT LIKE '%other ccfw%'
+                          AND LOWER(name) NOT LIKE '%other awan%';
+                        RAISE NOTICE 'Applied initial all_recurring migration';
+                    END IF;
+                END $$;
+            """))
+
             # Drop the redundant ix_feed_url_slug index — the unique constraint
             # feed_url_slug_key already creates an index on url_slug.
             db.session.execute(db.text("""

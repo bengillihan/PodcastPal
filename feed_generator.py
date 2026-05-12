@@ -254,8 +254,9 @@ def _generate_rss_content(feed, force=False):
                         else:
                             logger.warning(f"Unexpected date error for recurring episode '{ep.title}', using original: {ep_release_date}")
                 
-                # Only include episodes within the lookback window
-                if ep_release_date >= lookback_date and ep_release_date <= current_time:
+                # Recurring episodes bypass the lookback window (date already shifted to current/prev year)
+                # Non-recurring episodes must fall within the retention period
+                if ep.is_recurring or (ep_release_date >= lookback_date and ep_release_date <= current_time):
                     # Create a new episode object with the updated release_date since namedtuple is immutable
                     updated_ep = EpisodeData(
                         ep.id,

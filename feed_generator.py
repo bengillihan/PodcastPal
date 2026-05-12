@@ -154,7 +154,8 @@ def _generate_rss_content(feed, force=False):
         
         with ConnectionManager.efficient_session():
             retention_days = feed.retention_period if hasattr(feed, 'retention_period') and feed.retention_period else 90
-            episodes_data = QueryOptimizer.optimize_rss_query(feed.id, retention_days)
+            feed_all_recurring = bool(getattr(feed, 'all_recurring', False))
+            episodes_data = QueryOptimizer.optimize_rss_query(feed.id, retention_days, all_recurring=feed_all_recurring)
             logger.debug(f"Total episodes to process: {len(episodes_data)}")
 
         rss = ET.Element('rss', version='2.0')
@@ -223,7 +224,7 @@ def _generate_rss_content(feed, force=False):
                 ep_release_date = TIMEZONE.localize(ep.release_date) if ep.release_date.tzinfo is None else ep.release_date.astimezone(TIMEZONE)
 
                 # For recurring episodes, update the year to make them appear annually
-                if ep.is_recurring:
+                if ep.is_recurring or feed_all_recurring:
                     try:
                         # Calculate the date in the current year
                         current_year_date = ep_release_date.replace(year=current_time.year)
@@ -255,7 +256,7 @@ def _generate_rss_content(feed, force=False):
                 
                 # Recurring episodes bypass the lookback window (date already shifted to current/prev year)
                 # Non-recurring episodes must fall within the retention period
-                if ep.is_recurring or (ep_release_date >= lookback_date and ep_release_date <= current_time):
+                if ep.is_recurring or feed_all_recurring or (ep_release_date >= lookback_date and ep_release_date <= current_time):
                     # Create a new episode object with the updated release_date since namedtuple is immutable
                     updated_ep = EpisodeData(
                         ep.id,

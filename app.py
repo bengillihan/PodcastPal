@@ -101,6 +101,20 @@ with app.app_context():
                     END IF;
                 END $$;
             """))
+            # Add all_recurring column if it doesn't exist
+            db.session.execute(db.text("""
+                DO $$
+                BEGIN
+                    IF NOT EXISTS (
+                        SELECT 1 FROM information_schema.columns
+                        WHERE table_name = 'feed' AND column_name = 'all_recurring'
+                    ) THEN
+                        ALTER TABLE feed ADD COLUMN all_recurring BOOLEAN DEFAULT FALSE;
+                        RAISE NOTICE 'Added all_recurring column to feed table';
+                    END IF;
+                END $$;
+            """))
+
             # Drop the redundant ix_feed_url_slug index — the unique constraint
             # feed_url_slug_key already creates an index on url_slug.
             db.session.execute(db.text("""

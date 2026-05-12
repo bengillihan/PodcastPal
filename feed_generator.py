@@ -152,10 +152,9 @@ def _generate_rss_content(feed, force=False):
     try:
         logger.info(f"Starting RSS feed generation for: {feed.name}")
         
-        # Use optimized query to limit database load
         with ConnectionManager.efficient_session():
-            # Limit episodes to most recent 50 to reduce processing time
-            episodes_data = QueryOptimizer.optimize_rss_query(feed.id)
+            retention_days = feed.retention_period if hasattr(feed, 'retention_period') and feed.retention_period else 90
+            episodes_data = QueryOptimizer.optimize_rss_query(feed.id, retention_days)
             logger.debug(f"Total episodes to process: {len(episodes_data)}")
 
         rss = ET.Element('rss', version='2.0')
@@ -221,7 +220,7 @@ def _generate_rss_content(feed, force=False):
         
         for ep in episodes:
             try:
-                ep_release_date = ep.release_date.replace(tzinfo=TIMEZONE) if ep.release_date.tzinfo is None else ep.release_date
+                ep_release_date = TIMEZONE.localize(ep.release_date) if ep.release_date.tzinfo is None else ep.release_date.astimezone(TIMEZONE)
 
                 # For recurring episodes, update the year to make them appear annually
                 if ep.is_recurring:

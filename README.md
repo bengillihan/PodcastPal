@@ -1,120 +1,137 @@
 # PodcastPal
 
-PodcastPal is a multi-user podcast RSS feed management application that simplifies podcast content creation, distribution, and discovery. Create and manage your podcast feeds with easy-to-use tools for uploading episodes and generating RSS feeds compatible with major podcast platforms.
+A personal web app that turns Dropbox audio files into podcast RSS feeds, subscribable in any podcast app (Apple Podcasts, Overcast, Pocket Casts, etc.).
 
-## Features
+---
 
-- Google OAuth authentication for secure user management
-- Dynamic RSS feed generation with media URL handling
-- Support for Dropbox and Google Drive media hosting
-- Bulk episode upload via CSV
-- Individual episode management
-- Personalized podcast feed management
-- Responsive web interface
+## What it does
 
-## Setup Instructions
+1. Upload audio files to Dropbox and copy their share links.
+2. Create a **Feed** in PodcastPal (name, description, optional cover image, retention window).
+3. Add **Episodes** to the feed — Dropbox audio URL, title, release date, and an optional **recurring** flag.
+4. PodcastPal generates a valid RSS 2.0 / iTunes podcast feed at `/feed/<slug>/rss`.
+5. Paste that URL into any podcast app to subscribe.
 
-### Prerequisites
+---
 
-- Python 3.11+
-- PostgreSQL database
-- Google OAuth credentials
+## Stack
 
-### Environment Variables
+| Layer | Technology | Why |
+| --- | --- | --- |
+| Web framework | Flask | Lightweight; fits a single-user personal app |
+| Database | Supabase (PostgreSQL) | Free tier managed Postgres with PgBouncer connection pooling |
+| Auth | Google OAuth 2.0 | No password management needed for a personal app |
+| Audio storage | Dropbox | Free storage; direct-download links work as RSS enclosures |
+| Hosting | Railway | Simple deploy from GitHub on the free tier |
 
-Set up the following environment variables in your Replit Secrets:
+---
 
+## Key design decisions
+
+### NullPool for SQLAlchemy
+
+`app.py` uses `NullPool` instead of a connection pool. Supabase port `6543` is PgBouncer in **transaction mode**, which already manages pooling server-side. Adding a client-side pool on top would waste connections. NullPool opens and closes one connection per request, which is the correct pattern for a PgBouncer transaction-mode setup.
+
+### Two-layer RSS cache
+
+RSS generation is slow because it fetches the file size of every Dropbox audio file over HTTP (required for podcast `<enclosure>` tags). To avoid hitting Dropbox on every subscriber poll, there are two caches:
+
+1. **`RSSCacheManager`** (`cache_manager.py`) — in-memory dict, 24-hour TTL. Checked first; if it hits, no generation happens at all.
+2. **`_feed_cache`** (`feed_generator.py`) — secondary in-memory dict inside the generator, refreshes daily at 3:00 AM PT.
+
+`_invalidate_feed_caches(feed_id)` in `routes.py` clears both whenever a feed or episode is created, edited, or deleted. Both caches use `threading.RLock` because the maintenance background thread runs concurrently with request handlers.
+
+### Recurring episodes
+
+Episodes marked `is_recurring = True` are evergreen — designed to reappear every year (annual sermons, seasonal content, etc.). The RSS generator shifts the `release_date` to the current calendar year, or to the previous year if the date hasn't occurred yet this year. Recurring episodes **bypass the retention-period filter** and are always included in the feed regardless of their original date.
+
+### Retention period
+
+Each feed has a `retention_period` in days (default 90). Non-recurring episodes older than that window are excluded from the RSS feed. The cutoff is enforced in the SQL query (`query_optimizer.py`) so the database does the filtering, not Python. Each feed can have a different retention period — daily content (Daily Drucker, Daily Tozer) uses 30 days; Bible Biographies uses 365 days.
+
+### Dropbox URL conversion
+
+Dropbox share links (ending in `?dl=0`) don't serve audio directly — podcast apps need a direct-download URL. `utils.py` rewrites them to `dl.dropboxusercontent.com` URLs that stream without redirecting. Conversion happens at episode save time (stored in the DB) and again at RSS generation time as a safety net for any links that slipped through.
+
+### Startup migrations
+
+`app.py` runs idempotent `DO $$ ... END $$` blocks on every startup to add missing columns and drop redundant indexes. No separate migration tool (Alembic, etc.) is needed — Railway deploys just work. Adding new columns in the future means adding another `DO` block here.
+
+### Google OAuth only
+
+No username/password auth. The app is built for one user, so Google OAuth via `google_auth.py` is the simplest secure option.
+
+---
+
+## File structure
+
+```text
+app.py                  Flask app factory, DB init, startup migrations
+main.py                 Entry point — clears conflicting PG env vars, starts Flask
+models.py               SQLAlchemy models: User, Feed, Episode
+routes.py               All HTTP route handlers
+feed_generator.py       RSS XML generation; recurring episode year-shifting; Dropbox file-size fetching
+query_optimizer.py      SQL for RSS queries (respects per-feed retention); LRU-cached count helpers
+cache_manager.py        Thread-safe in-memory caches: CacheManager and RSSCacheManager
+extended_cache.py       File-based persistent cache (PersistentCache) and UltraLongCache
+connection_manager.py   DB session context manager with 30s statement timeout and idle-transaction guard
+session_manager.py      Background thread — disposes idle DB connections every 30 min
+google_auth.py          Google OAuth blueprint (login, callback, logout)
+utils.py                Dropbox URL rewriting helper
+start_server.sh         Railway start script — unsets conflicting PG env vars, runs main.py
+templates/              Jinja2 HTML templates
+static/                 JS and CSS assets
 ```
-DATABASE_URL=postgresql://[username]:[password]@[host]:[port]/[database]
-GOOGLE_OAUTH_PROD_CLIENT_ID=[your-google-oauth-client-id]
-GOOGLE_OAUTH_PROD_CLIENT_SECRET=[your-google-oauth-client-secret]
+
+---
+
+## Environment variables
+
+Set these in Railway → Variables:
+
+| Variable | Purpose |
+| --- | --- |
+| `SUPABASE_DB_PASSWORD` | Used by `app.py` to build the DB connection string |
+| `DATABASE_URL` | Fallback if `SUPABASE_DB_PASSWORD` is not set |
+| `FLASK_SECRET_KEY` | Flask session signing key |
+| `GOOGLE_OAUTH_PROD_CLIENT_ID` | Google OAuth client ID |
+| `GOOGLE_OAUTH_PROD_CLIENT_SECRET` | Google OAuth client secret |
+| `SESSION_SECRET` | Additional session secret |
+
+`SUPABASE_DB_HOST`, `SUPABASE_DB_PORT`, `SUPABASE_DB_USER`, and `SUPABASE_DB_NAME` default to the current Supabase project values in `app.py` and can be overridden if the project is migrated.
+
+---
+
+## Database schema
+
+| Table | Key columns |
+| --- | --- |
+| `user` | `id`, `google_id`, `email`, `name` |
+| `feed` | `id`, `user_id`, `name`, `url_slug` (unique), `image_url`, `retention_period`, `last_rss_access` |
+| `episode` | `id`, `feed_id`, `title`, `audio_url`, `release_date`, `is_recurring` |
+
+Indexes cover every common query path: `feed.user_id`, `feed.url_slug` (unique constraint creates its own index), and composite `(episode.feed_id, episode.release_date)`.
+
+---
+
+## RSS feed URL
+
+```text
+https://<your-railway-domain>/feed/<url-slug>/rss
 ```
 
-### Google OAuth Setup
+The slug is shown on the feed details page. Use "Regenerate URL" if you need a new one (e.g., after sharing the old one publicly).
 
-1. Go to [Google Cloud Console](https://console.cloud.google.com/apis/credentials)
-2. Create a new project or select an existing one
-3. Configure the OAuth consent screen
-4. Create OAuth 2.0 Client credentials
-5. Add authorized redirect URIs:
-   - `https://[your-replit-domain]/google_login/callback`
+---
 
-### Running the Application
+## CSV bulk upload
 
-The application will automatically start when you run the Replit project. It runs on port 5000 and includes:
-- Flask web server
-- PostgreSQL database connection
-- Google OAuth authentication
+Download the template from any feed's detail page. Columns:
 
-## Usage Guide
-
-### Creating a New Podcast Feed
-
-1. Log in using your Google account
-2. Click "Create New Feed" on the dashboard
-3. Fill in the feed details:
-   - Name
-   - Description
-   - Podcast Image URL (optional)
-
-### Adding Episodes
-
-#### Individual Episodes
-
-1. Navigate to your feed
-2. Click "Add Episode"
-3. Fill in episode details:
-   - Title
-   - Description
-   - Audio URL (Dropbox or Google Drive)
-   - Release Date
-
-#### Bulk Upload via CSV
-
-1. Use the provided CSV template (`episode_template.csv`)
-2. Format:
-```csv
-title,description,audio_url,release_date,is_recurring
-Example Episode,Description here,https://your-audio-url.mp3,MM/DD/YY HH:MM,FALSE
+```text
+title, description, audio_url, release_date, is_recurring
 ```
-3. Upload the CSV file through the bulk upload interface
 
-### Managing Audio Files
-
-- **Dropbox Links**: The application automatically converts Dropbox sharing links to direct download URLs
-- **File Formats**: Support MP3 audio files
-- **File Hosting**: Use Dropbox or Google Drive for hosting audio files
-
-## Troubleshooting
-
-### Common Issues
-
-1. **OAuth Login Errors**
-   - Verify Google OAuth credentials are correctly set in environment variables
-   - Ensure authorized redirect URIs are properly configured in Google Cloud Console
-   - Check if you're using the correct OAuth client ID and secret for your environment
-
-2. **Audio URL Issues**
-   - For Dropbox: Ensure sharing is enabled and links are accessible
-   - Verify URLs are properly formatted
-   - Check if audio files are downloadable without authentication
-
-3. **RSS Feed Problems**
-   - Verify all required episode fields are filled
-   - Check audio file URLs are accessible
-   - Ensure feed image URLs are valid and accessible
-
-### Debugging
-
-- Check the application logs for detailed error messages
-- Verify environment variables are properly set
-- Ensure database connection is active
-- Test audio file URLs in a browser to confirm accessibility
-
-## Support
-
-For additional support or to report issues:
-1. Check the troubleshooting guide above
-2. Review application logs for specific error messages
-3. Ensure all configuration steps are completed
-4. Contact support if issues persist
+- `release_date` format: `YYYY-MM-DD HH:MM` or `MM/DD/YY HH:MM`
+- `is_recurring`: `TRUE` or `FALSE`
+- `audio_url`: standard Dropbox share link — the app converts it automatically

@@ -101,6 +101,21 @@ with app.app_context():
                     END IF;
                 END $$;
             """))
+            # Drop the redundant ix_feed_url_slug index — the unique constraint
+            # feed_url_slug_key already creates an index on url_slug.
+            db.session.execute(db.text("""
+                DO $$
+                BEGIN
+                    IF EXISTS (
+                        SELECT 1 FROM pg_indexes
+                        WHERE schemaname = 'public' AND indexname = 'ix_feed_url_slug'
+                    ) THEN
+                        DROP INDEX ix_feed_url_slug;
+                        RAISE NOTICE 'Dropped redundant ix_feed_url_slug index';
+                    END IF;
+                END $$;
+            """))
+
             db.session.commit()
             logger.info("Database migrations completed successfully")
         except Exception as e:

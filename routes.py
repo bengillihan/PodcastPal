@@ -9,6 +9,7 @@ from slugify import slugify
 from utils import convert_url_to_dropbox_direct
 from cache_manager import cache_result, CacheManager, RSSCacheManager
 from extended_cache import long_term_cache, UltraLongCache
+from query_optimizer import QueryOptimizer
 import logging
 import csv
 from io import StringIO
@@ -18,17 +19,22 @@ from sqlalchemy.orm import joinedload, selectinload
 
 logger = logging.getLogger(__name__)
 
+def _invalidate_feed_caches(feed_id):
+    """Clear all RSS caches for a feed in one place."""
+    RSSCacheManager.invalidate_feed(feed_id)
+    if feed_id in _feed_cache:
+        del _feed_cache[feed_id]
+
 @app.route('/')
 def index():
     return render_template('index.html')
 
 @app.route('/dashboard')
 @login_required
-@long_term_cache(hours=2)  # Cache dashboard for 2 hours per user
 def dashboard():
     from connection_manager import ConnectionManager
-    
-    page = request.args.get('page', 1, type=int)
+
+    page = max(1, request.args.get('page', 1, type=int))
     per_page = 10  # Number of feeds per page
     
     # Use efficient session context manager
@@ -112,6 +118,7 @@ def new_feed():
             )
             db.session.add(feed)
             db.session.commit()
+            QueryOptimizer.cleanup_query_cache()
             logger.info(f"Created new feed: {feed.name} with slug: {feed.url_slug} and image: {feed.image_url}")
             flash('Feed created successfully!', 'success')
             return redirect(url_for('dashboard'))
@@ -149,12 +156,9 @@ def new_episode(feed_id):
                 is_recurring=bool(request.form.get('is_recurring'))
             )
             db.session.add(episode)
-
-            if feed_id in _feed_cache:
-                del _feed_cache[feed_id]
-                logger.info(f"Cleared RSS feed cache for feed_id: {feed_id}")
-
             db.session.commit()
+            _invalidate_feed_caches(feed_id)
+            QueryOptimizer.cleanup_query_cache()
             flash('Episode added successfully!', 'success')
             return redirect(url_for('feed_details', feed_id=feed_id))
         except Exception as e:
@@ -215,13 +219,8 @@ def edit_feed(feed_id):
 
             feed.image_url = image_url if image_url else None
 
-            # Clear the cache when feed is updated
-            RSSCacheManager.invalidate_feed(feed_id)
-            if feed_id in _feed_cache:
-                del _feed_cache[feed_id]
-                logger.info(f"Cleared RSS feed cache for feed_id: {feed_id}")
-
             db.session.commit()
+            _invalidate_feed_caches(feed_id)
             logger.info(f"Updated feed: {feed.name} with image: {feed.image_url}, retention_period: {feed.retention_period}")
             flash('Feed updated successfully!', 'success')
             return redirect(url_for('dashboard'))
@@ -257,6 +256,8 @@ def edit_episode(feed_id, episode_id):
             episode.is_recurring = bool(request.form.get('is_recurring'))
 
             db.session.commit()
+            _invalidate_feed_caches(feed_id)
+            QueryOptimizer.cleanup_query_cache()
             flash('Episode updated successfully!', 'success')
             return redirect(url_for('feed_details', feed_id=feed_id))
         except Exception as e:
@@ -278,14 +279,9 @@ def delete_episode(feed_id, episode_id):
 
     try:
         db.session.delete(episode)
-        
-        # Clear RSS cache for this feed
-        RSSCacheManager.invalidate_feed(feed_id)
-        if feed_id in _feed_cache:
-            del _feed_cache[feed_id]
-            logger.info(f"Cleared RSS feed cache for feed_id: {feed_id}")
-        
         db.session.commit()
+        _invalidate_feed_caches(feed_id)
+        QueryOptimizer.cleanup_query_cache()
         flash('Episode deleted successfully!', 'success')
     except Exception as e:
         logger.error(f"Error deleting episode: {str(e)}")
@@ -303,9 +299,8 @@ def feed_details(feed_id):
         # Single query to get feed and verify ownership
         feed = Feed.query.filter_by(id=feed_id, user_id=current_user.id).first_or_404()
             
-        # Add pagination for episodes
-        page = request.args.get('page', 1, type=int)
-        per_page = 15  # Number of episodes per page
+        page = max(1, request.args.get('page', 1, type=int))
+        per_page = 15
         
         # Get episodes with pagination - using single query with all needed data
         episodes_pagination = Episode.query.filter_by(feed_id=feed_id) \
@@ -330,17 +325,11 @@ def delete_feed(feed_id):
     feed = Feed.query.filter_by(id=feed_id, user_id=current_user.id).first_or_404()
 
     try:
-        # Use bulk delete for episodes (more efficient than individual deletes)
         Episode.query.filter_by(feed_id=feed.id).delete()
-        
-        # Clear RSS cache before deleting feed
-        RSSCacheManager.invalidate_feed(feed_id)
-        if feed_id in _feed_cache:
-            del _feed_cache[feed_id]
-            logger.info(f"Cleared RSS feed cache for feed_id: {feed_id}")
-        
         db.session.delete(feed)
         db.session.commit()
+        _invalidate_feed_caches(feed_id)
+        QueryOptimizer.cleanup_query_cache()
         flash('Feed deleted successfully!', 'success')
     except Exception as e:
         logger.error(f"Error deleting feed: {str(e)}")
@@ -471,6 +460,8 @@ def upload_episodes_csv(feed_id):
                 continue
 
         db.session.commit()
+        _invalidate_feed_caches(feed_id)
+        QueryOptimizer.cleanup_query_cache()
 
         if episodes_failed > 0:
             flash(f'Added {episodes_added} episodes, {episodes_failed} failed', 'warning')
@@ -512,12 +503,7 @@ def refresh_feed(feed_id):
         abort(403)
 
     try:
-        # Force clear the cache for this feed (manual refresh)
-        if feed_id in _feed_cache:
-            del _feed_cache[feed_id]
-            logger.info(f"Manually cleared RSS feed cache for feed_id: {feed_id}")
-
-        # Force regenerate feed content by bypassing cache check
+        _invalidate_feed_caches(feed_id)
         from feed_generator import generate_rss_feed_force
         generate_rss_feed_force(feed)
         flash('Feed refreshed successfully! Changes will be visible immediately.', 'success')
@@ -569,8 +555,8 @@ def export_episodes(feed_id):
 @login_required
 def search_episodes():
     query = request.args.get('q', '').strip()
-    page = request.args.get('page', 1, type=int)
-    per_page = 20  # Number of search results per page
+    page = max(1, request.args.get('page', 1, type=int))
+    per_page = 20
     
     if query:
         # Search through episodes in user's feeds with pagination
@@ -594,44 +580,3 @@ def search_episodes():
     # If no query, just show the empty search page
     return render_template('search.html', query='', results=[])
 
-@app.route('/ping-status')
-def ping_status():
-    """Simple monitoring route to check database ping status"""
-    from database_ping import database_pinger
-    from flask import jsonify
-    
-    try:
-        status = database_pinger.get_last_ping_status()
-        if status:
-            return jsonify({
-                'status': 'active',
-                'last_ping': status['last_ping'].isoformat() if status['last_ping'] else None,
-                'ping_result': status['status'],
-                'message': 'Database ping service is running'
-            })
-        else:
-            return jsonify({
-                'status': 'running',
-                'message': 'Database ping service is active (no ping history yet)'
-            })
-    except Exception as e:
-        return jsonify({
-            'status': 'error',
-            'message': f'Could not check ping status: {str(e)}'
-        }), 500
-
-@app.route('/manual-ping')
-@login_required
-def manual_ping():
-    """Manually trigger a database ping to keep Supabase active"""
-    from database_ping import database_pinger
-    
-    try:
-        database_pinger._perform_ping()
-        flash('Database pinged successfully! Supabase will stay active.', 'success')
-        logger.info(f"Manual database ping triggered by user {current_user.id}")
-    except Exception as e:
-        logger.error(f"Manual ping failed: {str(e)}")
-        flash(f'Ping failed: {str(e)}', 'error')
-    
-    return redirect(request.referrer or url_for('dashboard'))

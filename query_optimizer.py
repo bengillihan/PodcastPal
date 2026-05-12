@@ -41,22 +41,24 @@ class QueryOptimizer:
         return {feed_id: count for feed_id, count in counts}
     
     @staticmethod
-    def optimize_rss_query(feed_id):
-        """Optimized query for RSS feed generation - recurring episodes plus recent non-recurring"""
+    def optimize_rss_query(feed_id, retention_days=90):
+        """Optimized query for RSS feed generation - recurring episodes plus recent non-recurring.
+        Recurring episodes are fetched without a date filter; the caller handles year-shifting.
+        Non-recurring episodes are limited to the feed's retention window."""
         query = text("""
             (SELECT id, title, description, audio_url, release_date, is_recurring
-             FROM episode 
+             FROM episode
              WHERE feed_id = :feed_id AND is_recurring = true)
             UNION ALL
             (SELECT id, title, description, audio_url, release_date, is_recurring
-             FROM episode 
+             FROM episode
              WHERE feed_id = :feed_id AND is_recurring = false
-             AND release_date >= NOW() - INTERVAL '90 days' AND release_date <= NOW()
+             AND release_date >= NOW() - INTERVAL '1 day' * :retention_days AND release_date <= NOW()
              ORDER BY release_date DESC
              LIMIT 100)
         """)
-        
-        result = db.session.execute(query, {'feed_id': feed_id})
+
+        result = db.session.execute(query, {'feed_id': feed_id, 'retention_days': retention_days})
         return result.fetchall()
     
     @staticmethod

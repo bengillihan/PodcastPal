@@ -4,6 +4,7 @@ Extended caching system for maximum database compute reduction
 import logging
 import json
 import os
+import threading
 from datetime import datetime, timedelta
 from functools import wraps
 
@@ -111,46 +112,46 @@ def long_term_cache(hours=24):
 
 class UltraLongCache:
     """Ultra-long term caching for rarely changing data"""
-    
+
     _ultra_cache = {}
     _ultra_timestamps = {}
-    
+    _lock = threading.RLock()
+
     @classmethod
     def get(cls, key, max_age_days=7):
         """Get ultra-long cached value (default 7 days)"""
-        if key in cls._ultra_cache and key in cls._ultra_timestamps:
-            cache_time = cls._ultra_timestamps[key]
-            if datetime.now() - cache_time < timedelta(days=max_age_days):
-                return cls._ultra_cache[key]
-            else:
-                cls._ultra_cache.pop(key, None)
-                cls._ultra_timestamps.pop(key, None)
+        with cls._lock:
+            if key in cls._ultra_cache and key in cls._ultra_timestamps:
+                cache_time = cls._ultra_timestamps[key]
+                if datetime.now() - cache_time < timedelta(days=max_age_days):
+                    return cls._ultra_cache[key]
+                else:
+                    cls._ultra_cache.pop(key, None)
+                    cls._ultra_timestamps.pop(key, None)
         return None
-    
+
     @classmethod
     def set(cls, key, value):
         """Set ultra-long cached value"""
-        cls._ultra_cache[key] = value
-        cls._ultra_timestamps[key] = datetime.now()
-        
-        # Limit cache size
-        if len(cls._ultra_cache) > 50:
-            cls._cleanup_oldest()
-    
+        with cls._lock:
+            cls._ultra_cache[key] = value
+            cls._ultra_timestamps[key] = datetime.now()
+            if len(cls._ultra_cache) > 50:
+                cls._cleanup_oldest()
+
     @classmethod
     def _cleanup_oldest(cls):
-        """Remove oldest entries"""
+        """Remove oldest entries — must be called with lock held."""
         if not cls._ultra_timestamps:
             return
-        
-        # Remove oldest 10 entries
         sorted_items = sorted(cls._ultra_timestamps.items(), key=lambda x: x[1])
         for key, _ in sorted_items[:10]:
             cls._ultra_cache.pop(key, None)
             cls._ultra_timestamps.pop(key, None)
-    
+
     @classmethod
     def invalidate(cls, key):
         """Manually invalidate specific cache entry"""
-        cls._ultra_cache.pop(key, None)
-        cls._ultra_timestamps.pop(key, None)
+        with cls._lock:
+            cls._ultra_cache.pop(key, None)
+            cls._ultra_timestamps.pop(key, None)

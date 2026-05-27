@@ -52,7 +52,6 @@ class QueryOptimizer:
                 FROM episode
                 WHERE feed_id = :feed_id
                 ORDER BY release_date DESC
-                LIMIT 100
             """)
             result = db.session.execute(query, {'feed_id': feed_id})
         else:

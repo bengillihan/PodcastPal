@@ -8,6 +8,10 @@ from datetime import datetime, timedelta
 import pytz
 from flask import g
 
+_CACHE_TIMEZONE = pytz.timezone('America/Los_Angeles')
+# Must stay in sync with feed_generator.REFRESH_TIMES
+_RSS_REFRESH_TIMES = [(3, 0), (9, 30)]
+
 logger = logging.getLogger(__name__)
 
 class CacheManager:
@@ -88,16 +92,29 @@ class RSSCacheManager:
     _lock = threading.RLock()
 
     @classmethod
+    def _refresh_time_passed_since(cls, cache_time):
+        """Return True if a scheduled refresh time has passed since cache_time."""
+        now = datetime.now(_CACHE_TIMEZONE)
+        cache_time_local = cache_time.astimezone(_CACHE_TIMEZONE) if cache_time.tzinfo else _CACHE_TIMEZONE.localize(cache_time)
+        for hour, minute in _RSS_REFRESH_TIMES:
+            refresh_point = now.replace(hour=hour, minute=minute, second=0, microsecond=0)
+            if cache_time_local < refresh_point <= now:
+                return True
+        return False
+
+    @classmethod
     def get_feed_cache(cls, feed_id):
         """Get cached RSS feed content"""
         with cls._lock:
             if feed_id in cls._rss_cache and feed_id in cls._rss_timestamps:
                 cache_time = cls._rss_timestamps[feed_id]
-                if datetime.now() - cache_time < timedelta(hours=24):
-                    return cls._rss_cache[feed_id]
-                else:
+                now = datetime.now()
+                stale = (now - cache_time >= timedelta(hours=24)) or cls._refresh_time_passed_since(cache_time)
+                if stale:
                     cls._rss_cache.pop(feed_id, None)
                     cls._rss_timestamps.pop(feed_id, None)
+                else:
+                    return cls._rss_cache[feed_id]
         return None
 
     @classmethod

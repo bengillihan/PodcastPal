@@ -18,7 +18,8 @@ TIMEZONE = pytz.timezone('America/Los_Angeles')  # Pacific Time
 
 # Define refresh times (daily refresh to minimize autoscale requests)
 REFRESH_TIMES = [
-    (3, 0),   # 3:00 AM PT - single daily refresh during low traffic
+    (3, 0),   # 3:00 AM PT - low traffic refresh
+    (9, 30),  # 9:30 AM PT - catches episodes released at 8:30 AM PT (15:30 UTC)
 ]
 
 def get_next_refresh_time(current_time):

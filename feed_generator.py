@@ -102,12 +102,13 @@ def _is_url_allowed(url):
         return False
 
 def get_file_size(url):
-    """Get file size in bytes from URL"""
+    """Get file size in bytes from URL via HEAD request with timeout."""
     try:
         if not _is_url_allowed(url):
             logger.warning(f"Blocked request to disallowed URL: {url}")
             return "0"
-        response = urllib.request.urlopen(url)
+        req = urllib.request.Request(url, method='HEAD')
+        response = urllib.request.urlopen(req, timeout=10)
         size = response.headers.get('Content-Length')
         if size:
             return size
@@ -216,7 +217,7 @@ def _generate_rss_content(feed, force=False):
 
         # Convert raw data to episode-like objects for processing
         from collections import namedtuple
-        EpisodeData = namedtuple('EpisodeData', ['id', 'title', 'description', 'audio_url', 'release_date', 'is_recurring'])
+        EpisodeData = namedtuple('EpisodeData', ['id', 'title', 'description', 'audio_url', 'release_date', 'is_recurring', 'file_size'])
         
         episodes = [EpisodeData(*row) for row in episodes_data]
         
@@ -265,7 +266,8 @@ def _generate_rss_content(feed, force=False):
                         ep.description,
                         ep.audio_url,
                         ep_release_date,
-                        ep.is_recurring
+                        ep.is_recurring,
+                        ep.file_size
                     )
                     updated_episodes.append(updated_ep)
                 else:
@@ -284,7 +286,8 @@ def _generate_rss_content(feed, force=False):
 
         logger.info(f"Processing {len(sorted_episodes)} episodes for feed '{feed.name}' (from last {lookback_days} days)")
 
-        episode_sizes = dict(fetch_file_size_concurrent(sorted_episodes))
+        # Use stored file sizes — avoids live Dropbox requests on every RSS generation
+        episode_sizes = {ep: str(ep.file_size) if ep.file_size else "0" for ep in sorted_episodes}
 
         for episode in sorted_episodes:
             try:

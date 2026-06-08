@@ -57,6 +57,7 @@ class Episode(db.Model):
     audio_url = db.Column(db.String(500), nullable=False)
     release_date = db.Column(db.DateTime, nullable=False)
     is_recurring = db.Column(db.Boolean, default=False)
+    file_size = db.Column(db.Integer, nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     __table_args__ = (

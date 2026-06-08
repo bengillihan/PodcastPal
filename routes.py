@@ -3,7 +3,7 @@ from flask import render_template, redirect, url_for, request, abort, flash
 from flask_login import login_required, current_user
 from app import app, db
 from models import Feed, Episode
-from feed_generator import generate_rss_feed, _feed_cache, TIMEZONE, get_next_refresh_time
+from feed_generator import generate_rss_feed, _feed_cache, TIMEZONE, get_next_refresh_time, get_file_size
 from datetime import datetime
 from slugify import slugify
 from utils import convert_url_to_dropbox_direct
@@ -23,6 +23,17 @@ def _invalidate_feed_caches(feed_id):
     RSSCacheManager.invalidate_feed(feed_id)
     if feed_id in _feed_cache:
         del _feed_cache[feed_id]
+
+def _fetch_and_store_file_size(episode):
+    """Fetch file size from Dropbox and persist it on the episode row."""
+    try:
+        direct_url = convert_url_to_dropbox_direct(episode.audio_url)
+        size_str = get_file_size(direct_url)
+        size = int(size_str) if size_str and size_str != "0" else None
+        if size:
+            episode.file_size = size
+    except Exception as e:
+        logger.warning(f"Could not fetch file size for episode '{episode.title}': {e}")
 
 @app.route('/')
 def index():
@@ -157,6 +168,8 @@ def new_episode(feed_id):
                 is_recurring=bool(request.form.get('is_recurring'))
             )
             db.session.add(episode)
+            db.session.flush()  # get episode.id before commit
+            _fetch_and_store_file_size(episode)
             db.session.commit()
             _invalidate_feed_caches(feed_id)
             QueryOptimizer.cleanup_query_cache()
@@ -252,11 +265,16 @@ def edit_episode(feed_id, episode_id):
             audio_url = request.form['audio_url'].strip()
             if audio_url:
                 audio_url = convert_url_to_dropbox_direct(audio_url)
+            if audio_url != episode.audio_url:
+                episode.audio_url = audio_url
+                episode.file_size = None  # clear cached size so it re-fetches
             episode.audio_url = audio_url
 
             episode.release_date = datetime.strptime(request.form['release_date'], '%Y-%m-%dT%H:%M')
             episode.is_recurring = bool(request.form.get('is_recurring'))
 
+            if not episode.file_size:
+                _fetch_and_store_file_size(episode)
             db.session.commit()
             _invalidate_feed_caches(feed_id)
             QueryOptimizer.cleanup_query_cache()
@@ -513,6 +531,40 @@ def refresh_feed(feed_id):
         logger.error(f"Error refreshing feed: {str(e)}")
         flash('Error refreshing feed. Please try again.', 'error')
 
+    return redirect(url_for('feed_details', feed_id=feed_id))
+
+
+@app.route('/feed/<int:feed_id>/backfill-sizes', methods=['POST'])
+@login_required
+def backfill_file_sizes(feed_id):
+    """Fetch and store file sizes for all episodes that are missing them."""
+    import threading
+    feed = Feed.query.get_or_404(feed_id)
+    if feed.user_id != current_user.id:
+        abort(403)
+
+    episodes = Episode.query.filter_by(feed_id=feed_id).filter(Episode.file_size == None).all()
+
+    def _backfill():
+        from app import app as _app
+        with _app.app_context():
+            updated = 0
+            for ep in episodes:
+                try:
+                    direct_url = convert_url_to_dropbox_direct(ep.audio_url)
+                    size_str = get_file_size(direct_url)
+                    size = int(size_str) if size_str and size_str != "0" else None
+                    if size:
+                        ep.file_size = size
+                        updated += 1
+                except Exception as e:
+                    logger.warning(f"Backfill: could not get size for '{ep.title}': {e}")
+            if updated:
+                db.session.commit()
+                logger.info(f"Backfilled file sizes for {updated} episodes in feed {feed_id}")
+
+    threading.Thread(target=_backfill, daemon=True).start()
+    flash(f'Fetching file sizes for {len(episodes)} episodes in the background.', 'success')
     return redirect(url_for('feed_details', feed_id=feed_id))
 
 

@@ -115,6 +115,20 @@ with app.app_context():
                 END $$;
             """))
 
+            # Add file_size column to episode if it doesn't exist
+            db.session.execute(db.text("""
+                DO $$
+                BEGIN
+                    IF NOT EXISTS (
+                        SELECT 1 FROM information_schema.columns
+                        WHERE table_name = 'episode' AND column_name = 'file_size'
+                    ) THEN
+                        ALTER TABLE episode ADD COLUMN file_size INTEGER;
+                        RAISE NOTICE 'Added file_size column to episode table';
+                    END IF;
+                END $$;
+            """))
+
             # One-time migration: set all_recurring=TRUE for all feeds except
             # "other summaries" and "other ccfw/awan" feeds, but only if no
             # feed has been set to TRUE yet (guards against re-applying).

@@ -48,7 +48,7 @@ class QueryOptimizer:
         If all_recurring is True, all episodes are fetched without a date filter."""
         if all_recurring:
             query = text("""
-                SELECT id, title, description, audio_url, release_date, is_recurring
+                SELECT id, title, description, audio_url, release_date, is_recurring, file_size
                 FROM episode
                 WHERE feed_id = :feed_id
                 ORDER BY release_date DESC
@@ -56,11 +56,11 @@ class QueryOptimizer:
             result = db.session.execute(query, {'feed_id': feed_id})
         else:
             query = text("""
-                (SELECT id, title, description, audio_url, release_date, is_recurring
+                (SELECT id, title, description, audio_url, release_date, is_recurring, file_size
                  FROM episode
                  WHERE feed_id = :feed_id AND is_recurring = true)
                 UNION ALL
-                (SELECT id, title, description, audio_url, release_date, is_recurring
+                (SELECT id, title, description, audio_url, release_date, is_recurring, file_size
                  FROM episode
                  WHERE feed_id = :feed_id AND is_recurring = false
                  AND release_date >= NOW() - INTERVAL '1 day' * :retention_days AND release_date <= NOW()

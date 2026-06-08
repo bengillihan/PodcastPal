@@ -41,6 +41,11 @@
                             <i class="bi bi-arrow-clockwise me-1"></i>Regenerate URL
                         </button>
                     </form>
+                    <form method="POST" action="{{ url_for('backfill_file_sizes', feed_id=feed.id) }}" class="d-inline">
+                        <button type="submit" class="btn btn-outline-secondary" title="Fetch and store audio file sizes (run once per feed)">
+                            <i class="bi bi-hdd me-1"></i>Fetch File Sizes
+                        </button>
+                    </form>
                     <a href="{{ url_for('export_episodes', feed_id=feed.id) }}" class="btn btn-outline-secondary">
                         <i class="bi bi-download me-1"></i>Export Episodes
                     </a>

@@ -9,8 +9,8 @@ import pytz
 from flask import g
 
 _CACHE_TIMEZONE = pytz.timezone('America/Los_Angeles')
-# Must stay in sync with feed_generator.REFRESH_TIMES
-_RSS_REFRESH_TIMES = [(3, 0), (9, 30)]
+# Must stay in sync with feed_generator.REFRESH_TIMES.
+_RSS_REFRESH_TIMES = [(hour, 0) for hour in range(24)]
 
 logger = logging.getLogger(__name__)
 
@@ -108,8 +108,16 @@ class RSSCacheManager:
         with cls._lock:
             if feed_id in cls._rss_cache and feed_id in cls._rss_timestamps:
                 cache_time = cls._rss_timestamps[feed_id]
-                now = datetime.now()
-                stale = (now - cache_time >= timedelta(hours=24)) or cls._refresh_time_passed_since(cache_time)
+                now = datetime.now(_CACHE_TIMEZONE)
+                cache_time_local = (
+                    cache_time.astimezone(_CACHE_TIMEZONE)
+                    if cache_time.tzinfo
+                    else _CACHE_TIMEZONE.localize(cache_time)
+                )
+                stale = (
+                    now - cache_time_local >= timedelta(hours=24)
+                    or cls._refresh_time_passed_since(cache_time_local)
+                )
                 if stale:
                     cls._rss_cache.pop(feed_id, None)
                     cls._rss_timestamps.pop(feed_id, None)
@@ -122,7 +130,7 @@ class RSSCacheManager:
         """Cache RSS feed content"""
         with cls._lock:
             cls._rss_cache[feed_id] = content
-            cls._rss_timestamps[feed_id] = datetime.now()
+            cls._rss_timestamps[feed_id] = datetime.now(_CACHE_TIMEZONE)
             if len(cls._rss_cache) > 50:
                 cls._cleanup_old_feeds()
 

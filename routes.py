@@ -7,7 +7,7 @@ from feed_generator import generate_rss_feed, _feed_cache, TIMEZONE, get_next_re
 from datetime import datetime
 from slugify import slugify
 from utils import convert_url_to_dropbox_direct
-from cache_manager import cache_result, CacheManager, RSSCacheManager
+from cache_manager import RSSCacheManager
 from query_optimizer import QueryOptimizer
 import logging
 import csv
@@ -183,7 +183,6 @@ def new_episode(feed_id):
     return render_template('episode_form.html', feed=feed)
 
 @app.route('/feed/<string:url_slug>/rss')
-@cache_result(ttl_minutes=1440)  # Cache RSS responses for 24 hours to minimize requests
 def rss_feed(url_slug):
     from connection_manager import ConnectionManager
     
@@ -633,4 +632,3 @@ def search_episodes():
     
     # If no query, just show the empty search page
     return render_template('search.html', query='', results=[])
-

@@ -10,17 +10,17 @@ from concurrent.futures import ThreadPoolExecutor
 from functools import lru_cache
 from flask import request
 from models import Episode
+from recurring import effective_annual_release_date
 
 logger = logging.getLogger(__name__)
 
 _feed_cache = {}
 TIMEZONE = pytz.timezone('America/Los_Angeles')  # Pacific Time
 
-# Define refresh times (daily refresh to minimize autoscale requests)
-REFRESH_TIMES = [
-    (3, 0),   # 3:00 AM PT - low traffic refresh
-    (9, 30),  # 9:30 AM PT - catches episodes released at 8:30 AM PT (15:30 UTC)
-]
+# Hourly refreshes ensure an annual occurrence enters the RSS feed shortly
+# after its configured release time. File sizes are stored in the database, so
+# regeneration no longer needs a Dropbox request for every episode.
+REFRESH_TIMES = [(hour, 0) for hour in range(24)]
 
 def get_next_refresh_time(current_time):
     """Get the next refresh time based on current time"""
@@ -227,34 +227,12 @@ def _generate_rss_content(feed, force=False):
 
                 # For recurring episodes, update the year to make them appear annually
                 if ep.is_recurring or feed_all_recurring:
-                    try:
-                        # Calculate the date in the current year
-                        current_year_date = ep_release_date.replace(year=current_time.year)
-                        
-                        # If that date is in the future, use last year's date instead
-                        if current_year_date > current_time:
-                            ep_release_date = ep_release_date.replace(year=current_time.year - 1)
-                            logger.debug(f"Recurring episode '{ep.title}' updated to previous year: {ep_release_date}")
-                        else:
-                            ep_release_date = current_year_date
-                            logger.debug(f"Recurring episode '{ep.title}' updated to current year: {ep_release_date}")
-                    except ValueError:
-                        # Handle leap day (Feb 29) on non-leap years - move to Feb 28
-                        if ep_release_date.month == 2 and ep_release_date.day == 29:
-                            try:
-                                # Try current year with Feb 28
-                                current_year_date = ep_release_date.replace(year=current_time.year, day=28)
-                                if current_year_date > current_time:
-                                    ep_release_date = ep_release_date.replace(year=current_time.year - 1, day=28)
-                                    logger.debug(f"Recurring leap day episode '{ep.title}' moved to Feb 28 of previous year: {ep_release_date}")
-                                else:
-                                    ep_release_date = current_year_date
-                                    logger.debug(f"Recurring leap day episode '{ep.title}' moved to Feb 28 of current year: {ep_release_date}")
-                            except ValueError:
-                                # Fallback: keep original date if all adjustments fail
-                                logger.warning(f"Could not adjust recurring episode '{ep.title}' date, using original: {ep_release_date}")
-                        else:
-                            logger.warning(f"Unexpected date error for recurring episode '{ep.title}', using original: {ep_release_date}")
+                    ep_release_date = effective_annual_release_date(ep_release_date, current_time)
+                    logger.debug(
+                        "Recurring episode '%s' resolved to annual occurrence: %s",
+                        ep.title,
+                        ep_release_date,
+                    )
                 
                 # Recurring episodes bypass the lookback window (date already shifted to current/prev year)
                 # Non-recurring episodes must fall within the retention period

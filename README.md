@@ -36,14 +36,14 @@ A personal web app that turns Dropbox audio files into podcast RSS feeds, subscr
 
 RSS generation is slow because it fetches the file size of every Dropbox audio file over HTTP (required for podcast `<enclosure>` tags). To avoid hitting Dropbox on every subscriber poll, there are two caches:
 
-1. **`RSSCacheManager`** (`cache_manager.py`) — in-memory dict, 24-hour TTL. Checked first; if it hits, no generation happens at all.
-2. **`_feed_cache`** (`feed_generator.py`) — secondary in-memory dict inside the generator, refreshes daily at 3:00 AM PT.
+1. **`RSSCacheManager`** (`cache_manager.py`) — in-memory dict with a 24-hour safety TTL and hourly scheduled refreshes. Checked first; if it hits, no generation happens at all.
+2. **`_feed_cache`** (`feed_generator.py`) — secondary in-memory dict inside the generator, also refreshed hourly.
 
 `_invalidate_feed_caches(feed_id)` in `routes.py` clears both whenever a feed or episode is created, edited, or deleted. Both caches use `threading.RLock` because the maintenance background thread runs concurrently with request handlers.
 
 ### Recurring episodes
 
-Episodes marked `is_recurring = True` are evergreen — designed to reappear every year (annual sermons, seasonal content, etc.). The RSS generator shifts the `release_date` to the current calendar year, or to the previous year if the date hasn't occurred yet this year. Recurring episodes **bypass the retention-period filter** and are always included in the feed regardless of their original date.
+Episodes marked `is_recurring = True` are evergreen — designed to reappear every year (annual sermons, seasonal content, etc.). The stored `release_date` is a stable month/day/time anchor; it does not need to be edited each year. On every hourly RSS refresh, the annual scheduler advances an episode to this year's occurrence once its release time arrives. Until then, the previous year's occurrence remains in the feed so podcast clients are not given a future publication date. The year-specific GUID also changes, causing podcast clients to recognize the new annual occurrence as a new item. Recurring episodes **bypass the retention-period filter** and are always included in the feed regardless of their original date.
 
 ### Retention period
 

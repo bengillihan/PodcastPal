@@ -45,6 +45,8 @@ RSS generation is slow because it fetches the file size of every Dropbox audio f
 
 Episodes marked `is_recurring = True` are evergreen — designed to reappear every year (annual sermons, seasonal content, etc.). The stored `release_date` is a stable month/day/time anchor; it does not need to be edited each year. On every hourly RSS refresh, the annual scheduler advances an episode to this year's occurrence once its release time arrives. Until then, the previous year's occurrence remains in the feed so podcast clients are not given a future publication date. The year-specific GUID also changes, causing podcast clients to recognize the new annual occurrence as a new item. Recurring episodes **bypass the retention-period filter** and are always included in the feed regardless of their original date.
 
+Generated feeds include `lastBuildDate`, a 60-minute RSS `ttl`, and HTTP cache revalidation headers. These freshness signals let existing podcast subscriptions discover annual occurrences without requiring listeners to unfollow and refollow the feed.
+
 ### Retention period
 
 Each feed has a `retention_period` in days (default 90). Non-recurring episodes older than that window are excluded from the RSS feed. The cutoff is enforced in the SQL query (`query_optimizer.py`) so the database does the filtering, not Python. Each feed can have a different retention period — daily content (Daily Drucker, Daily Tozer) uses 30 days; Bible Biographies uses 365 days.

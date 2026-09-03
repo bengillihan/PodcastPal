@@ -4,7 +4,7 @@ from flask_login import login_required, current_user
 from app import app, db
 from models import Feed, Episode
 from feed_generator import generate_rss_feed, _feed_cache, TIMEZONE, get_next_refresh_time, get_file_size
-from datetime import datetime
+from datetime import datetime, timedelta
 from slugify import slugify
 from utils import convert_url_to_dropbox_direct
 from cache_manager import RSSCacheManager
@@ -190,10 +190,19 @@ def rss_feed(url_slug):
         with ConnectionManager.efficient_session():
             # Single query to get feed by slug
             feed = Feed.query.filter_by(url_slug=url_slug).first_or_404()
-            
-            # Update last RSS access timestamp to show activity in Supabase
-            feed.last_rss_access = datetime.now(TIMEZONE)
-            db.session.commit()
+
+            # Keep the activity indicator useful without performing a database
+            # write on every podcast-client poll.
+            current_time = datetime.now(TIMEZONE)
+            last_access = feed.last_rss_access
+            if last_access and last_access.tzinfo is None:
+                last_access = TIMEZONE.localize(last_access)
+            elif last_access:
+                last_access = last_access.astimezone(TIMEZONE)
+
+            if last_access is None or current_time - last_access >= timedelta(hours=1):
+                feed.last_rss_access = current_time
+                db.session.commit()
             
             # Check RSS cache first
             cached_xml = RSSCacheManager.get_feed_cache(feed.id)
@@ -207,8 +216,12 @@ def rss_feed(url_slug):
             xml_content,
             mimetype='application/rss+xml'
         )
-        
-        return response
+        response.cache_control.public = True
+        response.cache_control.max_age = 3600
+        response.cache_control.must_revalidate = True
+        response.add_etag()
+
+        return response.make_conditional(request)
     except Exception as e:
         logger.error(f"Error generating RSS feed: {str(e)}")
         abort(500)

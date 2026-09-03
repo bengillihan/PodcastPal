@@ -153,6 +153,7 @@ def _generate_rss_content(feed, force=False):
 
     try:
         logger.info(f"Starting RSS feed generation for: {feed.name}")
+        current_time = datetime.now(TIMEZONE)
         
         with ConnectionManager.efficient_session():
             retention_days = feed.retention_period if hasattr(feed, 'retention_period') and feed.retention_period else 90
@@ -179,6 +180,15 @@ def _generate_rss_content(feed, force=False):
 
         language = ET.SubElement(channel, 'language')
         language.text = 'en-us'
+
+        # Tell podcast directories when this feed was rebuilt and how often it
+        # is useful to poll. Existing subscriptions can then discover a new
+        # annual occurrence without being removed and added again.
+        last_build_date = ET.SubElement(channel, 'lastBuildDate')
+        last_build_date.text = current_time.strftime('%a, %d %b %Y %H:%M:%S %z')
+
+        ttl = ET.SubElement(channel, 'ttl')
+        ttl.text = '60'
 
         copyright_text = ET.SubElement(channel, 'copyright')
         copyright_text.text = f'Copyright © {datetime.now(TIMEZONE).year} {feed.name}'
@@ -209,7 +219,6 @@ def _generate_rss_content(feed, force=False):
         atom_link.set('rel', 'self')
         atom_link.set('type', 'application/rss+xml')
 
-        current_time = datetime.now(TIMEZONE)
         # Use feed's retention period (in days)
         lookback_days = feed.retention_period if hasattr(feed, 'retention_period') and feed.retention_period else 90
         lookback_date = current_time - timedelta(days=lookback_days)
